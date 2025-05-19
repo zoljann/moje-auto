@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using MojeAuto;
 
-namespace MojeAuto.Controllers;
+namespace MojeAuto.MojeAuto.API.Controllers;
 
 [ApiController]
 [Route("[controller]")]
