@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using MojeAuto.MojeAuto.Services.Database;
+using MojeAuto.Services.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<MojeAutoContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("MojeAutoConnection")));
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
