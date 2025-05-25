@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MojeAuto.Model;
 using MojeAuto.Model.Requests;
-using MojeAuto.Services;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace MojeAuto.API.Controllers
 {

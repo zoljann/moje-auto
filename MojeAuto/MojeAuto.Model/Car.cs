@@ -1,12 +1,19 @@
-﻿namespace MojeAuto.Model
+﻿using System.ComponentModel.DataAnnotations;
+
+public class Car
 {
-    public class Car
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public int Year { get; set; }
-        public string Make { get; set; }
-        public string Model { get; set; }
-        public string Color { get; set; }
-    }
+    public int CarId { get; set; }
+
+    [Required, MaxLength(50)]
+    public string VIN { get; set; } = null!;
+
+    [Required, MaxLength(50)]
+    public string Brand { get; set; } = null!;
+
+    [Required, MaxLength(50)]
+    public string Model { get; set; } = null!;
+
+    [Required]
+    public int Year { get; set; }
+    public ICollection<PartCar>? CompatibleParts { get; set; }
 }

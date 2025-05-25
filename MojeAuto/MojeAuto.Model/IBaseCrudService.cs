@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace MojeAuto.Model
+﻿namespace MojeAuto.Model
 {
     public interface IBaseCrudService<TEntity, TSearch, TInsert, TUpdate>
         where TEntity : class

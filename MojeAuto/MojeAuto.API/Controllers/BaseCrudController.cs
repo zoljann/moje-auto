@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MojeAuto.Model;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace MojeAuto.API.Controllers
 {

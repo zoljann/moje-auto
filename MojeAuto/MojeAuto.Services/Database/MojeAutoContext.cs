@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.ConstrainedExecution;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using MojeAuto.Model;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace MojeAuto.Services.Database
 {
@@ -16,5 +9,18 @@ namespace MojeAuto.Services.Database
         }
 
         public DbSet<Car> Cars { get; set; }
+        public DbSet<Part> Parts { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oi => oi.Part)
+                .WithMany(p => p.OrderItems)
+                .HasForeignKey(oi => oi.PartId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }
