@@ -1,26 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using MojeAuto.Model;
-using MojeAuto.Services.Database;
+using MojeAuto.Model.Requests;
+using MojeAuto.Services;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MojeAuto.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class CarsController : ControllerBase
+    [Route("cars")]
+    public class CarsController : BaseCrudController<Car, CarSearchRequest, CarInsertRequest, CarUpdateRequest>
     {
-        private readonly MojeAutoContext _context;
-
-        public CarsController(MojeAutoContext context)
+        public CarsController(IBaseCrudService<Car, CarSearchRequest, CarInsertRequest, CarUpdateRequest> service)
+            : base(service)
         {
-            _context = context;
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Cars>>> Get()
-        {
-            var cars = await _context.Cars.ToListAsync();
-            return Ok(cars);
         }
     }
 }

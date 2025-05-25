@@ -15,6 +15,6 @@ namespace MojeAuto.Services.Database
         {
         }
 
-        public DbSet<Cars> Cars { get; set; }
+        public DbSet<Car> Cars { get; set; }
     }
 }
