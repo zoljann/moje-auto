@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MojeAuto.Model.Requests;
-using MojeAuto.Model;
 using MojeAuto.Services.Database;
+using MojeAuto.Model.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 

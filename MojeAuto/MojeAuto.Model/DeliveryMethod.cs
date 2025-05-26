@@ -9,6 +9,4 @@ public class DeliveryMethod
 
     [MaxLength(500)]
     public string? Description { get; set; }
-
-    public ICollection<Delivery>? Deliveries { get; set; }
 }

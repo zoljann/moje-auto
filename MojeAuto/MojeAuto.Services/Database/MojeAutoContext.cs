@@ -46,34 +46,10 @@ namespace MojeAuto.Services.Database
                 .HasForeignKey(o => o.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.PaymentMethod)
-                .WithMany(pm => pm.Orders)
-                .HasForeignKey(o => o.PaymentMethodId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.OrderStatus)
-                .WithMany(os => os.Orders)
-                .HasForeignKey(o => o.OrderStatusId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             modelBuilder.Entity<Delivery>()
                 .HasOne(d => d.Order)
                 .WithOne(o => o.Delivery)
                 .HasForeignKey<Delivery>(d => d.OrderId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Delivery>()
-                .HasOne(d => d.DeliveryMethod)
-                .WithMany(dm => dm.Deliveries)
-                .HasForeignKey(d => d.DeliveryMethodId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Delivery>()
-                .HasOne(d => d.DeliveryStatus)
-                .WithMany(ds => ds.Deliveries)
-                .HasForeignKey(d => d.DeliveryStatusId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Part>()
@@ -110,24 +86,6 @@ namespace MojeAuto.Services.Database
                 .HasOne(ar => ar.User)
                 .WithMany(u => u.AdminReports)
                 .HasForeignKey(ar => ar.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Manufacturer>()
-                .HasOne(m => m.Country)
-                .WithMany(c => c.Manufacturers)
-                .HasForeignKey(m => m.CountryId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.Country)
-                .WithMany(c => c.Users)
-                .HasForeignKey(u => u.CountryId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.UserRole)
-                .WithMany(ur => ur.Users)
-                .HasForeignKey(u => u.UserRoleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(modelBuilder);

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MojeAuto.Model;
+using MojeAuto.Model.Common;
 using MojeAuto.Services.Database;
 using System.Linq.Expressions;
 
@@ -61,7 +61,7 @@ public class BaseCrudService<TEntity, TSearch, TInsert, TUpdate> : IBaseCrudServ
 
 
 
-    public virtual async Task<TEntity> Insert(TInsert insertRequest)
+    public virtual async Task<ServiceResult<TEntity>> Insert(TInsert insertRequest)
     {
         var entity = new TEntity();
 
@@ -70,30 +70,32 @@ public class BaseCrudService<TEntity, TSearch, TInsert, TUpdate> : IBaseCrudServ
         _dbSet.Add(entity);
         await _context.SaveChangesAsync();
 
-        return entity;
+        return ServiceResult<TEntity>.Ok(entity);
     }
-    public virtual async Task<bool> Update(int id, TUpdate updateRequest)
+    public virtual async Task<ServiceResult<TEntity>> Update(int id, TUpdate updateRequest)
     {
         var entity = await _dbSet.FindAsync(id);
         if (entity == null)
-            return false;
+            return ServiceResult<TEntity>.Fail("Entity not found.");
 
         MapUpdateRequestToEntity(updateRequest, entity);
 
         await _context.SaveChangesAsync();
-        return true;
+
+        return ServiceResult<TEntity>.Ok(entity);
     }
 
-    public virtual async Task<bool> Delete(int id)
+    public virtual async Task<ServiceResult<bool>> Delete(int id)
     {
         var entity = await _dbSet.FindAsync(id);
         if (entity == null)
-            return false;
+            return ServiceResult<bool>.Fail("Entity not found.");
 
         _dbSet.Remove(entity);
         await _context.SaveChangesAsync();
-        return true;
+        return ServiceResult<bool>.Ok(true);
     }
+
     protected virtual void MapInsertRequestToEntity(TInsert insertRequest, TEntity entity)
     {
         if (insertRequest == null || entity == null)

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MojeAuto.Model;
+using MojeAuto.Model.Common;
 
 namespace MojeAuto.API.Controllers
 {

@@ -6,6 +6,4 @@ public class DeliveryStatus
 
     [Required, MaxLength(50)]
     public string Name { get; set; } = null!;
-
-    public ICollection<Delivery>? Deliveries { get; set; }
 }

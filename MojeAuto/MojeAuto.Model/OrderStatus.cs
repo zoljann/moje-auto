@@ -6,6 +6,4 @@ public class OrderStatus
 
     [Required, MaxLength(50)]
     public string Name { get; set; } = null!;
-
-    public ICollection<Order>? Orders { get; set; }
 }

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MojeAuto.Model;
+using MojeAuto.Model.Common;
 
 namespace MojeAuto.API.Controllers
 {
@@ -34,16 +34,21 @@ namespace MojeAuto.API.Controllers
         [HttpPost]
         public virtual async Task<ActionResult<TEntity>> Insert([FromBody] TInsert insertRequest)
         {
-            var entity = await _service.Insert(insertRequest);
+            var result = await _service.Insert(insertRequest);
 
-            return CreatedAtAction(nameof(Get), new { id = GetEntityId(entity) }, entity);
+            if (!result.Success)
+                return BadRequest(new { error = result.ErrorMessage });
+
+            return CreatedAtAction(nameof(Get), new { id = GetEntityId(result.Data!) }, result.Data);
         }
 
         [HttpPut("{id}")]
         public virtual async Task<IActionResult> Update(int id, [FromBody] TUpdate updateRequest)
         {
-            var success = await _service.Update(id, updateRequest);
-            if (!success) return NotFound();
+            var result = await _service.Update(id, updateRequest);
+
+            if (!result.Success)
+                return BadRequest(new { error = result.ErrorMessage });
 
             return NoContent();
         }
@@ -51,8 +56,10 @@ namespace MojeAuto.API.Controllers
         [HttpDelete("{id}")]
         public virtual async Task<IActionResult> Delete(int id)
         {
-            var success = await _service.Delete(id);
-            if (!success) return NotFound();
+            var result = await _service.Delete(id);
+
+            if (!result.Success)
+                return NotFound(new { error = result.ErrorMessage });
 
             return NoContent();
         }

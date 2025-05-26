@@ -9,7 +9,4 @@ public class Country
 
     [MaxLength(3)]
     public string? ISOCode { get; set; }
-
-    public ICollection<User>? Users { get; set; }
-    public ICollection<Manufacturer>? Manufacturers { get; set; }
 }
