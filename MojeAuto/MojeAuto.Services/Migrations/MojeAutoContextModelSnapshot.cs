@@ -49,7 +49,7 @@ namespace MojeAuto.Services.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AdminReport");
+                    b.ToTable("AdminReports");
                 });
 
             modelBuilder.Entity("Car", b =>
@@ -102,7 +102,7 @@ namespace MojeAuto.Services.Migrations
 
                     b.HasKey("CategoryId");
 
-                    b.ToTable("Category");
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Country", b =>
@@ -124,7 +124,7 @@ namespace MojeAuto.Services.Migrations
 
                     b.HasKey("CountryId");
 
-                    b.ToTable("Country");
+                    b.ToTable("Countries");
                 });
 
             modelBuilder.Entity("Delivery", b =>
@@ -135,7 +135,7 @@ namespace MojeAuto.Services.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DeliveryId"));
 
-                    b.Property<DateTime?>("DeliveryDate")
+                    b.Property<DateTime>("DeliveryDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("DeliveryMethodId")
@@ -156,7 +156,7 @@ namespace MojeAuto.Services.Migrations
                     b.HasIndex("OrderId")
                         .IsUnique();
 
-                    b.ToTable("Delivery");
+                    b.ToTable("Deliveries");
                 });
 
             modelBuilder.Entity("DeliveryMethod", b =>
@@ -178,7 +178,7 @@ namespace MojeAuto.Services.Migrations
 
                     b.HasKey("DeliveryMethodId");
 
-                    b.ToTable("DeliveryMethod");
+                    b.ToTable("DeliveryMethods");
                 });
 
             modelBuilder.Entity("DeliveryStatus", b =>
@@ -196,7 +196,7 @@ namespace MojeAuto.Services.Migrations
 
                     b.HasKey("DeliveryStatusId");
 
-                    b.ToTable("DeliveryStatus");
+                    b.ToTable("DeliveryStatuses");
                 });
 
             modelBuilder.Entity("Manufacturer", b =>
@@ -219,7 +219,7 @@ namespace MojeAuto.Services.Migrations
 
                     b.HasIndex("CountryId");
 
-                    b.ToTable("Manufacturer");
+                    b.ToTable("Manufacturers");
                 });
 
             modelBuilder.Entity("Notification", b =>
@@ -253,7 +253,7 @@ namespace MojeAuto.Services.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notification");
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Order", b =>
@@ -287,7 +287,7 @@ namespace MojeAuto.Services.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Order");
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("OrderItem", b =>
@@ -334,7 +334,7 @@ namespace MojeAuto.Services.Migrations
 
                     b.HasKey("OrderStatusId");
 
-                    b.ToTable("OrderStatus");
+                    b.ToTable("OrderStatuses");
                 });
 
             modelBuilder.Entity("Part", b =>
@@ -399,11 +399,11 @@ namespace MojeAuto.Services.Migrations
 
             modelBuilder.Entity("PartCar", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("PartCarId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PartCarId"));
 
                     b.Property<int>("CarId")
                         .HasColumnType("int");
@@ -411,13 +411,13 @@ namespace MojeAuto.Services.Migrations
                     b.Property<int>("PartId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("PartCarId");
 
                     b.HasIndex("CarId");
 
                     b.HasIndex("PartId");
 
-                    b.ToTable("PartCar");
+                    b.ToTable("PartCars");
                 });
 
             modelBuilder.Entity("PaymentMethod", b =>
@@ -435,7 +435,7 @@ namespace MojeAuto.Services.Migrations
 
                     b.HasKey("PaymentMethodId");
 
-                    b.ToTable("PaymentMethod");
+                    b.ToTable("PaymentMethods");
                 });
 
             modelBuilder.Entity("User", b =>
@@ -447,6 +447,7 @@ namespace MojeAuto.Services.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
                     b.Property<string>("Address")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -480,6 +481,7 @@ namespace MojeAuto.Services.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
+                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
@@ -492,7 +494,7 @@ namespace MojeAuto.Services.Migrations
 
                     b.HasIndex("UserRoleId");
 
-                    b.ToTable("User");
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("UserRole", b =>
@@ -510,7 +512,7 @@ namespace MojeAuto.Services.Migrations
 
                     b.HasKey("UserRoleId");
 
-                    b.ToTable("UserRole");
+                    b.ToTable("UserRoles");
                 });
 
             modelBuilder.Entity("AdminReport", b =>
@@ -518,7 +520,7 @@ namespace MojeAuto.Services.Migrations
                     b.HasOne("User", "User")
                         .WithMany("AdminReports")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -529,19 +531,19 @@ namespace MojeAuto.Services.Migrations
                     b.HasOne("DeliveryMethod", "DeliveryMethod")
                         .WithMany("Deliveries")
                         .HasForeignKey("DeliveryMethodId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("DeliveryStatus", "DeliveryStatus")
                         .WithMany("Deliveries")
                         .HasForeignKey("DeliveryStatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Order", "Order")
                         .WithOne("Delivery")
                         .HasForeignKey("Delivery", "OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("DeliveryMethod");
@@ -556,7 +558,7 @@ namespace MojeAuto.Services.Migrations
                     b.HasOne("Country", "Country")
                         .WithMany("Manufacturers")
                         .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Country");
@@ -567,7 +569,7 @@ namespace MojeAuto.Services.Migrations
                     b.HasOne("User", "User")
                         .WithMany("Notifications")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -578,19 +580,19 @@ namespace MojeAuto.Services.Migrations
                     b.HasOne("OrderStatus", "OrderStatus")
                         .WithMany("Orders")
                         .HasForeignKey("OrderStatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("PaymentMethod", "PaymentMethod")
                         .WithMany("Orders")
                         .HasForeignKey("PaymentMethodId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("User", "User")
                         .WithMany("Orders")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("OrderStatus");
@@ -605,7 +607,7 @@ namespace MojeAuto.Services.Migrations
                     b.HasOne("Order", "Order")
                         .WithMany("OrderItems")
                         .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Part", "Part")
@@ -624,13 +626,13 @@ namespace MojeAuto.Services.Migrations
                     b.HasOne("Category", "Category")
                         .WithMany("Parts")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Manufacturer", "Manufacturer")
                         .WithMany("Parts")
                         .HasForeignKey("ManufacturerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Category");
@@ -643,13 +645,13 @@ namespace MojeAuto.Services.Migrations
                     b.HasOne("Car", "Car")
                         .WithMany("CompatibleParts")
                         .HasForeignKey("CarId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Part", "Part")
                         .WithMany("CompatibleCars")
                         .HasForeignKey("PartId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Car");
@@ -662,13 +664,13 @@ namespace MojeAuto.Services.Migrations
                     b.HasOne("Country", "Country")
                         .WithMany("Users")
                         .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("UserRole", "UserRole")
                         .WithMany("Users")
                         .HasForeignKey("UserRoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Country");
@@ -710,7 +712,8 @@ namespace MojeAuto.Services.Migrations
 
             modelBuilder.Entity("Order", b =>
                 {
-                    b.Navigation("Delivery");
+                    b.Navigation("Delivery")
+                        .IsRequired();
 
                     b.Navigation("OrderItems");
                 });

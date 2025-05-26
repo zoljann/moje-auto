@@ -1,11 +1,17 @@
-﻿namespace MojeAuto.Model.Requests
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace MojeAuto.Model.Requests
 {
     public class CarUpdateRequest
     {
-        public string Name { get; set; } = null!;
-        public string Make { get; set; } = null!;
-        public string Model { get; set; } = null!;
-        public int Year { get; set; }
-        public string? Color { get; set; }
+        [MaxLength(50)]
+        public string? VIN { get; set; }
+
+        [MaxLength(50)]
+        public string? Brand { get; set; }
+
+        [MaxLength(50)]
+        public string? Model { get; set; }
+        public int? Year { get; set; }
     }
 }

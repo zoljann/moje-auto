@@ -1,9 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-public class User
+public class UserInsertRequest
 {
-    public int UserId { get; set; }
-
     [Required, MaxLength(50)]
     public string FirstName { get; set; } = null!;
 
@@ -14,7 +12,7 @@ public class User
     public string Email { get; set; } = null!;
 
     [Required]
-    public string PasswordHash { get; set; } = null!;
+    public string Password { get; set; } = null!; //will be cashed i storeano u passwordHash
 
     [Required, MaxLength(100)]
     public string Address { get; set; } = null!;
@@ -29,16 +27,5 @@ public class User
     public string? AvatarUrl { get; set; }
 
     [Required]
-    public int UserRoleId { get; set; }
-
-    public UserRole UserRole { get; set; } = null!;
-
-    [Required]
     public int CountryId { get; set; }
-
-    public Country Country { get; set; } = null!;
-
-    public ICollection<Order>? Orders { get; set; }
-    public ICollection<Notification>? Notifications { get; set; }
-    public ICollection<AdminReport>? AdminReports { get; set; }
 }

@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<MojeAutoContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("MojeAutoConnection")));
 
+builder.Services.AddScoped<IBaseCrudService<User, UserSearchRequest, UserInsertRequest, UserUpdateRequest>, UserService>();
 builder.Services.AddScoped<IBaseCrudService<Car, CarSearchRequest, CarInsertRequest, CarUpdateRequest>, CarService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
