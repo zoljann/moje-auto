@@ -42,6 +42,8 @@ builder.Services.AddDbContext<MojeAutoContext>(options =>
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBaseCrudService<User, UserSearchRequest, UserInsertRequest, UserUpdateRequest>, UserService>();
 builder.Services.AddScoped<IBaseCrudService<Car, CarSearchRequest, CarInsertRequest, CarUpdateRequest>, CarService>();
+builder.Services.AddScoped<IBaseCrudService<Category, CategorySearchRequest, CategoryInsertRequest, CategoryUpdateRequest>, CategoryService>();
+builder.Services.AddScoped<IBaseCrudService<Part, PartSearchRequest, PartInsertRequest, PartUpdateRequest>, PartService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
