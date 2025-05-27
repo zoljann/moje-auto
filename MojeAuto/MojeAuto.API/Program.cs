@@ -5,14 +5,16 @@ using MojeAuto.Model.Common;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using MojeAuto.Services.Helpers;
 
+DotNetEnv.Env.Load("../.env");
 var builder = WebApplication.CreateBuilder(args);
 
 // JWT config
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var keyString = jwtSettings["Key"] ?? throw new Exception("JWT Key is not configured.");
-var issuer = jwtSettings["Issuer"] ?? throw new Exception("JWT Issuer is not configured.");
-var audience = jwtSettings["Audience"] ?? throw new Exception("JWT Audience is not configured.");
+var keyString = Environment.GetEnvironmentVariable("JWT_KEY") ?? throw new Exception("JWT_KEY not set");
+var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? throw new Exception("JWT_ISSUER not set");
+var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? throw new Exception("JWT_AUDIENCE not set");
 
 var key = Encoding.UTF8.GetBytes(keyString);
 
@@ -36,8 +38,11 @@ builder.Services.AddAuthentication(options =>
 });
 
 // Add services
+var connectionString = Environment.GetEnvironmentVariable("MOJEAUTO_CONN")
+    ?? throw new Exception("MOJEAUTO_CONN not set");
+
 builder.Services.AddDbContext<MojeAutoContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("MojeAutoConnection")));
+    options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBaseCrudService<User, UserSearchRequest, UserInsertRequest, UserUpdateRequest>, UserService>();
@@ -78,6 +83,13 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<MojeAutoContext>();
+    db.Database.Migrate();
+    Seeder.Seed(db);
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -85,7 +97,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

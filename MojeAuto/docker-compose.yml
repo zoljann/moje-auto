@@ -1,0 +1,34 @@
+services:
+  mojeauto-sqlserver:
+    image: mcr.microsoft.com/mssql/server:2017-latest-ubuntu
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrongPassword1!
+      - MSSQL_PID=Developer
+    ports:
+      - 1433:1433
+    volumes:
+      - sql_data:/var/opt/mssql
+    networks:
+      - mojeauto-net
+
+  mojeauto-api:
+    build:
+      context: .
+    restart: unless-stopped
+    ports:
+      - "5000:5269"
+    depends_on:
+      - mojeauto-sqlserver
+    networks:
+      - mojeauto-net
+    env_file:
+      - .env
+
+volumes:
+  sql_data:
+
+networks:
+  mojeauto-net:
+    driver: bridge

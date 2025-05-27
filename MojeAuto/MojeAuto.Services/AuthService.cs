@@ -35,10 +35,10 @@ public class AuthService : IAuthService
     {
         var jwtSettings = _config.GetSection("Jwt");
 
-        var keyString = jwtSettings["Key"] ?? throw new Exception("JWT Key is not configured.");
-        var issuer = jwtSettings["Issuer"] ?? throw new Exception("JWT Issuer is not configured.");
-        var audience = jwtSettings["Audience"] ?? throw new Exception("JWT Audience is not configured.");
-        var expiresInString = jwtSettings["ExpiresInMinutes"] ?? throw new Exception("JWT ExpiresInMinutes is not configured.");
+        var keyString = Environment.GetEnvironmentVariable("JWT_KEY") ?? throw new Exception("JWT_KEY environment variable is not set.");
+        var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? throw new Exception("JWT_ISSUER environment variable is not set.");
+        var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? throw new Exception("JWT_AUDIENCE environment variable is not set.");
+        var expiresInString = Environment.GetEnvironmentVariable("JWT_EXPIRESINMINUTES") ?? throw new Exception("JWT_EXPIRESINMINUTES environment variable is not set.");
 
         if (!int.TryParse(expiresInString, out int expiresInMinutes))
             throw new Exception("JWT ExpiresInMinutes config value is not a valid integer.");
