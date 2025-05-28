@@ -1,6 +1,6 @@
 ﻿namespace MojeAuto.Model.Requests
 {
-    public class CategorySearchRequest
+    public class OrderStatusSearchRequest
     {
         public string? Name { get; set; }
     }

@@ -19,6 +19,4 @@ public class AdminReport
 
     [Required]
     public int OrdersCount { get; set; }
-
-    public User User { get; set; } = null!;
 }

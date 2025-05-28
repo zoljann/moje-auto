@@ -49,6 +49,16 @@ builder.Services.AddScoped<IBaseCrudService<User, UserSearchRequest, UserInsertR
 builder.Services.AddScoped<IBaseCrudService<Car, CarSearchRequest, CarInsertRequest, CarUpdateRequest>, CarService>();
 builder.Services.AddScoped<IBaseCrudService<Category, CategorySearchRequest, CategoryInsertRequest, CategoryUpdateRequest>, CategoryService>();
 builder.Services.AddScoped<IBaseCrudService<Part, PartSearchRequest, PartInsertRequest, PartUpdateRequest>, PartService>();
+builder.Services.AddScoped<IBaseCrudService<Country, CountrySearchRequest, CountryInsertRequest, CountryUpdateRequest>, CountryService>();
+builder.Services.AddScoped<IBaseCrudService<DeliveryMethod, DeliveryMethodSearchRequest, DeliveryMethodInsertRequest, DeliveryMethodUpdateRequest>, DeliveryMethodService>();
+builder.Services.AddScoped<IBaseCrudService<DeliveryStatus, DeliveryStatusSearchRequest, DeliveryStatusInsertRequest, DeliveryStatusUpdateRequest>, DeliveryStatusService>();
+builder.Services.AddScoped<IBaseCrudService<Manufacturer, ManufacturerSearchRequest, ManufacturerInsertRequest, ManufacturerUpdateRequest>, ManufacturerService>();
+builder.Services.AddScoped<IBaseCrudService<Notification, NotificationSearchRequest, NotificationInsertRequest, NotificationUpdateRequest>, NotificationService>();
+builder.Services.AddScoped<IBaseCrudService<OrderStatus, OrderStatusSearchRequest, OrderStatusInsertRequest, OrderStatusUpdateRequest>, OrderStatusService>();
+builder.Services.AddScoped<IBaseCrudService<PartCar, PartCarSearchRequest, PartCarInsertRequest, PartCarUpdateRequest>, PartCarService>();
+builder.Services.AddScoped<IBaseCrudService<UserRole, UserRoleSearchRequest, UserRoleInsertRequest, UserRoleUpdateRequest>, UserRoleService>();
+builder.Services.AddScoped<IBaseCrudService<UserRole, UserRoleSearchRequest, UserRoleInsertRequest, UserRoleUpdateRequest>, UserRoleService>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

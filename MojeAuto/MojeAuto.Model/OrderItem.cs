@@ -16,6 +16,5 @@ public class OrderItem
     [Required]
     public decimal UnitPrice { get; set; }
 
-    public Order Order { get; set; } = null!;
     public Part Part { get; set; } = null!;
 }

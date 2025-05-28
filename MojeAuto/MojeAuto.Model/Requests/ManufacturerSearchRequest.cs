@@ -1,7 +1,8 @@
 ﻿namespace MojeAuto.Model.Requests
 {
-    public class CategorySearchRequest
+    public class ManufacturerSearchRequest
     {
         public string? Name { get; set; }
+
     }
 }

@@ -11,7 +11,7 @@ public class Order
     public DateTime OrderDate { get; set; } = DateTime.Now;
 
     [Required]
-    public decimal TotalAmount { get; set; }
+    public decimal TotalAmount { get; set; } //racunace se ovako order.TotalAmount = order.OrderItems?.Sum(i => i.Quantity * i.UnitPrice) ?? 0;
 
     [Required]
     public int PaymentMethodId { get; set; }
