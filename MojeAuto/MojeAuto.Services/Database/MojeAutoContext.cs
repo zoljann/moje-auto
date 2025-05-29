@@ -29,12 +29,6 @@ namespace MojeAuto.Services.Database
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<OrderItem>()
-                .HasOne(oi => oi.Order)
-                .WithMany(o => o.OrderItems)
-                .HasForeignKey(oi => oi.OrderId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<OrderItem>()
                 .HasOne(oi => oi.Part)
                 .WithMany(p => p.OrderItems)
                 .HasForeignKey(oi => oi.PartId)
@@ -44,12 +38,6 @@ namespace MojeAuto.Services.Database
                 .HasOne(o => o.User)
                 .WithMany(u => u.Orders)
                 .HasForeignKey(o => o.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Delivery>()
-                .HasOne(d => d.Order)
-                .WithOne(o => o.Delivery)
-                .HasForeignKey<Delivery>(d => d.OrderId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Part>()
@@ -74,18 +62,6 @@ namespace MojeAuto.Services.Database
                 .HasOne(pc => pc.Car)
                 .WithMany(c => c.CompatibleParts)
                 .HasForeignKey(pc => pc.CarId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Notification>()
-                .HasOne(n => n.User)
-                .WithMany(u => u.Notifications)
-                .HasForeignKey(n => n.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<AdminReport>()
-                .HasOne(ar => ar.User)
-                .WithMany(u => u.AdminReports)
-                .HasForeignKey(ar => ar.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(modelBuilder);

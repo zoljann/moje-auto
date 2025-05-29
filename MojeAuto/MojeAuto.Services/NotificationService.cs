@@ -1,4 +1,6 @@
-﻿using MojeAuto.Model.Requests;
+﻿using Microsoft.EntityFrameworkCore;
+using MojeAuto.Model.Common;
+using MojeAuto.Model.Requests;
 using MojeAuto.Services.Database;
 
 public class NotificationService : BaseCrudService<Notification, NotificationSearchRequest, NotificationInsertRequest, NotificationUpdateRequest>

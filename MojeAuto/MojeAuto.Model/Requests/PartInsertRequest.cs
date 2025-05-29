@@ -36,6 +36,7 @@ namespace MojeAuto.Model.Requests
 
         [MaxLength(255)]
         public string? ImageUrl { get; set; }
+
         public int EstimatedArrivalDays { get; set; }
     }
 }

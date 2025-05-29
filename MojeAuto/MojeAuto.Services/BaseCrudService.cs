@@ -14,14 +14,16 @@ public class BaseCrudService<TEntity, TSearch, TInsert, TUpdate> : IBaseCrudServ
         _context = context;
         _dbSet = _context.Set<TEntity>();
     }
-    public virtual async Task<IEnumerable<TEntity>> Get(TSearch search, int? id = null)
+
+    public virtual async Task<ServiceResult<IEnumerable<TEntity>>> Get(TSearch search, int? id = null)
     {
         if (id.HasValue)
         {
             var entity = await _dbSet.FindAsync(id.Value);
             if (entity == null)
-                return Enumerable.Empty<TEntity>();
-            return new List<TEntity> { entity };
+                return ServiceResult<IEnumerable<TEntity>>.Fail("Entity not found.");
+
+            return ServiceResult<IEnumerable<TEntity>>.Ok(new List<TEntity> { entity });
         }
 
         var query = _dbSet.AsQueryable();
@@ -56,10 +58,13 @@ public class BaseCrudService<TEntity, TSearch, TInsert, TUpdate> : IBaseCrudServ
             }
         }
 
-        return await query.ToListAsync();
+        var list = await query.ToListAsync();
+
+        if (!list.Any())
+            return ServiceResult<IEnumerable<TEntity>>.Fail("No results found.");
+
+        return ServiceResult<IEnumerable<TEntity>>.Ok(list);
     }
-
-
 
     public virtual async Task<ServiceResult<TEntity>> Insert(TInsert insertRequest)
     {
@@ -72,6 +77,7 @@ public class BaseCrudService<TEntity, TSearch, TInsert, TUpdate> : IBaseCrudServ
 
         return ServiceResult<TEntity>.Ok(entity);
     }
+
     public virtual async Task<ServiceResult<TEntity>> Update(int id, TUpdate updateRequest)
     {
         var entity = await _dbSet.FindAsync(id);

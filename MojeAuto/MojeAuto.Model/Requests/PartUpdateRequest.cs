@@ -15,6 +15,7 @@ namespace MojeAuto.Model.Requests
 
         [MaxLength(500)]
         public string? Weight { get; set; }
+
         public decimal Price { get; set; }
         public int WarrantyMonths { get; set; }
         public int Quantity { get; set; }
@@ -23,6 +24,7 @@ namespace MojeAuto.Model.Requests
 
         [MaxLength(255)]
         public string? ImageUrl { get; set; }
+
         public int EstimatedArrivalDays { get; set; }
     }
 }

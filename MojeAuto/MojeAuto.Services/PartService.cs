@@ -5,7 +5,10 @@ using MojeAuto.Services.Database;
 
 public class PartService : BaseCrudService<Part, PartSearchRequest, PartInsertRequest, PartUpdateRequest>
 {
-    public PartService(MojeAutoContext context) : base(context) { }
+    public PartService(MojeAutoContext context) : base(context)
+    {
+    }
+
     public override async Task<ServiceResult<Part>> Insert(PartInsertRequest insertRequest)
     {
         var manufacturerExists = await _context.Manufacturers.AnyAsync(m => m.ManufacturerId == insertRequest.ManufacturerId);

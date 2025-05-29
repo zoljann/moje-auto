@@ -18,18 +18,22 @@ namespace MojeAuto.API.Controllers
         [HttpGet]
         public virtual async Task<ActionResult<IEnumerable<TEntity>>> Get([FromQuery] TSearch search, [FromQuery] int? id = null)
         {
-            var entities = await _service.Get(search, id);
+            var result = await _service.Get(search, id);
+
+            if (!result.Success || result.Data == null)
+                return NotFound(new { error = result.ErrorMessage ?? "No data found." });
 
             if (id.HasValue)
             {
-                var singleEntity = entities.FirstOrDefault();
-                if (singleEntity == null) return NotFound();
+                var singleEntity = result.Data.FirstOrDefault();
+                if (singleEntity == null)
+                    return NotFound();
+
                 return Ok(singleEntity);
             }
 
-            return Ok(entities);
+            return Ok(result.Data);
         }
-
 
         [HttpPost]
         public virtual async Task<ActionResult<TEntity>> Insert([FromBody] TInsert insertRequest)
@@ -39,7 +43,7 @@ namespace MojeAuto.API.Controllers
             if (!result.Success)
                 return BadRequest(new { error = result.ErrorMessage });
 
-            return CreatedAtAction(nameof(Get), new { id = GetEntityId(result.Data!) }, result.Data);
+            return Ok();
         }
 
         [HttpPut("{id}")]
@@ -62,13 +66,6 @@ namespace MojeAuto.API.Controllers
                 return NotFound(new { error = result.ErrorMessage });
 
             return NoContent();
-        }
-
-        private object? GetEntityId(TEntity entity)
-        {
-            var prop = typeof(TEntity).GetProperty("Id");
-
-            return prop?.GetValue(entity);
         }
     }
 }

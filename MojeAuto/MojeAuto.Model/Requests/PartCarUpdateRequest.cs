@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace MojeAuto.Model.Requests
+﻿namespace MojeAuto.Model.Requests
 {
     public class PartCarUpdateRequest
     {

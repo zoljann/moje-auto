@@ -3,6 +3,5 @@
     public class ManufacturerSearchRequest
     {
         public string? Name { get; set; }
-
     }
 }

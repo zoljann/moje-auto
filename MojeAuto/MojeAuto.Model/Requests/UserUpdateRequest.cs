@@ -10,6 +10,7 @@ public class UserUpdateRequest
 
     [EmailAddress, MaxLength(100)]
     public string? Email { get; set; }
+
     public string? Password { get; set; } // optional, only if user wants to change it
 
     [MaxLength(100)]
@@ -22,6 +23,7 @@ public class UserUpdateRequest
 
     [MaxLength(100)]
     public string? AvatarUrl { get; set; }
+
     public int? UserRoleId { get; set; }
     public int? CountryId { get; set; }
 }

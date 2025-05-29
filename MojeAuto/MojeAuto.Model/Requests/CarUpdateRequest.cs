@@ -12,6 +12,7 @@ namespace MojeAuto.Model.Requests
 
         [MaxLength(50)]
         public string? Model { get; set; }
+
         public int? Year { get; set; }
     }
 }

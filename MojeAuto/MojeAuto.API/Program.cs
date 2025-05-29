@@ -1,11 +1,11 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using MojeAuto.Model.Common;
 using MojeAuto.Model.Requests;
 using MojeAuto.Services.Database;
-using MojeAuto.Model.Common;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using MojeAuto.Services.Helpers;
+using System.Text;
 
 DotNetEnv.Env.Load("../.env");
 var builder = WebApplication.CreateBuilder(args);
@@ -56,7 +56,7 @@ builder.Services.AddScoped<IBaseCrudService<Manufacturer, ManufacturerSearchRequ
 builder.Services.AddScoped<IBaseCrudService<Notification, NotificationSearchRequest, NotificationInsertRequest, NotificationUpdateRequest>, NotificationService>();
 builder.Services.AddScoped<IBaseCrudService<OrderStatus, OrderStatusSearchRequest, OrderStatusInsertRequest, OrderStatusUpdateRequest>, OrderStatusService>();
 builder.Services.AddScoped<IBaseCrudService<PartCar, PartCarSearchRequest, PartCarInsertRequest, PartCarUpdateRequest>, PartCarService>();
-builder.Services.AddScoped<IBaseCrudService<UserRole, UserRoleSearchRequest, UserRoleInsertRequest, UserRoleUpdateRequest>, UserRoleService>();
+builder.Services.AddScoped<IBaseCrudService<PaymentMethod, PaymentMethodSearchRequest, PaymentMethodInsertRequest, PaymentMethodUpdateRequest>, PaymentMethodService>();
 builder.Services.AddScoped<IBaseCrudService<UserRole, UserRoleSearchRequest, UserRoleInsertRequest, UserRoleUpdateRequest>, UserRoleService>();
 
 builder.Services.AddControllers();
@@ -88,8 +88,6 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
-
-
 
 var app = builder.Build();
 
