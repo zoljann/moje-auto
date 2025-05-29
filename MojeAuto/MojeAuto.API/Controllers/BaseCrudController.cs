@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MojeAuto.Model.Common;
 
 namespace MojeAuto.API.Controllers
@@ -35,6 +36,7 @@ namespace MojeAuto.API.Controllers
             return Ok(result.Data);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public virtual async Task<ActionResult<TEntity>> Insert([FromBody] TInsert insertRequest)
         {
@@ -46,6 +48,7 @@ namespace MojeAuto.API.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public virtual async Task<IActionResult> Update(int id, [FromBody] TUpdate updateRequest)
         {
@@ -57,6 +60,7 @@ namespace MojeAuto.API.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public virtual async Task<IActionResult> Delete(int id)
         {

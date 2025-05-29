@@ -5,12 +5,14 @@ using MojeAuto.Services.Database;
 
 public class NotificationService : BaseCrudService<Notification, NotificationSearchRequest, NotificationInsertRequest, NotificationUpdateRequest>
 {
-    public NotificationService(MojeAutoContext context) : base(context) { }
+    public NotificationService(MojeAutoContext context) : base(context)
+    {
+    }
 
-      public override async Task<ServiceResult<Notification>> Insert(NotificationInsertRequest insertRequest)
+    public override async Task<ServiceResult<Notification>> Insert(NotificationInsertRequest insertRequest)
     {
         var userExists = await _context.Users.AnyAsync(u => u.UserId == insertRequest.UserId);
-        
+
         if (!userExists)
         {
             return ServiceResult<Notification>.Fail("Invalid UserId");

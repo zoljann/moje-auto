@@ -42,7 +42,6 @@ namespace MojeAuto.Services.Helpers
                 db.SaveChanges();
             }
 
-
             if (!db.PaymentMethods.Any())
             {
                 db.PaymentMethods.AddRange(
@@ -161,7 +160,8 @@ namespace MojeAuto.Services.Helpers
                     new User { FirstName = "Ivana", LastName = "Jurić", Email = "ivana.juric@example.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("randomPassword"), Address = "Ulica 7", PhoneNumber = "067778899", BirthDate = new DateTime(1996, 4, 8), CountryId = germany.CountryId, UserRoleId = userRoleUser.UserRoleId },
                     new User { FirstName = "Tomislav", LastName = "Šimić", Email = "tomislav.simic@example.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("randomPassword"), Address = "Ulica 8", PhoneNumber = "068889900", BirthDate = new DateTime(1987, 6, 29), CountryId = usa.CountryId, UserRoleId = userRoleUser.UserRoleId },
                     new User { FirstName = "Lana", LastName = "Perić", Email = "lana.peric@example.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("randomPassword"), Address = "Ulica 9", PhoneNumber = "069990011", BirthDate = new DateTime(1998, 2, 17), CountryId = croatia.CountryId, UserRoleId = userRoleUser.UserRoleId },
-                    new User { FirstName = "Dario", LastName = "Matić", Email = "dario.matic@example.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("randomPassword"), Address = "Ulica 10", PhoneNumber = "060112233", BirthDate = new DateTime(1989, 12, 12), CountryId = germany.CountryId, UserRoleId = userRoleUser.UserRoleId }
+                    new User { FirstName = "Dario", LastName = "Matić", Email = "dario.matic@example.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("randomPassword"), Address = "Ulica 10", PhoneNumber = "060112233", BirthDate = new DateTime(1989, 12, 12), CountryId = germany.CountryId, UserRoleId = userRoleUser.UserRoleId },
+                    new User { FirstName = "Nedim", LastName = "Zolj", Email = "desktop@gmail.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("test"), Address = "Ulica 10", PhoneNumber = "060112233", BirthDate = new DateTime(1989, 12, 12), CountryId = germany.CountryId, UserRoleId = userRoleAdmin.UserRoleId }
                 );
                 db.SaveChanges();
             }
@@ -241,5 +241,5 @@ namespace MojeAuto.Services.Helpers
                 db.SaveChanges();
             }
         }
-        }
+    }
 }
