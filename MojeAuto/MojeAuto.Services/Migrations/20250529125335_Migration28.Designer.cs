@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MojeAuto.Services.Database;
 
@@ -11,9 +12,11 @@ using MojeAuto.Services.Database;
 namespace MojeAuto.Services.Migrations
 {
     [DbContext(typeof(MojeAutoContext))]
-    partial class MojeAutoContextModelSnapshot : ModelSnapshot
+    [Migration("20250529125335_Migration28")]
+    partial class Migration28
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -80,9 +83,6 @@ namespace MojeAuto.Services.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("CarId");
-
-                    b.HasIndex("VIN")
-                        .IsUnique();
 
                     b.ToTable("Cars");
                 });
@@ -496,9 +496,6 @@ namespace MojeAuto.Services.Migrations
                     b.HasKey("UserId");
 
                     b.HasIndex("CountryId");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
 
                     b.HasIndex("UserRoleId");
 

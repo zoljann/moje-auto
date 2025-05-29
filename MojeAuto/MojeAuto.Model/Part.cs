@@ -23,7 +23,7 @@ public class Part
     public int WarrantyMonths { get; set; }
 
     [Required]
-    public int Quantity { get; set; } //kad se naruci preko ordera oduzet odavdje
+    public int Quantity { get; set; }
 
     [Required]
     public int TotalSold { get; set; } = 0;
@@ -37,7 +37,7 @@ public class Part
     [MaxLength(255)]
     public string? ImageUrl { get; set; }
 
-    public int EstimatedArrivalDays { get; set; } = 2; // ovo prikazes na dijelu kad je izlistan, a onda u DeliveryDate pohranis datum od ovog najkasnijeg
+    public int EstimatedArrivalDays { get; set; }
 
     public Manufacturer Manufacturer { get; set; } = null!;
     public Category Category { get; set; } = null!;

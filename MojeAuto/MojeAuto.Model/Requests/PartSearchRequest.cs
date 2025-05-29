@@ -1,6 +1,6 @@
 ﻿namespace MojeAuto.Model.Requests
 {
-    public class PartSearchRequest
+    public class PartSearchRequest : BaseSearchRequest
     {
         public string? Name { get; set; }
         public string? CatalogNumber { get; set; }

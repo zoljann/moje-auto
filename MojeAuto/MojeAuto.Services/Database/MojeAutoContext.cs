@@ -28,6 +28,14 @@ namespace MojeAuto.Services.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+
+            modelBuilder.Entity<Car>()
+                .HasIndex(c => c.VIN)
+                .IsUnique();
+
             modelBuilder.Entity<OrderItem>()
                 .HasOne(oi => oi.Part)
                 .WithMany(p => p.OrderItems)
@@ -62,6 +70,29 @@ namespace MojeAuto.Services.Database
                 .HasOne(pc => pc.Car)
                 .WithMany(c => c.CompatibleParts)
                 .HasForeignKey(pc => pc.CarId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Decimal precision
+            modelBuilder.Entity<Order>()
+                .Property(o => o.TotalAmount)
+                .HasPrecision(10, 2);
+
+            modelBuilder.Entity<OrderItem>()
+                .Property(oi => oi.UnitPrice)
+                .HasPrecision(10, 2);
+
+            modelBuilder.Entity<Part>()
+                .Property(p => p.Price)
+                .HasPrecision(10, 2);
+
+            modelBuilder.Entity<AdminReport>()
+                .Property(r => r.TotalSpent)
+                .HasPrecision(10, 2);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Delivery)
+                .WithOne()
+                .HasForeignKey<Order>(o => o.DeliveryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(modelBuilder);

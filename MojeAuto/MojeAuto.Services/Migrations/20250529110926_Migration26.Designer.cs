@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MojeAuto.Services.Database;
 
@@ -11,9 +12,11 @@ using MojeAuto.Services.Database;
 namespace MojeAuto.Services.Migrations
 {
     [DbContext(typeof(MojeAutoContext))]
-    partial class MojeAutoContextModelSnapshot : ModelSnapshot
+    [Migration("20250529110926_Migration26")]
+    partial class Migration26
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,8 +40,7 @@ namespace MojeAuto.Services.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("TotalSpent")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -80,9 +82,6 @@ namespace MojeAuto.Services.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("CarId");
-
-                    b.HasIndex("VIN")
-                        .IsUnique();
 
                     b.ToTable("Cars");
                 });
@@ -263,6 +262,9 @@ namespace MojeAuto.Services.Migrations
                     b.Property<int>("DeliveryId")
                         .HasColumnType("int");
 
+                    b.Property<int>("DeliveryId1")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
@@ -273,16 +275,14 @@ namespace MojeAuto.Services.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("TotalAmount")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("OrderId");
 
-                    b.HasIndex("DeliveryId")
-                        .IsUnique();
+                    b.HasIndex("DeliveryId1");
 
                     b.HasIndex("OrderStatusId");
 
@@ -311,8 +311,7 @@ namespace MojeAuto.Services.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("UnitPrice")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("OrderItemId");
 
@@ -377,8 +376,7 @@ namespace MojeAuto.Services.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("Price")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -497,9 +495,6 @@ namespace MojeAuto.Services.Migrations
 
                     b.HasIndex("CountryId");
 
-                    b.HasIndex("Email")
-                        .IsUnique();
-
                     b.HasIndex("UserRoleId");
 
                     b.ToTable("Users");
@@ -574,9 +569,9 @@ namespace MojeAuto.Services.Migrations
             modelBuilder.Entity("Order", b =>
                 {
                     b.HasOne("Delivery", "Delivery")
-                        .WithOne()
-                        .HasForeignKey("Order", "DeliveryId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .WithMany()
+                        .HasForeignKey("DeliveryId1")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("OrderStatus", "OrderStatus")

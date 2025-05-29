@@ -58,6 +58,7 @@ builder.Services.AddScoped<IBaseCrudService<OrderStatus, OrderStatusSearchReques
 builder.Services.AddScoped<IBaseCrudService<PartCar, PartCarSearchRequest, PartCarInsertRequest, PartCarUpdateRequest>, PartCarService>();
 builder.Services.AddScoped<IBaseCrudService<PaymentMethod, PaymentMethodSearchRequest, PaymentMethodInsertRequest, PaymentMethodUpdateRequest>, PaymentMethodService>();
 builder.Services.AddScoped<IBaseCrudService<UserRole, UserRoleSearchRequest, UserRoleInsertRequest, UserRoleUpdateRequest>, UserRoleService>();
+builder.Services.AddScoped<IBaseCrudService<Order, OrderSearchRequest, OrderInsertRequest, OrderUpdateRequest>, OrderService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

@@ -11,7 +11,7 @@ public class Order
     public DateTime OrderDate { get; set; } = DateTime.Now;
 
     [Required]
-    public decimal TotalAmount { get; set; } //racunace se ovako order.TotalAmount = order.OrderItems?.Sum(i => i.Quantity * i.UnitPrice) ?? 0;
+    public decimal TotalAmount { get; set; }
 
     [Required]
     public int PaymentMethodId { get; set; }
@@ -19,9 +19,12 @@ public class Order
     [Required]
     public int OrderStatusId { get; set; }
 
+    [Required]
+    public int DeliveryId { get; set; }
+
+    public User User { get; set; } = null!;
     public PaymentMethod PaymentMethod { get; set; } = null!;
     public OrderStatus OrderStatus { get; set; } = null!;
-    public User User { get; set; } = null!;
     public Delivery Delivery { get; set; } = null!;
-    public ICollection<OrderItem>? OrderItems { get; set; }
+    public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 }

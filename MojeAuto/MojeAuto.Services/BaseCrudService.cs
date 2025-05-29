@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MojeAuto.Model.Common;
+using MojeAuto.Model.Requests;
 using MojeAuto.Services.Database;
 using System.Linq.Expressions;
 
@@ -56,6 +57,12 @@ public class BaseCrudService<TEntity, TSearch, TInsert, TUpdate> : IBaseCrudServ
                 var predicate = Expression.Lambda<Func<TEntity, bool>>(body, parameter);
                 query = query.Where(predicate);
             }
+        }
+
+        if (search is BaseSearchRequest pagination)
+        {
+            int skip = (pagination.Page - 1) * pagination.PageSize;
+            query = query.Skip(skip).Take(pagination.PageSize);
         }
 
         var list = await query.ToListAsync();
