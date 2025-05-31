@@ -26,5 +26,5 @@ public class Order
     public PaymentMethod PaymentMethod { get; set; } = null!;
     public OrderStatus OrderStatus { get; set; } = null!;
     public Delivery Delivery { get; set; } = null!;
-    public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+    public ICollection<OrderItem> OrderItems { get; set; } = [];
 }

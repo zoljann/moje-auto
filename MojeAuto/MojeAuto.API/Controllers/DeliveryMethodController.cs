@@ -5,7 +5,7 @@ using MojeAuto.Model.Requests;
 namespace MojeAuto.API.Controllers
 {
     [ApiController]
-    [Route("delivery-method")]
+    [Route("delivery-methods")]
     public class DeliveryMethodController : BaseCrudController<DeliveryMethod, DeliveryMethodSearchRequest, DeliveryMethodInsertRequest, DeliveryMethodUpdateRequest>
     {
         public DeliveryMethodController(IBaseCrudService<DeliveryMethod, DeliveryMethodSearchRequest, DeliveryMethodInsertRequest, DeliveryMethodUpdateRequest> service)

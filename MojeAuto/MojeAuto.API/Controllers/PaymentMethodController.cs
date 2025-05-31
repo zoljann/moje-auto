@@ -5,7 +5,7 @@ using MojeAuto.Model.Requests;
 namespace MojeAuto.API.Controllers
 {
     [ApiController]
-    [Route("payment-method")]
+    [Route("payment-methods")]
     public class PaymentMethodController : BaseCrudController<PaymentMethod, PaymentMethodSearchRequest, PaymentMethodInsertRequest, PaymentMethodUpdateRequest>
     {
         public PaymentMethodController(IBaseCrudService<PaymentMethod, PaymentMethodSearchRequest, PaymentMethodInsertRequest, PaymentMethodUpdateRequest> service)

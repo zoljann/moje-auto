@@ -72,7 +72,6 @@ namespace MojeAuto.Services.Database
                 .HasForeignKey(pc => pc.CarId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Decimal precision
             modelBuilder.Entity<Order>()
                 .Property(o => o.TotalAmount)
                 .HasPrecision(10, 2);

@@ -240,6 +240,51 @@ namespace MojeAuto.Services.Helpers
 
                 db.SaveChanges();
             }
+
+            if (!db.Orders.Any())
+            {
+                var users = db.Users.Take(10).ToList();
+                var paymentMethod = db.PaymentMethods.First();
+                var orderStatus = db.OrderStatuses.First();
+                var deliveryStatuses = db.DeliveryStatuses.ToList();
+                var deliveryMethod = db.DeliveryMethods.First();
+                var parts = db.Parts.Take(5).ToList();
+
+                for (int i = 0; i < 10; i++)
+                {
+                    var delivery = new Delivery
+                    {
+                        DeliveryMethodId = deliveryMethod.DeliveryMethodId,
+                        DeliveryStatusId = deliveryStatuses[i % deliveryStatuses.Count].DeliveryStatusId,
+                        DeliveryDate = DateTime.Now.AddDays(-i)
+                    };
+
+                    db.Deliveries.Add(delivery);
+                    db.SaveChanges();
+
+                    var order = new Order
+                    {
+                        UserId = users[i].UserId,
+                        OrderDate = DateTime.Now.AddDays(-i),
+                        TotalAmount = parts[i % parts.Count].Price * 2,
+                        PaymentMethodId = paymentMethod.PaymentMethodId,
+                        OrderStatusId = orderStatus.OrderStatusId,
+                        DeliveryId = delivery.DeliveryId,
+                        OrderItems = new List<OrderItem>
+            {
+                new OrderItem
+                {
+                    PartId = parts[i % parts.Count].PartId,
+                    Quantity = 2,
+                    UnitPrice = parts[i % parts.Count].Price
+                }
+            }
+                    };
+
+                    db.Orders.Add(order);
+                    db.SaveChanges();
+                }
+            }
         }
     }
 }

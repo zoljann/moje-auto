@@ -5,7 +5,7 @@ using MojeAuto.Model.Requests;
 namespace MojeAuto.API.Controllers
 {
     [ApiController]
-    [Route("manufacturer")]
+    [Route("manufacturers")]
     public class ManufacturerController : BaseCrudController<Manufacturer, ManufacturerSearchRequest, ManufacturerInsertRequest, ManufacturerUpdateRequest>
     {
         public ManufacturerController(IBaseCrudService<Manufacturer, ManufacturerSearchRequest, ManufacturerInsertRequest, ManufacturerUpdateRequest> service)

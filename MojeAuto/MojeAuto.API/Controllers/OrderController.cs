@@ -6,7 +6,7 @@ using MojeAuto.Model.Requests;
 namespace MojeAuto.API.Controllers
 {
     [ApiController]
-    [Route("order")]
+    [Route("orders")]
     public class OrderController : BaseCrudController<Order, OrderSearchRequest, OrderInsertRequest, OrderUpdateRequest>
     {
         public OrderController(IBaseCrudService<Order, OrderSearchRequest, OrderInsertRequest, OrderUpdateRequest> service)

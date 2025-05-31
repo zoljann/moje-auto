@@ -60,7 +60,13 @@ builder.Services.AddScoped<IBaseCrudService<PaymentMethod, PaymentMethodSearchRe
 builder.Services.AddScoped<IBaseCrudService<UserRole, UserRoleSearchRequest, UserRoleInsertRequest, UserRoleUpdateRequest>, UserRoleService>();
 builder.Services.AddScoped<IBaseCrudService<Order, OrderSearchRequest, OrderInsertRequest, OrderUpdateRequest>, OrderService>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.WriteIndented = true;
+    });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {

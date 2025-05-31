@@ -5,9 +5,8 @@ using MojeAuto.Model.Requests;
 
 namespace MojeAuto.API.Controllers
 {
-    [Authorize(Roles = "Admin")]
     [ApiController]
-    [Route("user-role")]
+    [Route("user-roles")]
     public class UserRoleController : BaseCrudController<UserRole, UserRoleSearchRequest, UserRoleInsertRequest, UserRoleUpdateRequest>
     {
         public UserRoleController(IBaseCrudService<UserRole, UserRoleSearchRequest, UserRoleInsertRequest, UserRoleUpdateRequest> service)

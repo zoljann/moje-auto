@@ -5,7 +5,9 @@ using MojeAuto.Services.Database;
 
 public class PartCarService : BaseCrudService<PartCar, PartCarSearchRequest, PartCarInsertRequest, PartCarUpdateRequest>
 {
-    public PartCarService(MojeAutoContext context) : base(context) { }
+    public PartCarService(MojeAutoContext context) : base(context)
+    {
+    }
 
     public override async Task<ServiceResult<PartCar>> Insert(PartCarInsertRequest insertRequest)
     {

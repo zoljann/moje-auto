@@ -39,5 +39,4 @@ public class CarService : BaseCrudService<Car, CarSearchRequest, CarInsertReques
 
         return ServiceResult<Car>.Ok(car);
     }
-
 }

@@ -6,7 +6,7 @@ using MojeAuto.Model.Requests;
 namespace MojeAuto.API.Controllers
 {
     [ApiController]
-    [Route("notification")]
+    [Route("notifications")]
     public class NotificationController : BaseCrudController<Notification, NotificationSearchRequest, NotificationInsertRequest, NotificationUpdateRequest>
     {
         public NotificationController(IBaseCrudService<Notification, NotificationSearchRequest, NotificationInsertRequest, NotificationUpdateRequest> service)

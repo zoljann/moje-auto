@@ -3,5 +3,7 @@ using MojeAuto.Services.Database;
 
 public class DeliveryMethodService : BaseCrudService<DeliveryMethod, DeliveryMethodSearchRequest, DeliveryMethodInsertRequest, DeliveryMethodUpdateRequest>
 {
-    public DeliveryMethodService(MojeAutoContext context) : base(context) { }
+    public DeliveryMethodService(MojeAutoContext context) : base(context)
+    {
+    }
 }

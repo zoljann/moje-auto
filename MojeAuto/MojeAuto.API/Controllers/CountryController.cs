@@ -5,7 +5,7 @@ using MojeAuto.Model.Requests;
 namespace MojeAuto.API.Controllers
 {
     [ApiController]
-    [Route("country")]
+    [Route("countries")]
     public class CountryController : BaseCrudController<Country, CountrySearchRequest, CountryInsertRequest, CountryUpdateRequest>
     {
         public CountryController(IBaseCrudService<Country, CountrySearchRequest, CountryInsertRequest, CountryUpdateRequest> service)
