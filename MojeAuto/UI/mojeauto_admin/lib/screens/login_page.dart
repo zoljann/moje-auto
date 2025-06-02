@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mojeauto_admin/screens/cars_page.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final String? message;
+  const LoginPage({super.key, this.message});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -16,6 +18,20 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   String? _errorMessage;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.message != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(widget.message!)));
+      });
+    }
+  }
 
   Future<void> _login() async {
     final email = _emailController.text.trim();
@@ -51,9 +67,15 @@ class _LoginPageState extends State<LoginPage> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('jwt_token', jsonDecode(response.body)['token']);
 
+      if (!mounted) return;
+
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Prijava uspješna')));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const CarsPage()),
+      );
     } else {
       setState(() {
         _errorMessage = 'Pogrešan email ili lozinka';
@@ -68,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: const Color(0xFF0F111A),
       body: Center(
         child: Container(
           width: 400,
