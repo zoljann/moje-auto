@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mojeauto_admin/layout/admin_layout.dart';
+import 'package:mojeauto_admin/screens/users_page.dart';
 
 class LoginPage extends StatefulWidget {
   final String? message;
@@ -47,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         _errorMessage = 'Email mora biti u formatu: primjer@email.com';
         _isLoading = false;
-         _passwordController.clear();
+        _passwordController.clear();
       });
       return;
     }
@@ -81,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
             _errorMessage =
                 'Nemate dozvolu za pristup administratorskom panelu.';
             _isLoading = false;
-             _passwordController.clear();
+            _passwordController.clear();
           });
           return;
         }
@@ -95,7 +97,15 @@ class _LoginPageState extends State<LoginPage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Prijava uspješna')));
-      Navigator.pushReplacementNamed(context, '/admin/users');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const AdminLayout(
+            content: UsersPage(),
+            currentRoute: '/admin/users',
+          ),
+        ),
+      );
     } else {
       setState(() {
         _errorMessage = 'Pogrešan email ili lozinka';

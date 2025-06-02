@@ -72,13 +72,18 @@ class MyApp extends StatelessWidget {
                 : null,
           );
         } else if (!isAdmin) {
-          page = const LoginPage(message: "Nemate dozvolu za pristup administratorskom panelu.");
+          page = const LoginPage(
+            message: "Nemate dozvolu za pristup administratorskom panelu.",
+          );
         } else {
           switch (settings.name) {
             case '/admin/users':
               page = const UsersPage();
               break;
             case '/admin/cars':
+              page = const CarsPage();
+            case '/admin/profile':
+              page = const CarsPage();
             default:
               page = const CarsPage();
           }

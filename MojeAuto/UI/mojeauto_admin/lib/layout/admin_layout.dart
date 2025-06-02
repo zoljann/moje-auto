@@ -51,66 +51,89 @@ class AdminLayout extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 32),
-                _navItem(context, Icons.people, "Korisnici", '/admin/users'),
-                _navItem(
-                  context,
-                  Icons.directions_car,
-                  "Automobili",
-                  '/admin/cars',
-                ),
-                _navItem(context, Icons.build, "Dijelovi", '/admin/parts'),
-                _navItem(
-                  context,
-                  Icons.shopping_cart,
-                  "Narudžbe",
-                  '/admin/orders',
-                ),
-                _navItem(
-                  context,
-                  Icons.star,
-                  "Preporučeno",
-                  '/admin/recommended',
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Divider(
-                    color: Colors.white12,
-                    thickness: 1,
-                    height: 32,
-                  ),
-                ),
-                _navItem(
-                  context,
-                  Icons.insert_chart,
-                  "Izvještaji",
-                  '/admin/reports',
-                ),
-                MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => _logout(context),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal: 24,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _navItem(
+                        context,
+                        Icons.people,
+                        "Korisnici",
+                        '/admin/users',
                       ),
-                      child: Row(
-                        children: const [
-                          Icon(Icons.logout, color: Colors.white70, size: 20),
-                          SizedBox(width: 12),
-                          Text(
-                            "Odjavi se",
-                            style: TextStyle(color: Colors.white70),
+                      _navItem(
+                        context,
+                        Icons.directions_car,
+                        "Automobili",
+                        '/admin/cars',
+                      ),
+                      _navItem(
+                        context,
+                        Icons.build,
+                        "Dijelovi",
+                        '/admin/parts',
+                      ),
+                      _navItem(
+                        context,
+                        Icons.shopping_cart,
+                        "Narudžbe",
+                        '/admin/orders',
+                      ),
+                      _navItem(
+                        context,
+                        Icons.star,
+                        "Preporučeno",
+                        '/admin/recommended',
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Divider(
+                          color: Colors.white12,
+                          thickness: 1,
+                          height: 32,
+                        ),
+                      ),
+                      _navItem(
+                        context,
+                        Icons.insert_chart,
+                        "Izvještaji",
+                        '/admin/reports',
+                      ),
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => _logout(context),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 24,
+                            ),
+                            child: Row(
+                              children: const [
+                                Icon(
+                                  Icons.logout,
+                                  color: Colors.white70,
+                                  size: 20,
+                                ),
+                                SizedBox(width: 12),
+                                Text(
+                                  "Odjavi se",
+                                  style: TextStyle(color: Colors.white70),
+                                ),
+                              ],
+                            ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
+                _userProfile(context),
               ],
             ),
           ),
+
           Container(
             color: const Color(0xFF0F131A),
             child: const VerticalDivider(
@@ -159,7 +182,6 @@ class AdminLayout extends StatelessWidget {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-
         onTap: () => _handleNavigation(context, route),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
@@ -179,6 +201,47 @@ class AdminLayout extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _userProfile(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: GestureDetector(
+          onTap: () => _handleNavigation(context, '/admin/profile'),
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF232C39),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              children: [
+                const CircleAvatar(
+                  radius: 16,
+                  backgroundColor: Colors.amber,
+                  child: Icon(Icons.person, size: 18, color: Colors.black),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    "Nedim",
+                    style: TextStyle(color: Colors.white),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  color: Color.fromARGB(125, 255, 255, 255),
+                  size: 14,
+                ),
+              ],
+            ),
           ),
         ),
       ),
