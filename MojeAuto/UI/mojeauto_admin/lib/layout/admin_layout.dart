@@ -3,23 +3,28 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mojeauto_admin/screens/login_page.dart';
 
 class AdminLayout extends StatelessWidget {
-  final String username;
-  final Widget child;
+  final Widget content;
+  final String currentRoute;
 
-  const AdminLayout({super.key, required this.username, required this.child});
+  const AdminLayout({
+    super.key,
+    required this.content,
+    required this.currentRoute,
+  });
 
-  void _handleLogout(BuildContext context) async {
+  void _handleNavigation(BuildContext context, String route) {
+    Navigator.pushReplacementNamed(context, route);
+  }
+
+  void _logout(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('jwt_token');
-
-    if (context.mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const LoginPage(message: 'Uspješno ste se odjavili'),
-        ),
-      );
-    }
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const LoginPage(message: 'Uspješno ste se odjavili'),
+      ),
+    );
   }
 
   @override
@@ -32,12 +37,13 @@ class AdminLayout extends StatelessWidget {
             color: const Color(0xFF0F131A),
             padding: const EdgeInsets.symmetric(vertical: 24),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 35),
+                const Padding(
+                  padding: EdgeInsets.only(left: 16, right: 35),
                   child: Text(
                     "Moje Auto",
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 25,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -45,11 +51,26 @@ class AdminLayout extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 32),
-                navItem(Icons.people, "Korisnici"),
-                navItem(Icons.directions_car, "Automobili"),
-                navItem(Icons.build, "Dijelovi"),
-                navItem(Icons.shopping_cart, "Narudžbe"),
-                navItem(Icons.star, "Preporučeno"),
+                _navItem(context, Icons.people, "Korisnici", '/admin/users'),
+                _navItem(
+                  context,
+                  Icons.directions_car,
+                  "Automobili",
+                  '/admin/cars',
+                ),
+                _navItem(context, Icons.build, "Dijelovi", '/admin/parts'),
+                _navItem(
+                  context,
+                  Icons.shopping_cart,
+                  "Narudžbe",
+                  '/admin/orders',
+                ),
+                _navItem(
+                  context,
+                  Icons.star,
+                  "Preporučeno",
+                  '/admin/recommended',
+                ),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: Divider(
@@ -58,11 +79,34 @@ class AdminLayout extends StatelessWidget {
                     height: 32,
                   ),
                 ),
-                navItem(Icons.insert_chart, "Izvještaji"),
-                navItem(
-                  Icons.logout,
-                  "Odjavi se",
-                  onTap: () => _handleLogout(context),
+                _navItem(
+                  context,
+                  Icons.insert_chart,
+                  "Izvještaji",
+                  '/admin/reports',
+                ),
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => _logout(context),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 24,
+                      ),
+                      child: Row(
+                        children: const [
+                          Icon(Icons.logout, color: Colors.white70, size: 20),
+                          SizedBox(width: 12),
+                          Text(
+                            "Odjavi se",
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -82,9 +126,9 @@ class AdminLayout extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Pozdrav, $username 👋",
-                    style: const TextStyle(fontSize: 18, color: Colors.white),
+                  const Text(
+                    "Pozdrav, Admin 👋",
+                    style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
                   const Text(
                     "Dobrodošao na administrativni dio aplikacije \"Moje Auto\"",
@@ -93,7 +137,7 @@ class AdminLayout extends StatelessWidget {
                   const SizedBox(height: 32),
                   const Divider(height: 1, thickness: 1, color: Colors.white12),
                   const SizedBox(height: 24),
-                  Expanded(child: child),
+                  Expanded(child: content),
                 ],
               ),
             ),
@@ -103,18 +147,37 @@ class AdminLayout extends StatelessWidget {
     );
   }
 
-  Widget navItem(IconData icon, String title, {VoidCallback? onTap}) {
+  Widget _navItem(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String route,
+  ) {
+    final isActive = currentRoute == route;
+
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+
+        onTap: () => _handleNavigation(context, route),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
           child: Row(
             children: [
-              Icon(icon, color: Colors.white70, size: 20),
+              Icon(
+                icon,
+                color: isActive ? Colors.white : Colors.white70,
+                size: 20,
+              ),
               const SizedBox(width: 12),
-              Text(title, style: const TextStyle(color: Colors.white70)),
+              Text(
+                title,
+                style: TextStyle(
+                  color: isActive ? Colors.white : Colors.white70,
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
             ],
           ),
         ),
