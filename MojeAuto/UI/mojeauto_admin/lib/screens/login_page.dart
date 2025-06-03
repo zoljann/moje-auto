@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mojeauto_admin/layout/admin_layout.dart';
 import 'package:mojeauto_admin/screens/users_page.dart';
 
@@ -66,32 +65,6 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     if (response.statusCode == 200) {
-      final token = jsonDecode(response.body)['token'];
-
-      final parts = token.split('.');
-      if (parts.length == 3) {
-        final payload = jsonDecode(
-          utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
-        );
-
-        final role =
-            payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-        final isAdmin = role == 'Admin';
-
-        if (!isAdmin) {
-          setState(() {
-            _errorMessage =
-                'Nemate dozvolu za pristup administratorskom panelu.';
-            _isLoading = false;
-            _passwordController.clear();
-          });
-          return;
-        }
-      }
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('jwt_token', token);
-
       if (!mounted) return;
 
       ScaffoldMessenger.of(
