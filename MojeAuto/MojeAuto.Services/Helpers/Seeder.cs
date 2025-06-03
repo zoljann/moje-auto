@@ -36,8 +36,8 @@ namespace MojeAuto.Services.Helpers
             if (!db.UserRoles.Any())
             {
                 db.UserRoles.AddRange(
-                    new UserRole { Name = "user" },
-                    new UserRole { Name = "admin" }
+                    new UserRole { Name = "User" },
+                    new UserRole { Name = "Admin" }
                 );
                 db.SaveChanges();
             }
@@ -127,22 +127,22 @@ namespace MojeAuto.Services.Helpers
             if (!db.Cars.Any())
             {
                 db.Cars.AddRange(
-                    new Car { VIN = "1HGCM82633A123456", Brand = "Honda", Model = "Accord", Year = 2005 },
-                    new Car { VIN = "WVWZZZ1JZXW000123", Brand = "Volkswagen", Model = "Golf 5", Year = 2008 },
-                    new Car { VIN = "WDBUF70J34A123456", Brand = "Mercedes-Benz", Model = "E klasa", Year = 2004 },
-                    new Car { VIN = "WAUZZZ8V4FA012345", Brand = "Audi", Model = "A3", Year = 2015 },
-                    new Car { VIN = "3FAHP0HA2AR123456", Brand = "Ford", Model = "Fusion", Year = 2010 },
-                    new Car { VIN = "KMHE34L18GA123456", Brand = "Hyundai", Model = "Sonata", Year = 2016 },
-                    new Car { VIN = "JN1CV6APXAM123456", Brand = "Infiniti", Model = "G37", Year = 2011 },
-                    new Car { VIN = "JH4CL96866C123456", Brand = "Acura", Model = "TSX", Year = 2006 },
-                    new Car { VIN = "1FTFW1ET1EK123456", Brand = "Ford", Model = "F-150", Year = 2014 },
-                    new Car { VIN = "ZFAAXX00C0P123456", Brand = "Fiat", Model = "Punto", Year = 2009 }
+                    new Car { VIN = "1HGCM82633A123456", Brand = "Honda", Model = "Accord", Year = 2005, Fuel = "Benzin", Engine = 3.0 },
+                    new Car { VIN = "WVWZZZ1JZXW000123", Brand = "Volkswagen", Model = "Golf 5", Year = 2008, Fuel = "Benzin", Engine = 1.3 },
+                    new Car { VIN = "WDBUF70J34A123456", Brand = "Mercedes-Benz", Model = "E klasa", Year = 2004, Fuel = "Benzin", Engine = 1.5 },
+                    new Car { VIN = "WAUZZZ8V4FA012345", Brand = "Audi", Model = "A3", Year = 2015, Fuel = "Dizel", Engine = 3.8 },
+                    new Car { VIN = "3FAHP0HA2AR123456", Brand = "Ford", Model = "Fusion", Year = 2010, Fuel = "Benzin", Engine = 2.5 },
+                    new Car { VIN = "KMHE34L18GA123456", Brand = "Hyundai", Model = "Sonata", Year = 2016, Fuel = "Dizel", Engine = 2.2 },
+                    new Car { VIN = "JN1CV6APXAM123456", Brand = "Infiniti", Model = "G37", Year = 2011, Fuel = "Benzin", Engine = 2.0 },
+                    new Car { VIN = "JH4CL96866C123456", Brand = "Acura", Model = "TSX", Year = 2006, Fuel = "Benzin", Engine = 4.0 },
+                    new Car { VIN = "1FTFW1ET1EK123456", Brand = "Ford", Model = "F-150", Year = 2014, Fuel = "Dizel", Engine = 1.9 },
+                    new Car { VIN = "ZFAAXX00C0P123456", Brand = "Fiat", Model = "Punto", Year = 2009, Fuel = "Dizel", Engine = 1.2 }
                 );
                 db.SaveChanges();
             }
 
             var userRoleUser = db.UserRoles.First(ur => ur.Name == "user");
-            var userRoleAdmin = db.UserRoles.First(ur => ur.Name == "admin");
+            var userRoleAdmin = db.UserRoles.First(ur => ur.Name == "Admin");
 
             var germany = db.Countries.First(c => c.Name == "Hrvatska");
             var croatia = db.Countries.First(c => c.Name == "SAD");

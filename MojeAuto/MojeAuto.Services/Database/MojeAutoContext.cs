@@ -94,6 +94,12 @@ namespace MojeAuto.Services.Database
                 .HasForeignKey<Order>(o => o.DeliveryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<PartCar>()
+            .HasOne(pc => pc.Car)
+            .WithMany()
+            .HasForeignKey(pc => pc.CarId)
+            .OnDelete(DeleteBehavior.Cascade);
+
             base.OnModelCreating(modelBuilder);
         }
     }

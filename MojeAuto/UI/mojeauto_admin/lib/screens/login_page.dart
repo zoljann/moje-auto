@@ -76,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
 
         final role =
             payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-        final isAdmin = role == 'admin';
+        final isAdmin = role == 'Admin';
 
         if (!isAdmin) {
           setState(() {

@@ -32,8 +32,19 @@ Future<void> main() async {
 
       if (exp != null && exp > currentTime) {
         isJwtValid = true;
-        isAdmin = role == "admin";
+        isAdmin = role == "Admin";
+      } else {
+        await prefs.remove('jwt_token');
+        tokenExists = false;
       }
+
+      if (!isAdmin) {
+        await prefs.remove('jwt_token');
+        tokenExists = false;
+      }
+    } else {
+      await prefs.remove('jwt_token');
+      tokenExists = false;
     }
   }
 

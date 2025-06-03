@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MojeAuto.Services.Database;
 
@@ -11,9 +12,11 @@ using MojeAuto.Services.Database;
 namespace MojeAuto.Services.Migrations
 {
     [DbContext(typeof(MojeAutoContext))]
-    partial class MojeAutoContextModelSnapshot : ModelSnapshot
+    [Migration("20250603111829_Migration32")]
+    partial class Migration32
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -421,17 +424,12 @@ namespace MojeAuto.Services.Migrations
                     b.Property<int>("CarId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CarId1")
-                        .HasColumnType("int");
-
                     b.Property<int>("PartId")
                         .HasColumnType("int");
 
                     b.HasKey("PartCarId");
 
                     b.HasIndex("CarId");
-
-                    b.HasIndex("CarId1");
 
                     b.HasIndex("PartId");
 
@@ -658,14 +656,10 @@ namespace MojeAuto.Services.Migrations
             modelBuilder.Entity("PartCar", b =>
                 {
                     b.HasOne("Car", "Car")
-                        .WithMany()
-                        .HasForeignKey("CarId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Car", null)
                         .WithMany("CompatibleParts")
-                        .HasForeignKey("CarId1");
+                        .HasForeignKey("CarId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Part", "Part")
                         .WithMany("CompatibleCars")

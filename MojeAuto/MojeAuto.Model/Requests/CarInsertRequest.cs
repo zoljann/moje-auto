@@ -14,6 +14,12 @@ namespace MojeAuto.Model.Requests
         public string Model { get; set; } = null!;
 
         [Required]
+        public double Engine { get; set; }
+
+        [Required, MaxLength(50)]
+        public string Fuel { get; set; } = null!;
+
+        [Required]
         public int Year { get; set; }
     }
 }
