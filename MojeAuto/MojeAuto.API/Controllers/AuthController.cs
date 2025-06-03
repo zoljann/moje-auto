@@ -15,7 +15,7 @@ public class AuthController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var (token, user) = await _authService.AuthenticateAsync(request);
+        var (token, refreshToken, user) = await _authService.AuthenticateAsync(request);
 
         if (user == null)
             return Unauthorized("Invalid credentials.");
@@ -23,6 +23,7 @@ public class AuthController : ControllerBase
         return Ok(new
         {
             Token = token,
+            RefreshToken = refreshToken,
             User = new
             {
                 user.UserId,
@@ -30,6 +31,21 @@ public class AuthController : ControllerBase
                 user.LastName,
                 user.Email,
             }
+        });
+    }
+
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh([FromBody] string refreshToken)
+    {
+        var (newToken, newRefreshToken) = await _authService.RefreshAsync(refreshToken);
+
+        if (string.IsNullOrEmpty(newToken))
+            return Unauthorized("Invalid or expired refresh token.");
+
+        return Ok(new
+        {
+            Token = newToken,
+            RefreshToken = newRefreshToken
         });
     }
 }

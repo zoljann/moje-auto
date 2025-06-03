@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MojeAuto.Model.Common;
 
 namespace MojeAuto.Services.Database
 {
@@ -8,6 +9,7 @@ namespace MojeAuto.Services.Database
         {
         }
 
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Car> Cars { get; set; }
         public DbSet<Part> Parts { get; set; }
         public DbSet<PartCar> PartCars { get; set; }

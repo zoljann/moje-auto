@@ -1,11 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using MojeAuto.Model.Common;
 using MojeAuto.Model;
 using MojeAuto.Services.Database;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 public class AuthService : IAuthService
 {
@@ -18,7 +20,7 @@ public class AuthService : IAuthService
         _config = config;
     }
 
-    public async Task<(string Token, User? User)> AuthenticateAsync(LoginRequest request)
+    public async Task<(string Token, string RefreshToken, User? User)> AuthenticateAsync(LoginRequest request)
     {
         var user = await _context.Users
             .Include(u => u.UserRole)
@@ -28,21 +30,54 @@ public class AuthService : IAuthService
             return default;
 
         var token = GenerateJwtToken(user);
+        var refreshToken = await GenerateRefreshToken(user);
 
-        return (token, user);
+        return (token, refreshToken.Token, user);
+    }
+
+    private async Task<RefreshToken> GenerateRefreshToken(User user)
+    {
+        var refreshToken = new RefreshToken
+        {
+            Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+            Expires = DateTime.UtcNow.AddDays(7),
+            IsRevoked = false,
+            UserId = user.UserId
+        };
+
+        _context.RefreshTokens.Add(refreshToken);
+        await _context.SaveChangesAsync();
+
+        return refreshToken;
+    }
+
+    public async Task<(string Token, string RefreshToken)> RefreshAsync(string refreshToken)
+    {
+        var storedToken = await _context.RefreshTokens
+            .Include(rt => rt.User)
+            .FirstOrDefaultAsync(rt => rt.Token == refreshToken && rt.Expires > DateTime.UtcNow && !rt.IsRevoked);
+
+        if (storedToken == null || storedToken.User == null)
+            return default;
+
+        storedToken.IsRevoked = true;
+        var newJwt = GenerateJwtToken(storedToken.User);
+        var newRefresh = await GenerateRefreshToken(storedToken.User);
+
+        await _context.SaveChangesAsync();
+
+        return (newJwt, newRefresh.Token);
     }
 
     private string GenerateJwtToken(User user)
     {
-        var jwtSettings = _config.GetSection("Jwt");
-
         var keyString = Environment.GetEnvironmentVariable("JWT_KEY") ?? throw new Exception("JWT_KEY environment variable is not set.");
         var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? throw new Exception("JWT_ISSUER environment variable is not set.");
         var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? throw new Exception("JWT_AUDIENCE environment variable is not set.");
         var expiresInString = Environment.GetEnvironmentVariable("JWT_EXPIRESINMINUTES") ?? throw new Exception("JWT_EXPIRESINMINUTES environment variable is not set.");
 
         if (!int.TryParse(expiresInString, out int expiresInMinutes))
-            throw new Exception("JWT ExpiresInMinutes config value is not a valid integer.");
+            throw new Exception("JWT_EXPIRESINMINUTES must be a valid integer.");
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
