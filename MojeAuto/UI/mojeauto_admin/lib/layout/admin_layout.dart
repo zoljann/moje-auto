@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mojeauto_admin/screens/login_page.dart';
+import 'package:mojeauto_admin/helpers/token_manager.dart';
 
 class AdminLayout extends StatelessWidget {
   final Widget content;
@@ -17,8 +17,7 @@ class AdminLayout extends StatelessWidget {
   }
 
   void _logout(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('jwt_token');
+    await TokenManager().clear();
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(

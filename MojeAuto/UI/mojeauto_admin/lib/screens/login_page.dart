@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mojeauto_admin/layout/admin_layout.dart';
-import 'package:mojeauto_admin/screens/users_page.dart';
+import 'package:mojeauto_admin/helpers/token_manager.dart';
+import 'package:mojeauto_admin/screens/cars_page.dart';
 
 class LoginPage extends StatefulWidget {
   final String? message;
@@ -65,6 +66,9 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     if (response.statusCode == 200) {
+      final result = jsonDecode(response.body);
+      await TokenManager().saveTokens(result['token'], result['refreshToken']);
+
       if (!mounted) return;
 
       ScaffoldMessenger.of(
@@ -74,14 +78,15 @@ class _LoginPageState extends State<LoginPage> {
         context,
         MaterialPageRoute(
           builder: (_) => const AdminLayout(
-            content: UsersPage(),
-            currentRoute: '/admin/users',
+            content: CarsPage(),
+            currentRoute: '/admin/cars',
           ),
         ),
       );
     } else {
       setState(() {
         _errorMessage = 'Pogrešan email ili lozinka';
+        _passwordController.clear();
       });
     }
 

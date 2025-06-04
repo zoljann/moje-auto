@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mojeauto_admin/helpers/authenticated_client.dart';
 
 class CarsPage extends StatefulWidget {
   const CarsPage({super.key});
@@ -20,6 +19,7 @@ class _CarsPageState extends State<CarsPage> {
   bool hasNextPage = false;
   bool showForm = false;
   final _formKey = GlobalKey<FormState>();
+  final List<String> fuelTypes = ['Dizel', 'Benzin', 'Električni'];
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -33,22 +33,14 @@ class _CarsPageState extends State<CarsPage> {
   @override
   void initState() {
     super.initState();
+    _fuelController.text = fuelTypes.first;
     _fetchCars();
   }
 
   Future<void> _addCar() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('jwt_token');
-
-    final uri = Uri.parse("${dotenv.env['API_BASE_URL']}/cars");
-
-    final response = await http.post(
-      uri,
-      headers: {
-        'accept': 'text/plain',
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+    final response = await httpClient.post(
+      Uri.parse("${dotenv.env['API_BASE_URL']}/cars"),
+      headers: {'accept': 'text/plain', 'Content-Type': 'application/json'},
       body: jsonEncode({
         "vin": _vinController.text.trim(),
         "brand": _brandController.text.trim(),
@@ -102,11 +94,12 @@ class _CarsPageState extends State<CarsPage> {
       queryParams['Brand'] = searchQuery;
     }
 
-    final uri = Uri.parse(
-      "${dotenv.env['API_BASE_URL']}/cars",
-    ).replace(queryParameters: queryParams);
-
-    final response = await http.get(uri, headers: {'accept': 'text/plain'});
+    final response = await httpClient.get(
+      Uri.parse(
+        "${dotenv.env['API_BASE_URL']}/cars",
+      ).replace(queryParameters: queryParams),
+      headers: {'accept': 'text/plain'},
+    );
 
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
@@ -125,12 +118,9 @@ class _CarsPageState extends State<CarsPage> {
   }
 
   Future<void> _deleteCar(BuildContext context, int carId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('jwt_token');
-
-    final response = await http.delete(
+    final response = await httpClient.delete(
       Uri.parse("${dotenv.env['API_BASE_URL']}/cars/$carId"),
-      headers: {'accept': 'text/plain', 'Authorization': 'Bearer $token'},
+      headers: {'accept': 'text/plain'},
     );
 
     if (response.statusCode == 204) {
@@ -249,19 +239,55 @@ class _CarsPageState extends State<CarsPage> {
                     : null;
               },
             ),
-            _buildInputField(
-              controller: _fuelController,
-              label: "Gorivo",
-              validator: (value) =>
-                  (value == null || value.isEmpty) ? 'Unesite gorivo' : null,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DropdownButtonFormField<String>(
+                  value: _fuelController.text.isNotEmpty
+                      ? _fuelController.text
+                      : null,
+                  onChanged: (value) {
+                    setState(() {
+                      _fuelController.text = value ?? '';
+                    });
+                  },
+                  items: fuelTypes
+                      .map(
+                        (fuel) =>
+                            DropdownMenuItem(value: fuel, child: Text(fuel)),
+                      )
+                      .toList(),
+                  validator: (value) => (value == null || value.isEmpty)
+                      ? 'Odaberite gorivo'
+                      : null,
+                  dropdownColor: const Color(0xFF1E1E1E),
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: "Gorivo",
+                    labelStyle: const TextStyle(color: Colors.white70),
+                    filled: true,
+                    fillColor: const Color(0xFF1E1E1E),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
+                    errorStyle: const TextStyle(color: Colors.redAccent),
+                  ),
+                ),
+                const SizedBox(
+                  height: 12,
+                ), // 👈 match your `_buildInputField` spacing
+              ],
             ),
+
             _buildInputField(
               controller: _yearController,
               label: "Godina proizvodnje",
               validator: (value) {
                 final year = int.tryParse(value ?? '');
-                return year == null || year < 1900
-                    ? 'Unesite ispravnu godinu'
+                final currentYear = DateTime.now().year;
+                return (year == null || year < 1900 || year > currentYear)
+                    ? 'Godina mora biti između 1900 i $currentYear'
                     : null;
               },
             ),

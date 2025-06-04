@@ -54,8 +54,9 @@ public class AuthService : IAuthService
     public async Task<(string Token, string RefreshToken)> RefreshAsync(string refreshToken)
     {
         var storedToken = await _context.RefreshTokens
-            .Include(rt => rt.User)
-            .FirstOrDefaultAsync(rt => rt.Token == refreshToken && rt.Expires > DateTime.UtcNow && !rt.IsRevoked);
+          .Include(rt => rt.User)
+          .ThenInclude(u => u.UserRole)
+          .FirstOrDefaultAsync(rt => rt.Token == refreshToken && rt.Expires > DateTime.UtcNow && !rt.IsRevoked);
 
         if (storedToken == null || storedToken.User == null)
             return default;

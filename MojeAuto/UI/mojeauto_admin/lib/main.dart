@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/cars_page.dart';
-import 'screens/users_page.dart';
+import 'screens/login_page.dart';
 import 'layout/admin_layout.dart';
+import 'helpers/token_manager.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-
-  runApp(MyApp());
+  await TokenManager().initialize();
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
+  bool get isLoggedIn => TokenManager().token?.isNotEmpty == true;
 
   @override
   Widget build(BuildContext context) {
@@ -23,28 +26,29 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+      initialRoute: isLoggedIn ? '/admin/cars' : '/login',
       onGenerateRoute: (settings) {
-        Widget content;
+        Widget page;
 
         switch (settings.name) {
-          case '/admin/users':
-            content = const UsersPage();
-            break;
           case '/admin/cars':
-            content = const CarsPage();
+            page = AdminLayout(
+              content: const CarsPage(),
+              currentRoute: '/admin/cars',
+            );
             break;
-          case '/admin/profile':
-            content = const CarsPage(); // placeholder for profile
+          case '/admin/users':
+            page = AdminLayout(
+              content: const CarsPage(),
+              currentRoute: '/admin/users',
+            );
+            break;
+          case '/login':
+            page = const LoginPage();
             break;
           default:
-            content = const CarsPage(); // fallback
-            break;
+            return null;
         }
-
-        final page = AdminLayout(
-          content: content,
-          currentRoute: settings.name ?? '',
-        );
 
         return PageRouteBuilder(
           settings: settings,
