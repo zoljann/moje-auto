@@ -212,31 +212,54 @@ class _CarsPageState extends State<CarsPage> {
             _buildInputField(
               controller: _vinController,
               label: "VIN",
-              validator: (value) =>
-                  (value == null || value.isEmpty) ? 'Unesite VIN' : null,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Unesite VIN';
+                }
+                if (value.length < 5 || value.length > 50) {
+                  return 'VIN mora imati između 5 i 50 znakova';
+                }
+                return null;
+              },
             ),
             _buildInputField(
               controller: _brandController,
               label: "Brend",
-              validator: (value) => (value == null || value.isEmpty)
-                  ? 'Unesite brend, npr. BMW'
-                  : null,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Unesite brend, npr. BMW';
+                }
+                if (value.length < 2 || value.length > 50) {
+                  return 'Brend mora imati između 2 i 50 znakova';
+                }
+                return null;
+              },
             ),
             _buildInputField(
               controller: _modelController,
               label: "Model",
-              validator: (value) => (value == null || value.isEmpty)
-                  ? 'Unesite model, npr. E90'
-                  : null,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Unesite model, npr. E90';
+                }
+                return null;
+              },
             ),
             _buildInputField(
               controller: _engineController,
               label: "Kubikaža",
               validator: (value) {
                 final parsed = double.tryParse(value ?? '');
-                return parsed == null || parsed <= 0
-                    ? 'Unesite ispravnu kubikažu, npr. 2.0'
-                    : null;
+                final regex = RegExp(
+                  r'^\d(\.\d)?$',
+                );
+                if (parsed == null ||
+                    parsed <= 0 ||
+                    !regex.hasMatch(value ?? '') ||
+                    parsed > 9.9) {
+                  return 'Unesite kubikažu kao jednu decimalu (npr. 2.5), max 9.9';
+                }
+                return null;
               },
             ),
             Column(
@@ -276,7 +299,7 @@ class _CarsPageState extends State<CarsPage> {
                 ),
                 const SizedBox(
                   height: 12,
-                ), // 👈 match your `_buildInputField` spacing
+                ),
               ],
             ),
 
