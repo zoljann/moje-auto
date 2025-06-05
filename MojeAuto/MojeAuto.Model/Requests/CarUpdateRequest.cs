@@ -13,7 +13,7 @@ namespace MojeAuto.Model.Requests
         [MaxLength(50)]
         public string? Model { get; set; }
 
-        public int? Engine { get; set; }
+        public string? Engine { get; set; }
 
         [MaxLength(50)]
         public string? Fuel { get; set; }

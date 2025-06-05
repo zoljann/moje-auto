@@ -18,6 +18,7 @@ class _CarsPageState extends State<CarsPage> {
   String searchQuery = "";
   bool hasNextPage = false;
   bool showForm = false;
+  int? editingCarId;
   final _formKey = GlobalKey<FormState>();
   final List<String> fuelTypes = ['Dizel', 'Benzin', 'Električni'];
 
@@ -45,7 +46,7 @@ class _CarsPageState extends State<CarsPage> {
         "vin": _vinController.text.trim(),
         "brand": _brandController.text.trim(),
         "model": _modelController.text.trim(),
-        "engine": double.tryParse(_engineController.text.trim()),
+        "engine": _engineController.text.trim(),
         "fuel": _fuelController.text.trim(),
         "year": int.tryParse(_yearController.text.trim()),
       }),
@@ -58,12 +59,7 @@ class _CarsPageState extends State<CarsPage> {
           backgroundColor: Colors.green,
         ),
       );
-      _vinController.clear();
-      _brandController.clear();
-      _modelController.clear();
-      _engineController.clear();
-      _fuelController.clear();
-      _yearController.clear();
+      _clearForm();
 
       _fetchCars();
       setState(() => showForm = false);
@@ -141,6 +137,50 @@ class _CarsPageState extends State<CarsPage> {
         ),
       );
     }
+  }
+
+  Future<void> _updateCar(int id) async {
+    final response = await httpClient.put(
+      Uri.parse("${dotenv.env['API_BASE_URL']}/cars/$id"),
+      headers: {'accept': 'text/plain', 'Content-Type': 'application/json'},
+      body: jsonEncode({
+        "vin": _vinController.text.trim(),
+        "brand": _brandController.text.trim(),
+        "model": _modelController.text.trim(),
+        "engine": _engineController.text.trim(),
+        "fuel": _fuelController.text.trim(),
+        "year": int.tryParse(_yearController.text.trim()),
+      }),
+    );
+
+    if (response.statusCode == 204) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Automobil je uspješno ažuriran."),
+          backgroundColor: Colors.green,
+        ),
+      );
+      editingCarId = null;
+      _clearForm();
+      _fetchCars();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Greška pri ažuriranju: ${response.statusCode}"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _clearForm() {
+    _vinController.clear();
+    _brandController.clear();
+    _modelController.clear();
+    _engineController.clear();
+    _fuelController.clear();
+    _yearController.clear();
+    showForm = false;
   }
 
   void _onSearchChanged() {
@@ -249,15 +289,19 @@ class _CarsPageState extends State<CarsPage> {
               controller: _engineController,
               label: "Kubikaža",
               validator: (value) {
-                final parsed = double.tryParse(value ?? '');
-                final regex = RegExp(
-                  r'^\d(\.\d)?$',
-                );
-                if (parsed == null ||
-                    parsed <= 0 ||
-                    !regex.hasMatch(value ?? '') ||
-                    parsed > 9.9) {
-                  return 'Unesite kubikažu kao jednu decimalu (npr. 2.5), max 9.9';
+                if (value == null || value.trim().isEmpty) {
+                  return 'Unesite kubikažu';
+                }
+
+                final cleaned = value.trim();
+                final regex = RegExp(r'^\d+(\.\d)?$');
+                if (!regex.hasMatch(cleaned)) {
+                  return 'Format mora biti npr. 2.5, koristite tačku';
+                }
+
+                final parsed = double.tryParse(cleaned);
+                if (parsed == null || parsed <= 0 || parsed > 9.9) {
+                  return 'Kubikaža mora biti veća od 0 i najviše 9.9';
                 }
                 return null;
               },
@@ -297,9 +341,7 @@ class _CarsPageState extends State<CarsPage> {
                     errorStyle: const TextStyle(color: Colors.redAccent),
                   ),
                 ),
-                const SizedBox(
-                  height: 12,
-                ),
+                const SizedBox(height: 12),
               ],
             ),
 
@@ -320,9 +362,14 @@ class _CarsPageState extends State<CarsPage> {
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState?.validate() ?? false) {
-                      _addCar();
+                      if (editingCarId != null) {
+                        _updateCar(editingCarId!);
+                      } else {
+                        _addCar();
+                      }
                     }
                   },
+
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF3B82F6),
                     padding: const EdgeInsets.symmetric(
@@ -330,9 +377,9 @@ class _CarsPageState extends State<CarsPage> {
                       vertical: 12,
                     ),
                   ),
-                  child: const Text(
-                    "Dodaj",
-                    style: TextStyle(color: Colors.white),
+                  child: Text(
+                    editingCarId != null ? "Uredi" : "Dodaj",
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -344,7 +391,10 @@ class _CarsPageState extends State<CarsPage> {
                     _engineController.clear();
                     _fuelController.clear();
                     _yearController.clear();
-                    setState(() => showForm = false);
+                    setState(() {
+                      editingCarId = null;
+                      showForm = false;
+                    });
                   },
 
                   style: TextButton.styleFrom(
@@ -475,7 +525,16 @@ class _CarsPageState extends State<CarsPage> {
                             ),
                             onSelected: (value) {
                               if (value == 'edit') {
-                                // TODO: Edit logic
+                                setState(() {
+                                  editingCarId = car['carId'];
+                                  _vinController.text = car['vin'];
+                                  _brandController.text = car['brand'];
+                                  _modelController.text = car['model'];
+                                  _engineController.text = car['engine'];
+                                  _fuelController.text = car['fuel'];
+                                  _yearController.text = car['year'].toString();
+                                  showForm = true;
+                                });
                               } else if (value == 'delete') {
                                 showDialog(
                                   context: context,
