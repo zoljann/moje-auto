@@ -69,6 +69,11 @@ public class UserService : BaseCrudService<User, UserSearchRequest, UserInsertRe
 
         MapUpdateRequestToEntity(updateRequest, user);
 
+        if (updateRequest.CountryId.HasValue)
+        {
+            user.CountryId = updateRequest.CountryId.Value;
+        }
+
         if (updateRequest.Image != null && updateRequest.Image.Length > 0)
         {
             using var ms = new MemoryStream();

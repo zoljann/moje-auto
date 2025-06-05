@@ -5,6 +5,8 @@ import 'package:mojeauto_admin/helpers/authenticated_client.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:mojeauto_admin/common/form_fields.dart';
+import 'package:mojeauto_admin/common/pagination_controls.dart';
 
 class UsersPage extends StatefulWidget {
   const UsersPage({super.key});
@@ -25,21 +27,35 @@ class _UsersPageState extends State<UsersPage> {
   final _formKey = GlobalKey<FormState>();
   File? _selectedImage;
   String? _existingImageBase64;
+  List<dynamic> _countries = [];
+  int? _selectedCountryId;
 
   final TextEditingController _searchController = TextEditingController();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _countryController = TextEditingController();
   final _addressController = TextEditingController();
   final _phoneController = TextEditingController();
   final _birthDateController = TextEditingController();
-  final _passwordController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchUsers();
+    _fetchCountries();
+  }
+
+  Future<void> _fetchCountries() async {
+    final response = await httpClient.get(
+      Uri.parse("${dotenv.env['API_BASE_URL']}/countries"),
+      headers: {'accept': 'text/plain'},
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _countries = jsonDecode(response.body);
+      });
+    }
   }
 
   Future<void> _addUser() async {
@@ -51,7 +67,11 @@ class _UsersPageState extends State<UsersPage> {
     request.fields['email'] = _emailController.text.trim();
     request.fields['phoneNumber'] = _phoneController.text.trim();
     request.fields['birthDate'] = _birthDateController.text.trim();
-    request.fields['password'] = _passwordController.text.trim();
+    request.fields['address'] = _addressController.text.trim();
+
+    if (_selectedCountryId != null) {
+      request.fields['countryId'] = _selectedCountryId.toString();
+    }
 
     if (_selectedImage != null) {
       request.files.add(
@@ -71,13 +91,10 @@ class _UsersPageState extends State<UsersPage> {
       );
       _clearForm();
       _fetchUsers();
-      setState(() => showForm = false);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            "Greška pri dodavanju korisnika: ${response.statusCode}",
-          ),
+          content: Text("Greška pri dodavanju korisnika: ${response.body}"),
           backgroundColor: Colors.red,
         ),
       );
@@ -156,7 +173,11 @@ class _UsersPageState extends State<UsersPage> {
     request.fields['email'] = _emailController.text.trim();
     request.fields['phoneNumber'] = _phoneController.text.trim();
     request.fields['birthDate'] = _birthDateController.text.trim();
-    request.fields['password'] = _passwordController.text.trim();
+    request.fields['address'] = _addressController.text.trim();
+
+    if (_selectedCountryId != null) {
+      request.fields['countryId'] = _selectedCountryId.toString();
+    }
 
     if (_selectedImage != null) {
       request.files.add(
@@ -204,7 +225,8 @@ class _UsersPageState extends State<UsersPage> {
     _emailController.clear();
     _phoneController.clear();
     _birthDateController.clear();
-    _passwordController.clear();
+    _addressController.clear();
+    _selectedCountryId = null;
     _existingImageBase64 = null;
     _selectedImage = null;
     showForm = false;
@@ -230,238 +252,211 @@ class _UsersPageState extends State<UsersPage> {
     }
   }
 
-  Widget _buildInputField({
-    required TextEditingController controller,
-    required String label,
-    required String? Function(String?) validator,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextFormField(
-          controller: controller,
-          style: const TextStyle(color: Colors.white),
-          validator: validator,
-          decoration: InputDecoration(
-            labelText: label,
-            labelStyle: const TextStyle(color: Colors.white70),
-            filled: true,
-            fillColor: const Color(0xFF1E1E1E),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
-            ),
-            errorStyle: const TextStyle(color: Colors.redAccent),
-          ),
-        ),
-        const SizedBox(height: 12),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     if (showForm) {
-      return Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Dodavanje korisnika",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildInputField(
-              controller: _firstNameController,
-              label: "Ime",
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Unesite ime';
-                }
-                if (value.length < 2 || value.length > 50) {
-                  return 'Ime mora imati između 2 i 50 znakova';
-                }
-                return null;
-              },
-            ),
-            _buildInputField(
-              controller: _lastNameController,
-              label: "Prezime",
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Unesite prezime';
-                }
-                if (value.length < 2 || value.length > 50) {
-                  return 'Prezime mora imati između 2 i 50 znakova';
-                }
-                return null;
-              },
-            ),
-            _buildInputField(
-              controller: _emailController,
-              label: "E-mail",
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Unesite e-mail';
-                }
-
-                final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                if (!emailRegex.hasMatch(value)) {
-                  return 'Unesite ispravan e-mail, npr. nedim@gmail.com';
-                }
-
-                return null;
-              },
-            ),
-            _buildInputField(
-              controller: _countryController,
-              label: "Država",
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Unesite državu';
-                }
-                return null;
-              },
-            ),
-            _buildInputField(
-              controller: _addressController,
-              label: "Unesite adresu",
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Unesite prezime';
-                }
-                if (value.length < 2 || value.length > 50) {
-                  return 'Prezime mora imati između 2 i 100 znakova';
-                }
-                return null;
-              },
-            ),
-            _buildInputField(
-              controller: _phoneController,
-              label: "Unesite broj mobitela",
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Unesite broj mobitela';
-                }
-
-                final numericRegex = RegExp(r'^\d+$');
-                if (!numericRegex.hasMatch(value)) {
-                  return 'Broj smije sadržavati samo brojeve';
-                }
-
-                if (value.length < 6 || value.length > 15) {
-                  return 'Broj mora imati između 6 i 15 cifara';
-                }
-
-                return null;
-              },
-            ),
-            Text(
-              "Slika korisnika",
-              style: TextStyle(color: Colors.white70, fontSize: 14),
-            ),
-            const SizedBox(height: 8),
-            GestureDetector(
-              onTap: _pickImage,
-              child: Container(
-                height: 200,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2A2A2A),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white24),
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Dodavanje korisnika",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
-                child: _selectedImage != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.file(
-                          _selectedImage!,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                        ),
-                      )
-                    : _existingImageBase64 != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.memory(
-                          base64Decode(_existingImageBase64!),
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                        ),
-                      )
-                    : Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Icon(
-                              Icons.image_outlined,
-                              color: Colors.white38,
-                              size: 40,
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              "Dodirnite za odabir slike",
-                              style: TextStyle(color: Colors.white38),
-                            ),
-                          ],
-                        ),
-                      ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      if (editingUserId != null) {
-                        _updateUser(editingUserId!);
-                      } else {
-                        _addUser();
+              const SizedBox(height: 16),
+              buildInputField(
+                controller: _firstNameController,
+                label: "Ime",
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Unesite ime';
+                  }
+                  if (value.length < 2 || value.length > 50) {
+                    return 'Ime mora imati između 2 i 50 znakova';
+                  }
+                  return null;
+                },
+              ),
+              buildInputField(
+                controller: _lastNameController,
+                label: "Prezime",
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Unesite prezime';
+                  }
+                  if (value.length < 2 || value.length > 50) {
+                    return 'Prezime mora imati između 2 i 50 znakova';
+                  }
+                  return null;
+                },
+              ),
+              buildInputField(
+                controller: _emailController,
+                label: "E-mail",
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Unesite e-mail';
+                  }
+
+                  final emailRegex = RegExp(
+                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                  );
+                  if (!emailRegex.hasMatch(value)) {
+                    return 'Unesite ispravan e-mail, npr. nedim@gmail.com';
+                  }
+
+                  return null;
+                },
+              ),
+              DropdownButtonFormField<int>(
+                value: _selectedCountryId,
+                items: _countries.map<DropdownMenuItem<int>>((country) {
+                  return DropdownMenuItem<int>(
+                    value: country['countryId'],
+                    child: Text(country['name']),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedCountryId = value;
+                  });
+                },
+                validator: (value) => value == null ? 'Odaberite državu' : null,
+                decoration: InputDecoration(
+                  labelText: "Država",
+                  labelStyle: const TextStyle(color: Colors.white70),
+                  filled: true,
+                  fillColor: const Color(0xFF1E1E1E),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                dropdownColor: const Color(0xFF1E1E1E),
+                style: const TextStyle(color: Colors.white),
+              ),
+
+              const SizedBox(height: 12),
+              buildInputField(
+                controller: _addressController,
+                label: "Unesite adresu",
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Unesite prezime';
+                  }
+                  if (value.length < 2 || value.length > 50) {
+                    return 'Prezime mora imati između 2 i 100 znakova';
+                  }
+                  return null;
+                },
+              ),
+              buildInputField(
+                controller: _phoneController,
+                label: "Unesite broj mobitela",
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Unesite broj mobitela';
+                  }
+
+                  final numericRegex = RegExp(r'^\d+$');
+                  if (!numericRegex.hasMatch(value)) {
+                    return 'Broj smije sadržavati samo brojeve';
+                  }
+
+                  if (value.length < 6 || value.length > 15) {
+                    return 'Broj mora imati između 6 i 15 cifara';
+                  }
+
+                  return null;
+                },
+              ),
+              buildDatePickerField(
+                context: context,
+                controller: _birthDateController,
+                label: "Datum rođenja",
+                validator: (String? value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Unesite datum rođenja';
+                  }
+
+                  final date = DateTime.tryParse(value);
+                  if (date == null) {
+                    return 'Neispravan format datuma';
+                  }
+
+                  if (date.isAfter(DateTime.now())) {
+                    return 'Datum ne može biti u budućnosti';
+                  }
+
+                  return null;
+                },
+              ),
+              Text(
+                "Slika korisnika",
+                style: TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+              const SizedBox(height: 8),
+              buildImagePickerPreview(
+                selectedImage: _selectedImage,
+                existingBase64Image: _existingImageBase64,
+                onTap: _pickImage,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState?.validate() ?? false) {
+                        if (editingUserId != null) {
+                          _updateUser(editingUserId!);
+                        } else {
+                          _addUser();
+                        }
                       }
-                    }
-                  },
+                    },
 
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3B82F6),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF3B82F6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                    ),
+                    child: Text(
+                      editingUserId != null ? "Uredi" : "Dodaj",
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ),
-                  child: Text(
-                    editingUserId != null ? "Uredi" : "Dodaj",
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                TextButton(
-                  onPressed: () {
-                    //ocistiti sve kontrolere
-                    setState(() {
-                      editingUserId = null;
-                      showForm = false;
-                    });
-                  },
+                  const SizedBox(width: 12),
+                  TextButton(
+                    onPressed: () {
+                      _clearForm();
+                      setState(() {
+                        editingUserId = null;
+                      });
+                    },
 
-                  style: TextButton.styleFrom(
-                    backgroundColor: const Color(0xFF2A2A2A),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
+                    style: TextButton.styleFrom(
+                      backgroundColor: const Color(0xFF2A2A2A),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
                     ),
+                    child: const Text("Nazad"),
                   ),
-                  child: const Text("Nazad"),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -574,7 +569,7 @@ class _UsersPageState extends State<UsersPage> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  "• Datum rođenja: ${user['birthDate']} • Adresa: ${user['address']}",
+                                  "Datum rođenja: ${user['birthDate']} • Adresa: ${user['address']}",
                                   style: const TextStyle(
                                     fontSize: 12,
                                     color: Colors.white60,
@@ -600,6 +595,7 @@ class _UsersPageState extends State<UsersPage> {
                                   _phoneController.text = user['phoneNumber'];
                                   _birthDateController.text = user['birthDate'];
                                   _existingImageBase64 = user['imageData'];
+                                  _selectedCountryId = user['countryId'];
                                   _selectedImage = null;
                                   showForm = true;
                                 });
@@ -686,58 +682,11 @@ class _UsersPageState extends State<UsersPage> {
                   },
                 ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            MouseRegion(
-              cursor: currentPage > 1
-                  ? SystemMouseCursors.click
-                  : SystemMouseCursors.basic,
-              child: Opacity(
-                opacity: currentPage > 1 ? 1.0 : 0.3,
-                child: ElevatedButton(
-                  onPressed: currentPage > 1 ? _goToPreviousPage : () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3B82F6),
-                    foregroundColor: Colors.white,
-                  ),
-                  child: const Text("Prethodna"),
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E1E1E),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                "Stranica $currentPage",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            MouseRegion(
-              cursor: hasNextPage
-                  ? SystemMouseCursors.click
-                  : SystemMouseCursors.basic,
-              child: Opacity(
-                opacity: hasNextPage ? 1.0 : 0.3,
-                child: ElevatedButton(
-                  onPressed: hasNextPage ? _goToNextPage : () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3B82F6),
-                    foregroundColor: Colors.white,
-                  ),
-                  child: const Text("Sljedeća"),
-                ),
-              ),
-            ),
-          ],
+        PaginationControls(
+          currentPage: currentPage,
+          hasNextPage: hasNextPage,
+          onPrevious: _goToPreviousPage,
+          onNext: _goToNextPage,
         ),
       ],
     );

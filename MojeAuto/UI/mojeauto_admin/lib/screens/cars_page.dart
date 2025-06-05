@@ -5,6 +5,8 @@ import 'package:mojeauto_admin/helpers/authenticated_client.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:mojeauto_admin/common/form_fields.dart';
+import 'package:mojeauto_admin/common/pagination_controls.dart';
 
 class CarsPage extends StatefulWidget {
   const CarsPage({super.key});
@@ -232,265 +234,196 @@ class _CarsPageState extends State<CarsPage> {
     }
   }
 
-  Widget _buildInputField({
-    required TextEditingController controller,
-    required String label,
-    required String? Function(String?) validator,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextFormField(
-          controller: controller,
-          style: const TextStyle(color: Colors.white),
-          validator: validator,
-          decoration: InputDecoration(
-            labelText: label,
-            labelStyle: const TextStyle(color: Colors.white70),
-            filled: true,
-            fillColor: const Color(0xFF1E1E1E),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
-            ),
-            errorStyle: const TextStyle(color: Colors.redAccent),
-          ),
-        ),
-        const SizedBox(height: 12),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     if (showForm) {
-      return Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Dodavanje automobila",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildInputField(
-              controller: _vinController,
-              label: "VIN",
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Unesite VIN';
-                }
-                if (value.length < 5 || value.length > 50) {
-                  return 'VIN mora imati između 5 i 50 znakova';
-                }
-                return null;
-              },
-            ),
-            _buildInputField(
-              controller: _brandController,
-              label: "Brend",
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Unesite brend, npr. BMW';
-                }
-                if (value.length < 2 || value.length > 50) {
-                  return 'Brend mora imati između 2 i 50 znakova';
-                }
-                return null;
-              },
-            ),
-            _buildInputField(
-              controller: _modelController,
-              label: "Model",
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Unesite model, npr. E90';
-                }
-                return null;
-              },
-            ),
-            _buildInputField(
-              controller: _engineController,
-              label: "Kubikaža",
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Unesite kubikažu';
-                }
-
-                final cleaned = value.trim();
-                final regex = RegExp(r'^\d+(\.\d)?$');
-                if (!regex.hasMatch(cleaned)) {
-                  return 'Format mora biti npr. 2.5, koristite tačku';
-                }
-
-                final parsed = double.tryParse(cleaned);
-                if (parsed == null || parsed <= 0 || parsed > 9.9) {
-                  return 'Kubikaža mora biti veća od 0 i najviše 9.9';
-                }
-                return null;
-              },
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DropdownButtonFormField<String>(
-                  value: _fuelController.text.isNotEmpty
-                      ? _fuelController.text
-                      : null,
-                  onChanged: (value) {
-                    setState(() {
-                      _fuelController.text = value ?? '';
-                    });
-                  },
-                  items: fuelTypes
-                      .map(
-                        (fuel) =>
-                            DropdownMenuItem(value: fuel, child: Text(fuel)),
-                      )
-                      .toList(),
-                  validator: (value) => (value == null || value.isEmpty)
-                      ? 'Odaberite gorivo'
-                      : null,
-                  dropdownColor: const Color(0xFF1E1E1E),
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: "Gorivo",
-                    labelStyle: const TextStyle(color: Colors.white70),
-                    filled: true,
-                    fillColor: const Color(0xFF1E1E1E),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
-                    errorStyle: const TextStyle(color: Colors.redAccent),
-                  ),
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Dodavanje automobila",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
-                const SizedBox(height: 12),
-              ],
-            ),
-
-            _buildInputField(
-              controller: _yearController,
-              label: "Godina proizvodnje",
-              validator: (value) {
-                final year = int.tryParse(value ?? '');
-                final currentYear = DateTime.now().year;
-                return (year == null || year < 1900 || year > currentYear)
-                    ? 'Godina mora biti između 1900 i $currentYear'
-                    : null;
-              },
-            ),
-            Text(
-              "Slika automobila",
-              style: TextStyle(color: Colors.white70, fontSize: 14),
-            ),
-            const SizedBox(height: 8),
-            GestureDetector(
-              onTap: _pickImage,
-              child: Container(
-                height: 200,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2A2A2A),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white24),
-                ),
-                child: _selectedImage != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.file(
-                          _selectedImage!,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                        ),
-                      )
-                    : _existingImageBase64 != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.memory(
-                          base64Decode(_existingImageBase64!),
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                        ),
-                      )
-                    : Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Icon(
-                              Icons.image_outlined,
-                              color: Colors.white38,
-                              size: 40,
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              "Dodirnite za odabir slike",
-                              style: TextStyle(color: Colors.white38),
-                            ),
-                          ],
-                        ),
-                      ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      if (editingCarId != null) {
-                        _updateCar(editingCarId!);
-                      } else {
-                        _addCar();
-                      }
-                    }
-                  },
+              const SizedBox(height: 16),
+              buildInputField(
+                controller: _vinController,
+                label: "VIN",
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Unesite VIN';
+                  }
+                  if (value.length < 5 || value.length > 50) {
+                    return 'VIN mora imati između 5 i 50 znakova';
+                  }
+                  return null;
+                },
+              ),
+              buildInputField(
+                controller: _brandController,
+                label: "Brend",
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Unesite brend, npr. BMW';
+                  }
+                  if (value.length < 2 || value.length > 50) {
+                    return 'Brend mora imati između 2 i 50 znakova';
+                  }
+                  return null;
+                },
+              ),
+              buildInputField(
+                controller: _modelController,
+                label: "Model",
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Unesite model, npr. E90';
+                  }
+                  return null;
+                },
+              ),
+              buildInputField(
+                controller: _engineController,
+                label: "Kubikaža",
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Unesite kubikažu';
+                  }
 
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3B82F6),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
-                  ),
-                  child: Text(
-                    editingCarId != null ? "Uredi" : "Dodaj",
+                  final cleaned = value.trim();
+                  final regex = RegExp(r'^\d+(\.\d)?$');
+                  if (!regex.hasMatch(cleaned)) {
+                    return 'Format mora biti npr. 2.5, koristite tačku';
+                  }
+
+                  final parsed = double.tryParse(cleaned);
+                  if (parsed == null || parsed <= 0 || parsed > 9.9) {
+                    return 'Kubikaža mora biti veća od 0 i najviše 9.9';
+                  }
+                  return null;
+                },
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DropdownButtonFormField<String>(
+                    value: _fuelController.text.isNotEmpty
+                        ? _fuelController.text
+                        : null,
+                    onChanged: (value) {
+                      setState(() {
+                        _fuelController.text = value ?? '';
+                      });
+                    },
+                    items: fuelTypes
+                        .map(
+                          (fuel) =>
+                              DropdownMenuItem(value: fuel, child: Text(fuel)),
+                        )
+                        .toList(),
+                    validator: (value) => (value == null || value.isEmpty)
+                        ? 'Odaberite gorivo'
+                        : null,
+                    dropdownColor: const Color(0xFF1E1E1E),
                     style: const TextStyle(color: Colors.white),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                TextButton(
-                  onPressed: () {
-                    _vinController.clear();
-                    _brandController.clear();
-                    _modelController.clear();
-                    _engineController.clear();
-                    _fuelController.clear();
-                    _yearController.clear();
-                    setState(() {
-                      editingCarId = null;
-                      showForm = false;
-                    });
-                  },
-
-                  style: TextButton.styleFrom(
-                    backgroundColor: const Color(0xFF2A2A2A),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
+                    decoration: InputDecoration(
+                      labelText: "Gorivo",
+                      labelStyle: const TextStyle(color: Colors.white70),
+                      filled: true,
+                      fillColor: const Color(0xFF1E1E1E),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide.none,
+                      ),
+                      errorStyle: const TextStyle(color: Colors.redAccent),
                     ),
                   ),
-                  child: const Text("Nazad"),
-                ),
-              ],
-            ),
-          ],
+                  const SizedBox(height: 12),
+                ],
+              ),
+              buildInputField(
+                controller: _yearController,
+                label: "Godina proizvodnje",
+                validator: (value) {
+                  final year = int.tryParse(value ?? '');
+                  final currentYear = DateTime.now().year;
+                  return (year == null || year < 1900 || year > currentYear)
+                      ? 'Godina mora biti između 1900 i $currentYear'
+                      : null;
+                },
+              ),
+              Text(
+                "Slika korisnika",
+                style: TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+              const SizedBox(height: 8),
+              buildImagePickerPreview(
+                selectedImage: _selectedImage,
+                existingBase64Image: _existingImageBase64,
+                onTap: _pickImage,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState?.validate() ?? false) {
+                        if (editingCarId != null) {
+                          _updateCar(editingCarId!);
+                        } else {
+                          _addCar();
+                        }
+                      }
+                    },
+
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF3B82F6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                    ),
+                    child: Text(
+                      editingCarId != null ? "Uredi" : "Dodaj",
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  TextButton(
+                    onPressed: () {
+                      _vinController.clear();
+                      _brandController.clear();
+                      _modelController.clear();
+                      _engineController.clear();
+                      _fuelController.clear();
+                      _yearController.clear();
+                      setState(() {
+                        editingCarId = null;
+                        showForm = false;
+                      });
+                    },
+
+                    style: TextButton.styleFrom(
+                      backgroundColor: const Color(0xFF2A2A2A),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                    ),
+                    child: const Text("Nazad"),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -712,58 +645,11 @@ class _CarsPageState extends State<CarsPage> {
                   },
                 ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            MouseRegion(
-              cursor: currentPage > 1
-                  ? SystemMouseCursors.click
-                  : SystemMouseCursors.basic,
-              child: Opacity(
-                opacity: currentPage > 1 ? 1.0 : 0.3,
-                child: ElevatedButton(
-                  onPressed: currentPage > 1 ? _goToPreviousPage : () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3B82F6),
-                    foregroundColor: Colors.white,
-                  ),
-                  child: const Text("Prethodna"),
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E1E1E),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                "Stranica $currentPage",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            MouseRegion(
-              cursor: hasNextPage
-                  ? SystemMouseCursors.click
-                  : SystemMouseCursors.basic,
-              child: Opacity(
-                opacity: hasNextPage ? 1.0 : 0.3,
-                child: ElevatedButton(
-                  onPressed: hasNextPage ? _goToNextPage : () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3B82F6),
-                    foregroundColor: Colors.white,
-                  ),
-                  child: const Text("Sljedeća"),
-                ),
-              ),
-            ),
-          ],
+        PaginationControls(
+          currentPage: currentPage,
+          hasNextPage: hasNextPage,
+          onPrevious: _goToPreviousPage,
+          onNext: _goToNextPage,
         ),
       ],
     );
