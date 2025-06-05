@@ -244,9 +244,11 @@ class _CarsPageState extends State<CarsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                "Dodavanje automobila",
-                style: TextStyle(
+              Text(
+                editingCarId != null
+                    ? "Uređivanje automobila"
+                    : "Dodavanje automobila",
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,

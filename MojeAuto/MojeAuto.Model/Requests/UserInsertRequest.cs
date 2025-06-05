@@ -29,6 +29,9 @@ namespace MojeAuto.Model.Requests
         [Required]
         public int CountryId { get; set; }
 
+        [Required]
+        public int UserRoleId { get; set; }
+
         public IFormFile? Image { get; set; }
     }
 }

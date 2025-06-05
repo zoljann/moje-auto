@@ -74,15 +74,33 @@ class AdminLayout extends StatelessWidget {
                       ),
                       _navItem(
                         context,
-                        Icons.shopping_cart,
+                        Icons.factory,
+                        "Proizvođači",
+                        '/admin/manufacturers',
+                      ),
+                      _navItem(
+                        context,
+                        Icons.receipt_long, 
                         "Narudžbe",
                         '/admin/orders',
                       ),
                       _navItem(
                         context,
-                        Icons.star,
-                        "Preporučeno",
-                        '/admin/recommended',
+                        Icons.category,
+                        "Kategorije",
+                        '/admin/categories',
+                      ),
+                      _navItem(
+                        context,
+                        Icons.public,
+                        "Države",
+                        '/admin/countries',
+                      ),
+                      _navItem(
+                        context,
+                        Icons.payment,
+                        "Naplatne metode",
+                        '/admin/payment-methods',
                       ),
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16),

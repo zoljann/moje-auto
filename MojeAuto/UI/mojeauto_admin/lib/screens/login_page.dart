@@ -67,22 +67,42 @@ class _LoginPageState extends State<LoginPage> {
 
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
-      await TokenManager().saveTokens(result['token'], result['refreshToken']);
+      final parts = result['token'].split('.');
+      final payload = utf8.decode(
+        base64Url.decode(base64Url.normalize(parts[1])),
+      );
+      final decoded = jsonDecode(payload);
+      final role =
+          decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Prijava uspješna')));
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const AdminLayout(
-            content: CarsPage(),
-            currentRoute: '/admin/cars',
+      if (role == 'Admin') {
+        await TokenManager().saveTokens(
+          result['token'],
+          result['refreshToken'],
+        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Prijava uspješna')));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const AdminLayout(
+              content: CarsPage(),
+              currentRoute: '/admin/cars',
+            ),
           ),
-        ),
-      );
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Nemate ovlasti za pristup administratorskom dijelu.',
+            ),
+          ),
+        );
+      }
     } else {
       setState(() {
         _errorMessage = 'Pogrešan email ili lozinka';

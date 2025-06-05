@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:mojeauto_admin/common/form_fields.dart';
 import 'package:mojeauto_admin/common/pagination_controls.dart';
+import 'package:intl/intl.dart';
 
 class UsersPage extends StatefulWidget {
   const UsersPage({super.key});
@@ -29,6 +30,9 @@ class _UsersPageState extends State<UsersPage> {
   String? _existingImageBase64;
   List<dynamic> _countries = [];
   int? _selectedCountryId;
+  String? _birthDateIso;
+  List<dynamic> _userRoles = [];
+  int? _selectedRoleId;
 
   final TextEditingController _searchController = TextEditingController();
   final _firstNameController = TextEditingController();
@@ -37,12 +41,27 @@ class _UsersPageState extends State<UsersPage> {
   final _addressController = TextEditingController();
   final _phoneController = TextEditingController();
   final _birthDateController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchUsers();
     _fetchCountries();
+    _fetchUserRoles();
+  }
+
+  Future<void> _fetchUserRoles() async {
+    final response = await httpClient.get(
+      Uri.parse("${dotenv.env['API_BASE_URL']}/user-roles"),
+      headers: {'accept': 'text/plain'},
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _userRoles = jsonDecode(response.body);
+      });
+    }
   }
 
   Future<void> _fetchCountries() async {
@@ -66,8 +85,16 @@ class _UsersPageState extends State<UsersPage> {
     request.fields['lastName'] = _lastNameController.text.trim();
     request.fields['email'] = _emailController.text.trim();
     request.fields['phoneNumber'] = _phoneController.text.trim();
-    request.fields['birthDate'] = _birthDateController.text.trim();
     request.fields['address'] = _addressController.text.trim();
+    request.fields['password'] = _passwordController.text.trim();
+
+    if (_selectedRoleId != null) {
+      request.fields['userRoleId'] = _selectedRoleId.toString();
+    }
+
+    if (_birthDateIso != null) {
+      request.fields['birthDate'] = _birthDateIso!;
+    }
 
     if (_selectedCountryId != null) {
       request.fields['countryId'] = _selectedCountryId.toString();
@@ -172,8 +199,15 @@ class _UsersPageState extends State<UsersPage> {
     request.fields['lastName'] = _lastNameController.text.trim();
     request.fields['email'] = _emailController.text.trim();
     request.fields['phoneNumber'] = _phoneController.text.trim();
-    request.fields['birthDate'] = _birthDateController.text.trim();
     request.fields['address'] = _addressController.text.trim();
+
+    if (_selectedRoleId != null) {
+      request.fields['userRoleId'] = _selectedRoleId.toString();
+    }
+
+    if (_birthDateIso != null) {
+      request.fields['birthDate'] = _birthDateIso!;
+    }
 
     if (_selectedCountryId != null) {
       request.fields['countryId'] = _selectedCountryId.toString();
@@ -229,6 +263,7 @@ class _UsersPageState extends State<UsersPage> {
     _selectedCountryId = null;
     _existingImageBase64 = null;
     _selectedImage = null;
+    _selectedRoleId = null;
     showForm = false;
   }
 
@@ -262,9 +297,11 @@ class _UsersPageState extends State<UsersPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                "Dodavanje korisnika",
-                style: TextStyle(
+              Text(
+                editingUserId != null
+                    ? "Uređivanje korisnika"
+                    : "Dodavanje korisnika",
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -315,34 +352,16 @@ class _UsersPageState extends State<UsersPage> {
                   return null;
                 },
               ),
-              DropdownButtonFormField<int>(
+              buildDropdownField<dynamic>(
                 value: _selectedCountryId,
-                items: _countries.map<DropdownMenuItem<int>>((country) {
-                  return DropdownMenuItem<int>(
-                    value: country['countryId'],
-                    child: Text(country['name']),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedCountryId = value;
-                  });
-                },
+                items: _countries,
+                label: "Država",
                 validator: (value) => value == null ? 'Odaberite državu' : null,
-                decoration: InputDecoration(
-                  labelText: "Država",
-                  labelStyle: const TextStyle(color: Colors.white70),
-                  filled: true,
-                  fillColor: const Color(0xFF1E1E1E),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                dropdownColor: const Color(0xFF1E1E1E),
-                style: const TextStyle(color: Colors.white),
+                onChanged: (value) =>
+                    setState(() => _selectedCountryId = value),
+                itemLabel: (c) => c['name'],
+                itemValue: (c) => c['countryId'],
               ),
-
               const SizedBox(height: 12),
               buildInputField(
                 controller: _addressController,
@@ -386,18 +405,36 @@ class _UsersPageState extends State<UsersPage> {
                     return 'Unesite datum rođenja';
                   }
 
-                  final date = DateTime.tryParse(value);
-                  if (date == null) {
-                    return 'Neispravan format datuma';
-                  }
-
-                  if (date.isAfter(DateTime.now())) {
-                    return 'Datum ne može biti u budućnosti';
-                  }
-
                   return null;
                 },
+                onPicked: (isoDate) {
+                  _birthDateIso = isoDate;
+                },
               ),
+              if (editingUserId == null)
+                buildInputField(
+                  controller: _passwordController,
+                  label: "Lozinka",
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Unesite lozinku';
+                    }
+                    if (value.length < 6 || value.length > 100) {
+                      return 'Lozinka mora imati između 6 i 50 znakova';
+                    }
+                    return null;
+                  },
+                ),
+              buildDropdownField<dynamic>(
+                value: _selectedRoleId,
+                items: _userRoles,
+                label: "Uloga",
+                validator: (value) => value == null ? 'Odaberite ulogu' : null,
+                onChanged: (value) => setState(() => _selectedRoleId = value),
+                itemLabel: (r) => r['name'],
+                itemValue: (r) => r['userRoleId'],
+              ),
+              const SizedBox(height: 12),
               Text(
                 "Slika korisnika",
                 style: TextStyle(color: Colors.white70, fontSize: 14),
@@ -551,7 +588,7 @@ class _UsersPageState extends State<UsersPage> {
                                   ),
                                 )
                               : const Icon(
-                                  Icons.directions_bus,
+                                  Icons.person,
                                   color: Colors.white70,
                                   size: 40,
                                 ),
@@ -569,7 +606,7 @@ class _UsersPageState extends State<UsersPage> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  "Datum rođenja: ${user['birthDate']} • Adresa: ${user['address']}",
+                                  "Datum rođenja: ${DateFormat('dd.MM.yyyy').format(DateTime.parse(user['birthDate']).toLocal())} • Broj mobitela: ${user['phoneNumber']} • Adresa: ${user['address']}",
                                   style: const TextStyle(
                                     fontSize: 12,
                                     color: Colors.white60,
@@ -593,9 +630,13 @@ class _UsersPageState extends State<UsersPage> {
                                   _emailController.text = user['email'];
                                   _addressController.text = user['address'];
                                   _phoneController.text = user['phoneNumber'];
-                                  _birthDateController.text = user['birthDate'];
+                                  _birthDateController
+                                      .text = DateFormat('dd.MM.yyyy').format(
+                                    DateTime.parse(user['birthDate']).toLocal(),
+                                  );
                                   _existingImageBase64 = user['imageData'];
                                   _selectedCountryId = user['countryId'];
+                                  _selectedRoleId = user['userRoleId'];
                                   _selectedImage = null;
                                   showForm = true;
                                 });

@@ -119,7 +119,8 @@ public class BaseCrudService<TEntity, TSearch, TInsert, TUpdate> : IBaseCrudServ
 
         foreach (var insertProp in insertProps)
         {
-            var entityProp = entityProps.FirstOrDefault(p => p.Name == insertProp.Name && p.PropertyType == insertProp.PropertyType && p.CanWrite);
+            var entityProp = entityProps.FirstOrDefault(p =>p.Name == insertProp.Name && p.CanWrite);
+
             if (entityProp == null)
                 continue;
 
@@ -142,7 +143,8 @@ public class BaseCrudService<TEntity, TSearch, TInsert, TUpdate> : IBaseCrudServ
 
         foreach (var updateProp in updateProps)
         {
-            var entityProp = entityProps.FirstOrDefault(p => p.Name == updateProp.Name && p.PropertyType == updateProp.PropertyType && p.CanWrite);
+            var entityProp = entityProps.FirstOrDefault(p =>
+            p.Name == updateProp.Name && p.CanWrite);
             if (entityProp == null)
                 continue;
 
