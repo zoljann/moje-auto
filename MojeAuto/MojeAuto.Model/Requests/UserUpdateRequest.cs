@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace MojeAuto.Model.Requests
 {
@@ -23,10 +24,8 @@ namespace MojeAuto.Model.Requests
 
         public DateTime? BirthDate { get; set; }
 
-        [MaxLength(100)]
-        public string? AvatarUrl { get; set; }
-
         public int? UserRoleId { get; set; }
         public int? CountryId { get; set; }
+        public IFormFile? Image { get; set; }
     }
 }

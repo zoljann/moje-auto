@@ -33,6 +33,14 @@ public class UserService : BaseCrudService<User, UserSearchRequest, UserInsertRe
         var user = new User();
 
         MapInsertRequestToEntity(insertRequest, user);
+
+        if (insertRequest.Image != null && insertRequest.Image.Length > 0)
+        {
+            using var ms = new MemoryStream();
+            await insertRequest.Image.CopyToAsync(ms);
+            user.ImageData = ms.ToArray();
+        }
+
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(insertRequest.Password);
         user.UserRoleId = userRole.UserRoleId;
 
@@ -60,6 +68,14 @@ public class UserService : BaseCrudService<User, UserSearchRequest, UserInsertRe
         }
 
         MapUpdateRequestToEntity(updateRequest, user);
+
+        if (updateRequest.Image != null && updateRequest.Image.Length > 0)
+        {
+            using var ms = new MemoryStream();
+            await updateRequest.Image.CopyToAsync(ms);
+            user.ImageData = ms.ToArray();
+        }
+
         await _context.SaveChangesAsync();
 
         return ServiceResult<User>.Ok(user);

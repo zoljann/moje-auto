@@ -25,9 +25,6 @@ public class User
     [Required]
     public DateTime BirthDate { get; set; }
 
-    [MaxLength(100)]
-    public string? AvatarUrl { get; set; }
-
     [Required]
     public int UserRoleId { get; set; }
 
@@ -37,6 +34,7 @@ public class User
     public int CountryId { get; set; }
 
     public Country Country { get; set; } = null!;
+    public byte[]? ImageData { get; set; }
 
     public ICollection<Order>? Orders { get; set; }
     public ICollection<Notification>? Notifications { get; set; }

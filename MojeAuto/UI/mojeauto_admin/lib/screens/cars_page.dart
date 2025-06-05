@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mojeauto_admin/helpers/authenticated_client.dart';
+import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class CarsPage extends StatefulWidget {
   const CarsPage({super.key});
@@ -21,6 +24,8 @@ class _CarsPageState extends State<CarsPage> {
   int? editingCarId;
   final _formKey = GlobalKey<FormState>();
   final List<String> fuelTypes = ['Dizel', 'Benzin', 'Električni'];
+  File? _selectedImage;
+  String? _existingImageBase64;
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -39,18 +44,24 @@ class _CarsPageState extends State<CarsPage> {
   }
 
   Future<void> _addCar() async {
-    final response = await httpClient.post(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/cars"),
-      headers: {'accept': 'text/plain', 'Content-Type': 'application/json'},
-      body: jsonEncode({
-        "vin": _vinController.text.trim(),
-        "brand": _brandController.text.trim(),
-        "model": _modelController.text.trim(),
-        "engine": _engineController.text.trim(),
-        "fuel": _fuelController.text.trim(),
-        "year": int.tryParse(_yearController.text.trim()),
-      }),
-    );
+    final uri = Uri.parse("${dotenv.env['API_BASE_URL']}/cars");
+    final request = http.MultipartRequest('POST', uri);
+
+    request.fields['vin'] = _vinController.text.trim();
+    request.fields['brand'] = _brandController.text.trim();
+    request.fields['model'] = _modelController.text.trim();
+    request.fields['engine'] = _engineController.text.trim();
+    request.fields['fuel'] = _fuelController.text.trim();
+    request.fields['year'] = _yearController.text.trim();
+
+    if (_selectedImage != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath('image', _selectedImage!.path),
+      );
+    }
+
+    final streamedResponse = await httpClient.send(request);
+    final response = await http.Response.fromStream(streamedResponse);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -60,7 +71,6 @@ class _CarsPageState extends State<CarsPage> {
         ),
       );
       _clearForm();
-
       _fetchCars();
       setState(() => showForm = false);
     } else {
@@ -140,20 +150,26 @@ class _CarsPageState extends State<CarsPage> {
   }
 
   Future<void> _updateCar(int id) async {
-    final response = await httpClient.put(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/cars/$id"),
-      headers: {'accept': 'text/plain', 'Content-Type': 'application/json'},
-      body: jsonEncode({
-        "vin": _vinController.text.trim(),
-        "brand": _brandController.text.trim(),
-        "model": _modelController.text.trim(),
-        "engine": _engineController.text.trim(),
-        "fuel": _fuelController.text.trim(),
-        "year": int.tryParse(_yearController.text.trim()),
-      }),
-    );
+    final uri = Uri.parse("${dotenv.env['API_BASE_URL']}/cars/$id");
+    final request = http.MultipartRequest('PUT', uri);
 
-    if (response.statusCode == 204) {
+    request.fields['vin'] = _vinController.text.trim();
+    request.fields['brand'] = _brandController.text.trim();
+    request.fields['model'] = _modelController.text.trim();
+    request.fields['engine'] = _engineController.text.trim();
+    request.fields['fuel'] = _fuelController.text.trim();
+    request.fields['year'] = _yearController.text.trim();
+
+    if (_selectedImage != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath('image', _selectedImage!.path),
+      );
+    }
+
+    final streamedResponse = await httpClient.send(request);
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Automobil je uspješno ažuriran."),
@@ -173,6 +189,17 @@ class _CarsPageState extends State<CarsPage> {
     }
   }
 
+  Future<void> _pickImage() async {
+    final pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+    }
+  }
+
   void _clearForm() {
     _vinController.clear();
     _brandController.clear();
@@ -180,6 +207,8 @@ class _CarsPageState extends State<CarsPage> {
     _engineController.clear();
     _fuelController.clear();
     _yearController.clear();
+    _existingImageBase64 = null;
+    _selectedImage = null;
     showForm = false;
   }
 
@@ -356,6 +385,58 @@ class _CarsPageState extends State<CarsPage> {
                     : null;
               },
             ),
+            Text(
+              "Slika automobila",
+              style: TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: _pickImage,
+              child: Container(
+                height: 200,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2A2A2A),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white24),
+                ),
+                child: _selectedImage != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.file(
+                          _selectedImage!,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                        ),
+                      )
+                    : _existingImageBase64 != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.memory(
+                          base64Decode(_existingImageBase64!),
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                        ),
+                      )
+                    : Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: const [
+                            Icon(
+                              Icons.image_outlined,
+                              color: Colors.white38,
+                              size: 40,
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              "Dodirnite za odabir slike",
+                              style: TextStyle(color: Colors.white38),
+                            ),
+                          ],
+                        ),
+                      ),
+              ),
+            ),
             const SizedBox(height: 20),
             Row(
               children: [
@@ -413,7 +494,6 @@ class _CarsPageState extends State<CarsPage> {
         ),
       );
     }
-
     return Column(
       children: [
         Row(
@@ -429,7 +509,11 @@ class _CarsPageState extends State<CarsPage> {
             ),
             ElevatedButton(
               onPressed: () {
-                setState(() => showForm = true);
+                setState(() {
+                  _existingImageBase64 = null;
+                  _selectedImage = null;
+                  showForm = true;
+                });
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF3B82F6),
@@ -490,10 +574,21 @@ class _CarsPageState extends State<CarsPage> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(
-                            Icons.directions_car,
-                            color: Colors.white70,
-                          ),
+                          car['imageData'] != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.memory(
+                                    base64Decode(car['imageData']),
+                                    width: 70,
+                                    height: 50,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.directions_car,
+                                  color: Colors.white70,
+                                  size: 40,
+                                ),
                           const SizedBox(width: 16),
                           Expanded(
                             child: Column(
@@ -533,6 +628,8 @@ class _CarsPageState extends State<CarsPage> {
                                   _engineController.text = car['engine'];
                                   _fuelController.text = car['fuel'];
                                   _yearController.text = car['year'].toString();
+                                  _existingImageBase64 = car['imageData'];
+                                  _selectedImage = null;
                                   showForm = true;
                                 });
                               } else if (value == 'delete') {

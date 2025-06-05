@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace MojeAuto.Model.Requests
 {
@@ -21,9 +22,7 @@ namespace MojeAuto.Model.Requests
         public int Quantity { get; set; }
         public int TotalSold { get; set; }
         public int CategoryId { get; set; }
-
-        [MaxLength(255)]
-        public string? ImageUrl { get; set; }
+        public IFormFile? Image { get; set; }
 
         public int EstimatedArrivalDays { get; set; }
     }

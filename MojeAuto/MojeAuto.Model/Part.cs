@@ -34,8 +34,7 @@ public class Part
     [Required]
     public int CategoryId { get; set; }
 
-    [MaxLength(255)]
-    public string? ImageUrl { get; set; }
+    public byte[]? ImageData { get; set; }
 
     public int EstimatedArrivalDays { get; set; }
 

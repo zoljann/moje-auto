@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MojeAuto.Services.Database;
 
@@ -11,9 +12,11 @@ using MojeAuto.Services.Database;
 namespace MojeAuto.Services.Migrations
 {
     [DbContext(typeof(MojeAutoContext))]
-    partial class MojeAutoContextModelSnapshot : ModelSnapshot
+    [Migration("20250605114454_Migration42")]
+    partial class Migration42
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -404,8 +407,9 @@ namespace MojeAuto.Services.Migrations
                     b.Property<int>("EstimatedArrivalDays")
                         .HasColumnType("int");
 
-                    b.Property<byte[]>("ImageData")
-                        .HasColumnType("varbinary(max)");
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int>("ManufacturerId")
                         .HasColumnType("int");
@@ -500,6 +504,10 @@ namespace MojeAuto.Services.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("AvatarUrl")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<DateTime>("BirthDate")
                         .HasColumnType("datetime2");
 
@@ -515,9 +523,6 @@ namespace MojeAuto.Services.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<byte[]>("ImageData")
-                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("LastName")
                         .IsRequired()

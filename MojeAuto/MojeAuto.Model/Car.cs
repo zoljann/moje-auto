@@ -22,5 +22,7 @@ public class Car
     [Required]
     public int Year { get; set; }
 
+    public byte[]? ImageData { get; set; }
+
     public ICollection<PartCar>? CompatibleParts { get; set; }
 }

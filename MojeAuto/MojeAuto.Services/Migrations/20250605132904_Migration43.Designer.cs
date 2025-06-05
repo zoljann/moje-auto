@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MojeAuto.Services.Database;
 
@@ -11,9 +12,11 @@ using MojeAuto.Services.Database;
 namespace MojeAuto.Services.Migrations
 {
     [DbContext(typeof(MojeAutoContext))]
-    partial class MojeAutoContextModelSnapshot : ModelSnapshot
+    [Migration("20250605132904_Migration43")]
+    partial class Migration43
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -497,6 +500,10 @@ namespace MojeAuto.Services.Migrations
 
                     b.Property<string>("Address")
                         .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("AvatarUrl")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 

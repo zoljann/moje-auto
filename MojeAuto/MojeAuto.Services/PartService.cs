@@ -23,9 +23,35 @@ public class PartService : BaseCrudService<Part, PartSearchRequest, PartInsertRe
         var part = new Part();
         MapInsertRequestToEntity(insertRequest, part);
 
+        if (insertRequest.Image != null && insertRequest.Image.Length > 0)
+        {
+            using var ms = new MemoryStream();
+            await insertRequest.Image.CopyToAsync(ms);
+            part.ImageData = ms.ToArray();
+        }
+
         _dbSet.Add(part);
         await _context.SaveChangesAsync();
 
+        return ServiceResult<Part>.Ok(part);
+    }
+
+    public override async Task<ServiceResult<Part>> Update(int id, PartUpdateRequest updateRequest)
+    {
+        var part = await _dbSet.FindAsync(id);
+        if (part == null)
+            return ServiceResult<Part>.Fail("Part not found.");
+
+        MapUpdateRequestToEntity(updateRequest, part);
+
+        if (updateRequest.Image != null && updateRequest.Image.Length > 0)
+        {
+            using var ms = new MemoryStream();
+            await updateRequest.Image.CopyToAsync(ms);
+            part.ImageData = ms.ToArray();
+        }
+
+        await _context.SaveChangesAsync();
         return ServiceResult<Part>.Ok(part);
     }
 }

@@ -85,6 +85,13 @@ public class CarService : BaseCrudService<Car, CarSearchRequest, CarInsertReques
         var car = new Car();
         MapInsertRequestToEntity(insertRequest, car);
 
+        if (insertRequest.Image != null && insertRequest.Image.Length > 0)
+        {
+            using var ms = new MemoryStream();
+            await insertRequest.Image.CopyToAsync(ms);
+            car.ImageData = ms.ToArray();
+        }
+
         _dbSet.Add(car);
         await _context.SaveChangesAsync();
 
@@ -102,8 +109,15 @@ public class CarService : BaseCrudService<Car, CarSearchRequest, CarInsertReques
             return ServiceResult<Car>.Fail("Another car with this VIN already exists.");
 
         MapUpdateRequestToEntity(updateRequest, car);
-        await _context.SaveChangesAsync();
 
+        if (updateRequest.Image != null && updateRequest.Image.Length > 0)
+        {
+            using var ms = new MemoryStream();
+            await updateRequest.Image.CopyToAsync(ms);
+            car.ImageData = ms.ToArray();
+        }
+
+        await _context.SaveChangesAsync();
         return ServiceResult<Car>.Ok(car);
     }
 }

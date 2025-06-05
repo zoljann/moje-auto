@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace MojeAuto.Model.Requests
 {
@@ -19,5 +20,7 @@ namespace MojeAuto.Model.Requests
         public string? Fuel { get; set; }
 
         public int? Year { get; set; }
+
+        public IFormFile? Image { get; set; }
     }
 }

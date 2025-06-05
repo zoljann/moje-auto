@@ -23,14 +23,14 @@ namespace MojeAuto.API.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public override async Task<ActionResult<User>> Insert([FromBody] UserInsertRequest insertRequest)
+        public override async Task<ActionResult<User>> Insert([FromForm] UserInsertRequest insertRequest)
         {
             return await base.Insert(insertRequest);
         }
 
         [AllowAnonymous]
         [HttpPut("{id}")]
-        public override async Task<IActionResult> Update(int id, [FromBody] UserUpdateRequest updateRequest)
+        public override async Task<IActionResult> Update(int id, [FromForm] UserUpdateRequest updateRequest)
         {
             return await base.Update(id, updateRequest);
         }
