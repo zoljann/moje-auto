@@ -122,13 +122,6 @@ class _CarsPageState extends State<CarsPage> {
         cars = [];
         isLoading = false;
       });
-      final errorMessage = extractErrorMessage(
-        response,
-        fallback: "Greška pri dohvatu automobila.",
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
-      );
     }
   }
 

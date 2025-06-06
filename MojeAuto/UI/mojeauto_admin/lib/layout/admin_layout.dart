@@ -51,105 +51,119 @@ class AdminLayout extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _navItem(
-                        context,
-                        Icons.people,
-                        "Korisnici",
-                        '/admin/users',
-                      ),
-                      _navItem(
-                        context,
-                        Icons.directions_car,
-                        "Automobili",
-                        '/admin/cars',
-                      ),
-                      _navItem(
-                        context,
-                        Icons.build,
-                        "Dijelovi",
-                        '/admin/parts',
-                      ),
-                      _navItem(
-                        context,
-                        Icons.factory,
-                        "Proizvođači",
-                        '/admin/manufacturers',
-                      ),
-                      _navItem(
-                        context,
-                        Icons.receipt_long,
-                        "Narudžbe",
-                        '/admin/orders',
-                      ),
-                      _navItem(
-                        context,
-                        Icons.category,
-                        "Kategorije",
-                        '/admin/categories',
-                      ),
-                      _navItem(
-                        context,
-                        Icons.public,
-                        "Države",
-                        '/admin/countries',
-                      ),
-                      _navItem(
-                        context,
-                        Icons.payment,
-                        "Naplatne metode",
-                        '/admin/payment-methods',
-                      ),
-                      _navItem(
-                        context,
-                        Icons.admin_panel_settings,
-                        "Uloge",
-                        '/admin/roles',
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Divider(
-                          color: Colors.white12,
-                          thickness: 1,
-                          height: 32,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _navItem(
+                          context,
+                          Icons.people,
+                          "Korisnici",
+                          '/admin/users',
                         ),
-                      ),
-                      _navItem(
-                        context,
-                        Icons.insert_chart,
-                        "Izvještaji",
-                        '/admin/reports',
-                      ),
-                      MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => _logout(context),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 24,
-                            ),
-                            child: Row(
-                              children: const [
-                                Icon(
-                                  Icons.logout,
-                                  color: Colors.white70,
-                                  size: 20,
-                                ),
-                                SizedBox(width: 12),
-                                Text(
-                                  "Odjavi se",
-                                  style: TextStyle(color: Colors.white70),
-                                ),
-                              ],
+                        _navItem(
+                          context,
+                          Icons.directions_car,
+                          "Automobili",
+                          '/admin/cars',
+                        ),
+                        _navItem(
+                          context,
+                          Icons.build,
+                          "Dijelovi",
+                          '/admin/parts',
+                        ),
+                        _navItem(
+                          context,
+                          Icons.factory,
+                          "Proizvođači",
+                          '/admin/manufacturers',
+                        ),
+                        _navItem(
+                          context,
+                          Icons.receipt_long,
+                          "Narudžbe",
+                          '/admin/orders',
+                        ),
+                        _navItem(
+                          context,
+                          Icons.category,
+                          "Kategorije",
+                          '/admin/categories',
+                        ),
+                        _navItem(
+                          context,
+                          Icons.public,
+                          "Države",
+                          '/admin/countries',
+                        ),
+                        _navItem(
+                          context,
+                          Icons.payment,
+                          "Naplatne metode",
+                          '/admin/payment-methods',
+                        ),
+                        _navItem(
+                          context,
+                          Icons.local_shipping,
+                          "Dostavne metode",
+                          '/admin/delivery-methods',
+                        ),
+                        _navItem(
+                          context,
+                          Icons.track_changes,
+                          "Dostavni statusi",
+                          '/admin/delivery-statuses',
+                        ),
+                        _navItem(
+                          context,
+                          Icons.admin_panel_settings,
+                          "Uloge",
+                          '/admin/roles',
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: Divider(
+                            color: Colors.white12,
+                            thickness: 1,
+                            height: 32,
+                          ),
+                        ),
+                        _navItem(
+                          context,
+                          Icons.insert_chart,
+                          "Izvještaji",
+                          '/admin/reports',
+                        ),
+                        MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => _logout(context),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 10,
+                                horizontal: 24,
+                              ),
+                              child: Row(
+                                children: const [
+                                  Icon(
+                                    Icons.logout,
+                                    color: Colors.white70,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 12),
+                                  Text(
+                                    "Odjavi se",
+                                    style: TextStyle(color: Colors.white70),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 _userProfile(context),

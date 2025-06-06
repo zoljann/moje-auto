@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mojeauto_admin/screens/country_page.dart';
+import 'package:mojeauto_admin/screens/delivery_methods_page.dart';
+import 'package:mojeauto_admin/screens/delivery_statuses_page.dart';
+import 'package:mojeauto_admin/screens/payment_methods_page.dart';
 import 'package:mojeauto_admin/screens/users_page.dart';
 import 'package:mojeauto_admin/screens/users_role_page.dart';
 import 'screens/cars_page.dart';
@@ -56,6 +59,24 @@ class MyApp extends StatelessWidget {
             page = AdminLayout(
               content: const UsersRolePage(),
               currentRoute: '/admin/roles',
+            );
+            break;
+          case '/admin/payment-methods':
+            page = AdminLayout(
+              content: const PaymentMethodsPage(),
+              currentRoute: '/admin/payment-methods',
+            );
+            break;
+          case '/admin/delivery-methods':
+            page = AdminLayout(
+              content: const DeliveryMethodsPage(),
+              currentRoute: '/admin/delivery-methods',
+            );
+            break;
+          case '/admin/delivery-statuses':
+            page = AdminLayout(
+              content: const DeliveryStatusesPage(),
+              currentRoute: '/admin/delivery-statuses',
             );
             break;
           case '/login':

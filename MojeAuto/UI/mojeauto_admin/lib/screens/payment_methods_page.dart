@@ -6,15 +6,15 @@ import 'package:mojeauto_admin/common/form_fields.dart';
 import 'package:mojeauto_admin/common/pagination_controls.dart';
 import 'package:mojeauto_admin/helpers/error_extractor.dart';
 
-class UsersRolePage extends StatefulWidget {
-  const UsersRolePage({super.key});
+class PaymentMethodsPage extends StatefulWidget {
+  const PaymentMethodsPage({super.key});
 
   @override
-  State<UsersRolePage> createState() => _UsersRolePageState();
+  State<PaymentMethodsPage> createState() => _PaymentMethodsPageState();
 }
 
-class _UsersRolePageState extends State<UsersRolePage> {
-  List<dynamic> roles = [];
+class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
+  List<dynamic> methods = [];
   bool isLoading = true;
   int currentPage = 1;
   int pageSize = 7;
@@ -30,10 +30,10 @@ class _UsersRolePageState extends State<UsersRolePage> {
   @override
   void initState() {
     super.initState();
-    _fetchRoles();
+    _fetchMethods();
   }
 
-  Future<void> _fetchRoles() async {
+  Future<void> _fetchMethods() async {
     setState(() => isLoading = true);
 
     final queryParams = {
@@ -47,7 +47,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
 
     final response = await httpClient.get(
       Uri.parse(
-        "${dotenv.env['API_BASE_URL']}/user-roles",
+        "${dotenv.env['API_BASE_URL']}/payment-methods",
       ).replace(queryParameters: queryParams),
       headers: {'accept': 'text/plain'},
     );
@@ -55,38 +55,38 @@ class _UsersRolePageState extends State<UsersRolePage> {
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
       setState(() {
-        roles = result;
+        methods = result;
         hasNextPage = result.length == pageSize;
         isLoading = false;
       });
     } else {
       setState(() {
-        roles = [];
+        methods = [];
         isLoading = false;
       });
     }
   }
 
-  Future<void> _addRole() async {
+  Future<void> _addMethod() async {
     final response = await httpClient.post(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/user-roles"),
+      Uri.parse("${dotenv.env['API_BASE_URL']}/payment-methods"),
       headers: {'Content-Type': 'application/json', 'accept': 'text/plain'},
       body: jsonEncode({'name': _nameController.text.trim()}),
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       _clearForm();
-      _fetchRoles();
+      _fetchMethods();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Uloga uspješno dodana."),
+          content: Text("Metoda plaćanja uspješno dodana."),
           backgroundColor: Colors.green,
         ),
       );
     } else {
       final errorMessage = extractErrorMessage(
         response,
-        fallback: "Greška pri dodavanju uloge.",
+        fallback: "Greška pri dodavanju metode plaćanja.",
       );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
@@ -94,26 +94,26 @@ class _UsersRolePageState extends State<UsersRolePage> {
     }
   }
 
-  Future<void> _updateRole(int id) async {
+  Future<void> _updateMethod(int id) async {
     final response = await httpClient.put(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/user-roles/$id"),
+      Uri.parse("${dotenv.env['API_BASE_URL']}/payment-methods/$id"),
       headers: {'Content-Type': 'application/json', 'accept': 'text/plain'},
       body: jsonEncode({'name': _nameController.text.trim()}),
     );
 
     if (response.statusCode == 200 || response.statusCode == 204) {
       _clearForm();
-      _fetchRoles();
+      _fetchMethods();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Uloga ažurirana."),
+          content: Text("Metoda plaćanja ažurirana."),
           backgroundColor: Colors.green,
         ),
       );
     } else {
       final errorMessage = extractErrorMessage(
         response,
-        fallback: "Greška pri ažuriranju uloge.",
+        fallback: "Greška pri ažuriranju metode.",
       );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
@@ -121,23 +121,23 @@ class _UsersRolePageState extends State<UsersRolePage> {
     }
   }
 
-  Future<void> _deleteRoleConfirmed(int id) async {
+  Future<void> _deleteMethodConfirmed(int id) async {
     final response = await httpClient.delete(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/user-roles/$id"),
+      Uri.parse("${dotenv.env['API_BASE_URL']}/payment-methods/$id"),
     );
 
     if (response.statusCode == 204) {
-      _fetchRoles();
+      _fetchMethods();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Uloga obrisana."),
+          content: Text("Metoda plaćanja obrisana."),
           backgroundColor: Colors.green,
         ),
       );
     } else {
       final errorMessage = extractErrorMessage(
         response,
-        fallback: "Greška pri brisanju uloge.",
+        fallback: "Greška pri brisanju metode.",
       );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
@@ -145,7 +145,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
     }
   }
 
-  void _deleteRole(BuildContext context, dynamic role) {
+  void _deleteMethod(BuildContext context, dynamic method) {
     showDialog(
       context: context,
       builder: (context) {
@@ -156,7 +156,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
             style: TextStyle(color: Colors.white),
           ),
           content: Text(
-            "Jeste li sigurni da želite obrisati ulogu \"${role['name']}\"?",
+            "Jeste li sigurni da želite obrisati metodu \"${method['name']}\"?",
             style: const TextStyle(color: Colors.white70),
           ),
           actions: [
@@ -176,7 +176,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
               child: const Text("Da"),
               onPressed: () {
                 Navigator.of(context).pop();
-                _deleteRoleConfirmed(role['userRoleId']);
+                _deleteMethodConfirmed(method['paymentMethodId']);
               },
             ),
           ],
@@ -196,20 +196,20 @@ class _UsersRolePageState extends State<UsersRolePage> {
   void _onSearchChanged() {
     currentPage = 1;
     searchQuery = _searchController.text.trim();
-    _fetchRoles();
+    _fetchMethods();
   }
 
   void _goToPreviousPage() {
     if (currentPage > 1) {
       setState(() => currentPage--);
-      _fetchRoles();
+      _fetchMethods();
     }
   }
 
   void _goToNextPage() {
     if (hasNextPage) {
       setState(() => currentPage++);
-      _fetchRoles();
+      _fetchMethods();
     }
   }
 
@@ -224,7 +224,9 @@ class _UsersRolePageState extends State<UsersRolePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    editingId != null ? "Uredi ulogu" : "Dodaj ulogu",
+                    editingId != null
+                        ? "Uredi metodu plaćanja"
+                        : "Dodaj metodu plaćanja",
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -234,13 +236,13 @@ class _UsersRolePageState extends State<UsersRolePage> {
                   const SizedBox(height: 16),
                   buildInputField(
                     controller: _nameController,
-                    label: "Naziv uloge",
+                    label: "Naziv metode",
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Unesite naziv uloge';
+                        return 'Unesite naziv metode';
                       }
-                      if (value.length < 2 || value.length > 30) {
-                        return 'Naziv mora imati između 2 i 30 karaktera';
+                      if (value.length < 2 || value.length > 50) {
+                        return 'Naziv mora imati između 2 i 50 karaktera';
                       }
                       return null;
                     },
@@ -252,9 +254,9 @@ class _UsersRolePageState extends State<UsersRolePage> {
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             if (editingId != null) {
-                              _updateRole(editingId!);
+                              _updateMethod(editingId!);
                             } else {
-                              _addRole();
+                              _addMethod();
                             }
                           }
                         },
@@ -295,7 +297,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    "Uloge",
+                    "Metode plaćanja",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -312,7 +314,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
                       ),
                     ),
                     child: const Text(
-                      "Dodaj ulogu",
+                      "Dodaj metodu",
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
@@ -324,7 +326,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
                 onChanged: (_) => _onSearchChanged(),
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  hintText: 'Pretraži po nazivu uloge..',
+                  hintText: 'Pretraži po nazivu metode..',
                   hintStyle: const TextStyle(color: Colors.white54),
                   filled: true,
                   fillColor: const Color(0xFF1E1E1E),
@@ -338,17 +340,17 @@ class _UsersRolePageState extends State<UsersRolePage> {
               Expanded(
                 child: isLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : roles.isEmpty
+                    : methods.isEmpty
                     ? const Center(
                         child: Text(
-                          "Nema dostupnih uloga.",
+                          "Nema dostupnih metoda plaćanja.",
                           style: TextStyle(color: Colors.white70),
                         ),
                       )
                     : ListView.builder(
-                        itemCount: roles.length,
+                        itemCount: methods.length,
                         itemBuilder: (context, index) {
-                          final role = roles[index];
+                          final method = methods[index];
                           return Container(
                             margin: const EdgeInsets.only(bottom: 12),
                             padding: const EdgeInsets.all(12),
@@ -360,7 +362,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  role['name'],
+                                  method['name'],
                                   style: const TextStyle(color: Colors.white),
                                 ),
                                 PopupMenuButton<String>(
@@ -372,12 +374,12 @@ class _UsersRolePageState extends State<UsersRolePage> {
                                   onSelected: (value) {
                                     if (value == 'edit') {
                                       setState(() {
-                                        editingId = role['userRoleId'];
-                                        _nameController.text = role['name'];
+                                        editingId = method['paymentMethodId'];
+                                        _nameController.text = method['name'];
                                         showForm = true;
                                       });
                                     } else if (value == 'delete') {
-                                      _deleteRole(context, role);
+                                      _deleteMethod(context, method);
                                     }
                                   },
                                   itemBuilder: (context) => const [

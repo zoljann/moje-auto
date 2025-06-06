@@ -62,14 +62,6 @@ class _UsersPageState extends State<UsersPage> {
       setState(() {
         _userRoles = jsonDecode(response.body);
       });
-    } else {
-      final errorMessage = extractErrorMessage(
-        response,
-        fallback: "Greška pri dohvatu korisnikovih rola.",
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
-      );
     }
   }
 
@@ -83,14 +75,6 @@ class _UsersPageState extends State<UsersPage> {
       setState(() {
         _countries = jsonDecode(response.body);
       });
-    } else {
-      final errorMessage = extractErrorMessage(
-        response,
-        fallback: "Greška pri dohvatu država.",
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
-      );
     }
   }
 
@@ -180,13 +164,6 @@ class _UsersPageState extends State<UsersPage> {
         users = [];
         isLoading = false;
       });
-      final errorMessage = extractErrorMessage(
-        response,
-        fallback: "Greška pri dohvatu korisnika.",
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
-      );
     }
   }
 

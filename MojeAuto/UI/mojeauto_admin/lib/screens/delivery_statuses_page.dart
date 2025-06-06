@@ -6,15 +6,15 @@ import 'package:mojeauto_admin/common/form_fields.dart';
 import 'package:mojeauto_admin/common/pagination_controls.dart';
 import 'package:mojeauto_admin/helpers/error_extractor.dart';
 
-class UsersRolePage extends StatefulWidget {
-  const UsersRolePage({super.key});
+class DeliveryStatusesPage extends StatefulWidget {
+  const DeliveryStatusesPage({super.key});
 
   @override
-  State<UsersRolePage> createState() => _UsersRolePageState();
+  State<DeliveryStatusesPage> createState() => _DeliveryStatusesPageState();
 }
 
-class _UsersRolePageState extends State<UsersRolePage> {
-  List<dynamic> roles = [];
+class _DeliveryStatusesPageState extends State<DeliveryStatusesPage> {
+  List<dynamic> statuses = [];
   bool isLoading = true;
   int currentPage = 1;
   int pageSize = 7;
@@ -30,10 +30,10 @@ class _UsersRolePageState extends State<UsersRolePage> {
   @override
   void initState() {
     super.initState();
-    _fetchRoles();
+    _fetchStatuses();
   }
 
-  Future<void> _fetchRoles() async {
+  Future<void> _fetchStatuses() async {
     setState(() => isLoading = true);
 
     final queryParams = {
@@ -47,7 +47,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
 
     final response = await httpClient.get(
       Uri.parse(
-        "${dotenv.env['API_BASE_URL']}/user-roles",
+        "${dotenv.env['API_BASE_URL']}/delivery-statuses",
       ).replace(queryParameters: queryParams),
       headers: {'accept': 'text/plain'},
     );
@@ -55,38 +55,38 @@ class _UsersRolePageState extends State<UsersRolePage> {
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
       setState(() {
-        roles = result;
+        statuses = result;
         hasNextPage = result.length == pageSize;
         isLoading = false;
       });
     } else {
       setState(() {
-        roles = [];
+        statuses = [];
         isLoading = false;
       });
     }
   }
 
-  Future<void> _addRole() async {
+  Future<void> _addStatus() async {
     final response = await httpClient.post(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/user-roles"),
+      Uri.parse("${dotenv.env['API_BASE_URL']}/delivery-statuses"),
       headers: {'Content-Type': 'application/json', 'accept': 'text/plain'},
       body: jsonEncode({'name': _nameController.text.trim()}),
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       _clearForm();
-      _fetchRoles();
+      _fetchStatuses();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Uloga uspješno dodana."),
+          content: Text("Status dostave uspješno dodan."),
           backgroundColor: Colors.green,
         ),
       );
     } else {
       final errorMessage = extractErrorMessage(
         response,
-        fallback: "Greška pri dodavanju uloge.",
+        fallback: "Greška pri dodavanju statusa dostave.",
       );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
@@ -94,26 +94,26 @@ class _UsersRolePageState extends State<UsersRolePage> {
     }
   }
 
-  Future<void> _updateRole(int id) async {
+  Future<void> _updateStatus(int id) async {
     final response = await httpClient.put(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/user-roles/$id"),
+      Uri.parse("${dotenv.env['API_BASE_URL']}/delivery-statuses/$id"),
       headers: {'Content-Type': 'application/json', 'accept': 'text/plain'},
       body: jsonEncode({'name': _nameController.text.trim()}),
     );
 
     if (response.statusCode == 200 || response.statusCode == 204) {
       _clearForm();
-      _fetchRoles();
+      _fetchStatuses();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Uloga ažurirana."),
+          content: Text("Status dostave ažuriran."),
           backgroundColor: Colors.green,
         ),
       );
     } else {
       final errorMessage = extractErrorMessage(
         response,
-        fallback: "Greška pri ažuriranju uloge.",
+        fallback: "Greška pri ažuriranju statusa.",
       );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
@@ -121,23 +121,23 @@ class _UsersRolePageState extends State<UsersRolePage> {
     }
   }
 
-  Future<void> _deleteRoleConfirmed(int id) async {
+  Future<void> _deleteStatusConfirmed(int id) async {
     final response = await httpClient.delete(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/user-roles/$id"),
+      Uri.parse("${dotenv.env['API_BASE_URL']}/delivery-statuses/$id"),
     );
 
     if (response.statusCode == 204) {
-      _fetchRoles();
+      _fetchStatuses();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Uloga obrisana."),
+          content: Text("Status dostave obrisan."),
           backgroundColor: Colors.green,
         ),
       );
     } else {
       final errorMessage = extractErrorMessage(
         response,
-        fallback: "Greška pri brisanju uloge.",
+        fallback: "Greška pri brisanju statusa.",
       );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
@@ -145,7 +145,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
     }
   }
 
-  void _deleteRole(BuildContext context, dynamic role) {
+  void _deleteStatus(BuildContext context, dynamic status) {
     showDialog(
       context: context,
       builder: (context) {
@@ -156,7 +156,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
             style: TextStyle(color: Colors.white),
           ),
           content: Text(
-            "Jeste li sigurni da želite obrisati ulogu \"${role['name']}\"?",
+            "Jeste li sigurni da želite obrisati status \"${status['name']}\"?",
             style: const TextStyle(color: Colors.white70),
           ),
           actions: [
@@ -176,7 +176,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
               child: const Text("Da"),
               onPressed: () {
                 Navigator.of(context).pop();
-                _deleteRoleConfirmed(role['userRoleId']);
+                _deleteStatusConfirmed(status['deliveryStatusId']);
               },
             ),
           ],
@@ -196,20 +196,20 @@ class _UsersRolePageState extends State<UsersRolePage> {
   void _onSearchChanged() {
     currentPage = 1;
     searchQuery = _searchController.text.trim();
-    _fetchRoles();
+    _fetchStatuses();
   }
 
   void _goToPreviousPage() {
     if (currentPage > 1) {
       setState(() => currentPage--);
-      _fetchRoles();
+      _fetchStatuses();
     }
   }
 
   void _goToNextPage() {
     if (hasNextPage) {
       setState(() => currentPage++);
-      _fetchRoles();
+      _fetchStatuses();
     }
   }
 
@@ -224,7 +224,9 @@ class _UsersRolePageState extends State<UsersRolePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    editingId != null ? "Uredi ulogu" : "Dodaj ulogu",
+                    editingId != null
+                        ? "Uredi status dostave"
+                        : "Dodaj status dostave",
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -234,13 +236,13 @@ class _UsersRolePageState extends State<UsersRolePage> {
                   const SizedBox(height: 16),
                   buildInputField(
                     controller: _nameController,
-                    label: "Naziv uloge",
+                    label: "Naziv statusa",
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Unesite naziv uloge';
+                        return 'Unesite naziv statusa';
                       }
-                      if (value.length < 2 || value.length > 30) {
-                        return 'Naziv mora imati između 2 i 30 karaktera';
+                      if (value.length < 2 || value.length > 50) {
+                        return 'Naziv mora imati između 2 i 50 karaktera';
                       }
                       return null;
                     },
@@ -252,9 +254,9 @@ class _UsersRolePageState extends State<UsersRolePage> {
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             if (editingId != null) {
-                              _updateRole(editingId!);
+                              _updateStatus(editingId!);
                             } else {
-                              _addRole();
+                              _addStatus();
                             }
                           }
                         },
@@ -295,7 +297,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    "Uloge",
+                    "Statusi dostave",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -312,7 +314,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
                       ),
                     ),
                     child: const Text(
-                      "Dodaj ulogu",
+                      "Dodaj status",
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
@@ -324,7 +326,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
                 onChanged: (_) => _onSearchChanged(),
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  hintText: 'Pretraži po nazivu uloge..',
+                  hintText: 'Pretraži po nazivu statusa..',
                   hintStyle: const TextStyle(color: Colors.white54),
                   filled: true,
                   fillColor: const Color(0xFF1E1E1E),
@@ -338,17 +340,17 @@ class _UsersRolePageState extends State<UsersRolePage> {
               Expanded(
                 child: isLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : roles.isEmpty
+                    : statuses.isEmpty
                     ? const Center(
                         child: Text(
-                          "Nema dostupnih uloga.",
+                          "Nema dostupnih statusa dostave.",
                           style: TextStyle(color: Colors.white70),
                         ),
                       )
                     : ListView.builder(
-                        itemCount: roles.length,
+                        itemCount: statuses.length,
                         itemBuilder: (context, index) {
-                          final role = roles[index];
+                          final status = statuses[index];
                           return Container(
                             margin: const EdgeInsets.only(bottom: 12),
                             padding: const EdgeInsets.all(12),
@@ -360,7 +362,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  role['name'],
+                                  status['name'],
                                   style: const TextStyle(color: Colors.white),
                                 ),
                                 PopupMenuButton<String>(
@@ -372,12 +374,12 @@ class _UsersRolePageState extends State<UsersRolePage> {
                                   onSelected: (value) {
                                     if (value == 'edit') {
                                       setState(() {
-                                        editingId = role['userRoleId'];
-                                        _nameController.text = role['name'];
+                                        editingId = status['deliveryStatusId'];
+                                        _nameController.text = status['name'];
                                         showForm = true;
                                       });
                                     } else if (value == 'delete') {
-                                      _deleteRole(context, role);
+                                      _deleteStatus(context, status);
                                     }
                                   },
                                   itemBuilder: (context) => const [
