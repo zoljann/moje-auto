@@ -104,10 +104,46 @@ public class BaseCrudService<TEntity, TSearch, TInsert, TUpdate> : IBaseCrudServ
         if (entity == null)
             return ServiceResult<bool>.Fail("Entity not found.");
 
+        var entityType = typeof(TEntity);
+
+        var referencingFks = _context.Model.GetEntityTypes()
+            .SelectMany(et => et.GetForeignKeys())
+            .Where(fk => fk.PrincipalEntityType.ClrType == entityType)
+            .ToList();
+
+        foreach (var fk in referencingFks)
+        {
+            var dependentType = fk.DeclaringEntityType.ClrType;
+            var dependentSet = (IQueryable)_context.GetType()
+                .GetMethod("Set", Type.EmptyTypes)!
+                .MakeGenericMethod(dependentType)
+                .Invoke(_context, null)!;
+
+            var fkProp = fk.Properties.FirstOrDefault();
+            if (fkProp == null) continue;
+
+            var param = Expression.Parameter(dependentType, "x");
+            var left = Expression.Property(param, fkProp.Name);
+            var right = Expression.Constant(id);
+            var body = Expression.Equal(left, right);
+            var lambda = Expression.Lambda(body, param);
+
+            var anyMethod = typeof(Queryable)
+                .GetMethods()
+                .First(m => m.Name == "Any" && m.GetParameters().Length == 2)
+                .MakeGenericMethod(dependentType);
+
+            var isReferenced = (bool)anyMethod.Invoke(null, new object[] { dependentSet, lambda })!;
+            if (isReferenced)
+                return ServiceResult<bool>.Fail($"Nije moguće obrisati jer se koristi u tabeli: {dependentType.Name}");
+        }
+
+
         _dbSet.Remove(entity);
         await _context.SaveChangesAsync();
         return ServiceResult<bool>.Ok(true);
     }
+
 
     protected virtual void MapInsertRequestToEntity(TInsert insertRequest, TEntity entity)
     {

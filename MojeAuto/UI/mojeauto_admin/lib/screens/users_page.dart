@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:mojeauto_admin/common/form_fields.dart';
 import 'package:mojeauto_admin/common/pagination_controls.dart';
+import 'package:mojeauto_admin/helpers/error_extractor.dart';
 import 'package:intl/intl.dart';
 
 class UsersPage extends StatefulWidget {
@@ -61,6 +62,14 @@ class _UsersPageState extends State<UsersPage> {
       setState(() {
         _userRoles = jsonDecode(response.body);
       });
+    } else {
+      final errorMessage = extractErrorMessage(
+        response,
+        fallback: "Greška pri dohvatu korisnikovih rola.",
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+      );
     }
   }
 
@@ -74,6 +83,14 @@ class _UsersPageState extends State<UsersPage> {
       setState(() {
         _countries = jsonDecode(response.body);
       });
+    } else {
+      final errorMessage = extractErrorMessage(
+        response,
+        fallback: "Greška pri dohvatu država.",
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+      );
     }
   }
 
@@ -119,11 +136,12 @@ class _UsersPageState extends State<UsersPage> {
       _clearForm();
       _fetchUsers();
     } else {
+      final errorMessage = extractErrorMessage(
+        response,
+        fallback: "Greška pri dodavanju korisnika.",
+      );
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Greška pri dodavanju korisnika: ${response.body}"),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
       );
     }
   }
@@ -162,6 +180,13 @@ class _UsersPageState extends State<UsersPage> {
         users = [];
         isLoading = false;
       });
+      final errorMessage = extractErrorMessage(
+        response,
+        fallback: "Greška pri dohvatu korisnika.",
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+      );
     }
   }
 
@@ -180,13 +205,12 @@ class _UsersPageState extends State<UsersPage> {
       );
       _fetchUsers();
     } else {
+      final errorMessage = extractErrorMessage(
+        response,
+        fallback: "Greška prilikom brisanja korisnika.",
+      );
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Greška prilikom brisanja korisnika. (${response.statusCode})",
-          ),
-          backgroundColor: Colors.red.shade400,
-        ),
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
       );
     }
   }
@@ -233,11 +257,12 @@ class _UsersPageState extends State<UsersPage> {
       _clearForm();
       _fetchUsers();
     } else {
+      final errorMessage = extractErrorMessage(
+        response,
+        fallback: "Greška prilikom ažuriranja korisnika.",
+      );
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Greška pri ažuriranju: ${response.statusCode}"),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
       );
     }
   }

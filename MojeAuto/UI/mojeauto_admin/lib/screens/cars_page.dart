@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:mojeauto_admin/common/form_fields.dart';
 import 'package:mojeauto_admin/common/pagination_controls.dart';
+import 'package:mojeauto_admin/helpers/error_extractor.dart';
 
 class CarsPage extends StatefulWidget {
   const CarsPage({super.key});
@@ -76,13 +77,12 @@ class _CarsPageState extends State<CarsPage> {
       _fetchCars();
       setState(() => showForm = false);
     } else {
+      final errorMessage = extractErrorMessage(
+        response,
+        fallback: "Greška pri dodavanju automobila.",
+      );
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Greška pri dodavanju automobila: ${response.statusCode}",
-          ),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
       );
     }
   }
@@ -122,6 +122,13 @@ class _CarsPageState extends State<CarsPage> {
         cars = [];
         isLoading = false;
       });
+      final errorMessage = extractErrorMessage(
+        response,
+        fallback: "Greška pri dohvatu automobila.",
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+      );
     }
   }
 
@@ -140,13 +147,12 @@ class _CarsPageState extends State<CarsPage> {
       );
       _fetchCars();
     } else {
+      final errorMessage = extractErrorMessage(
+        response,
+        fallback: "Greška prilikom brisanja automobila.",
+      );
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Greška prilikom brisanja automobila. (${response.statusCode})",
-          ),
-          backgroundColor: Colors.red.shade400,
-        ),
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
       );
     }
   }
@@ -182,11 +188,12 @@ class _CarsPageState extends State<CarsPage> {
       _clearForm();
       _fetchCars();
     } else {
+      final errorMessage = extractErrorMessage(
+        response,
+        fallback: "Greška prilikom ažuriranja automobila.",
+      );
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Greška pri ažuriranju: ${response.statusCode}"),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
       );
     }
   }

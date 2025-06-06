@@ -80,7 +80,7 @@ class AdminLayout extends StatelessWidget {
                       ),
                       _navItem(
                         context,
-                        Icons.receipt_long, 
+                        Icons.receipt_long,
                         "Narudžbe",
                         '/admin/orders',
                       ),
@@ -101,6 +101,12 @@ class AdminLayout extends StatelessWidget {
                         Icons.payment,
                         "Naplatne metode",
                         '/admin/payment-methods',
+                      ),
+                      _navItem(
+                        context,
+                        Icons.admin_panel_settings,
+                        "Uloge",
+                        '/admin/roles',
                       ),
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16),
