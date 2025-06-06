@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mojeauto_admin/screens/category_page.dart';
 import 'package:mojeauto_admin/screens/country_page.dart';
 import 'package:mojeauto_admin/screens/delivery_methods_page.dart';
 import 'package:mojeauto_admin/screens/delivery_statuses_page.dart';
+import 'package:mojeauto_admin/screens/manufacturer_page.dart';
+import 'package:mojeauto_admin/screens/order_statuses_page.dart';
+import 'package:mojeauto_admin/screens/part_car_page.dart';
 import 'package:mojeauto_admin/screens/payment_methods_page.dart';
 import 'package:mojeauto_admin/screens/users_page.dart';
 import 'package:mojeauto_admin/screens/users_role_page.dart';
@@ -77,6 +81,30 @@ class MyApp extends StatelessWidget {
             page = AdminLayout(
               content: const DeliveryStatusesPage(),
               currentRoute: '/admin/delivery-statuses',
+            );
+            break;
+          case '/admin/categories':
+            page = AdminLayout(
+              content: const CategoryPage(),
+              currentRoute: '/admin/categories',
+            );
+            break;
+          case '/admin/manufacturers':
+            page = AdminLayout(
+              content: const ManufacturerPage(),
+              currentRoute: '/admin/manufacturers',
+            );
+            break;
+          case '/admin/order-statuses':
+            page = AdminLayout(
+              content: const OrderStatusesPage(),
+              currentRoute: '/admin/order-statuses',
+            );
+            break;
+          case '/admin/part-cars':
+            page = AdminLayout(
+              content: const PartCarPage(),
+              currentRoute: '/admin/part-cars',
             );
             break;
           case '/login':

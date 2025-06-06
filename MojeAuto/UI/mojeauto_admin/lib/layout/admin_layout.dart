@@ -63,6 +63,26 @@ class AdminLayout extends StatelessWidget {
                         ),
                         _navItem(
                           context,
+                          Icons.receipt_long,
+                          "Narudžbe",
+                          '/admin/orders',
+                        ),
+                        _navItem(
+                          context,
+                          Icons.local_shipping_outlined,
+                          "Dostave",
+                          '/admin/deliveries',
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: Divider(
+                            color: Colors.white12,
+                            thickness: 1,
+                            height: 32,
+                          ),
+                        ),
+                        _navItem(
+                          context,
                           Icons.directions_car,
                           "Automobili",
                           '/admin/cars',
@@ -75,15 +95,15 @@ class AdminLayout extends StatelessWidget {
                         ),
                         _navItem(
                           context,
-                          Icons.factory,
-                          "Proizvođači",
-                          '/admin/manufacturers',
+                          Icons.link,
+                          "Kompatibilni dijelovi",
+                          '/admin/part-cars',
                         ),
                         _navItem(
                           context,
-                          Icons.receipt_long,
-                          "Narudžbe",
-                          '/admin/orders',
+                          Icons.factory,
+                          "Proizvođači",
+                          '/admin/manufacturers',
                         ),
                         _navItem(
                           context,
@@ -91,11 +111,19 @@ class AdminLayout extends StatelessWidget {
                           "Kategorije",
                           '/admin/categories',
                         ),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: Divider(
+                            color: Colors.white12,
+                            thickness: 1,
+                            height: 32,
+                          ),
+                        ),
                         _navItem(
                           context,
-                          Icons.public,
-                          "Države",
-                          '/admin/countries',
+                          Icons.track_changes,
+                          "Statusi narudžba",
+                          '/admin/order-statuses',
                         ),
                         _navItem(
                           context,
@@ -105,19 +133,33 @@ class AdminLayout extends StatelessWidget {
                         ),
                         _navItem(
                           context,
-                          Icons.local_shipping,
+                          Icons.route,
                           "Dostavne metode",
                           '/admin/delivery-methods',
                         ),
                         _navItem(
                           context,
-                          Icons.track_changes,
+                          Icons.assignment_turned_in,
                           "Dostavni statusi",
                           '/admin/delivery-statuses',
                         ),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: Divider(
+                            color: Colors.white12,
+                            thickness: 1,
+                            height: 32,
+                          ),
+                        ),
                         _navItem(
                           context,
-                          Icons.admin_panel_settings,
+                          Icons.public,
+                          "Države",
+                          '/admin/countries',
+                        ),
+                        _navItem(
+                          context,
+                          Icons.security,
                           "Uloge",
                           '/admin/roles',
                         ),
@@ -131,7 +173,7 @@ class AdminLayout extends StatelessWidget {
                         ),
                         _navItem(
                           context,
-                          Icons.insert_chart,
+                          Icons.bar_chart,
                           "Izvještaji",
                           '/admin/reports',
                         ),
@@ -166,6 +208,7 @@ class AdminLayout extends StatelessWidget {
                     ),
                   ),
                 ),
+
                 _userProfile(context),
               ],
             ),
