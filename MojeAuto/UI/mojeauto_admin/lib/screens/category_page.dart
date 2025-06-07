@@ -339,7 +339,7 @@ class _CategoryPageState extends State<CategoryPage> {
                 onChanged: (_) => _onSearchChanged(),
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  hintText: 'Pretraži po nazivu kategorije...',
+                  hintText: 'Pretraži po nazivu kategorije..',
                   hintStyle: const TextStyle(color: Colors.white54),
                   filled: true,
                   fillColor: const Color(0xFF1E1E1E),

@@ -21,7 +21,12 @@ public class CarService : BaseCrudService<Car, CarSearchRequest, CarInsertReques
             return ServiceResult<IEnumerable<Car>>.Ok(new List<Car> { entity });
         }
 
-        var query = _dbSet.AsQueryable();
+        var query = _dbSet
+            .Include(c => c.CompatibleParts!)
+                .ThenInclude(pc => pc.Part)
+            .AsQueryable();
+
+
 
         if (!string.IsNullOrWhiteSpace(search.Brand))
         {

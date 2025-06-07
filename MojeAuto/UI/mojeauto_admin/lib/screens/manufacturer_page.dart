@@ -360,7 +360,7 @@ class _ManufacturerPageState extends State<ManufacturerPage> {
                 onChanged: (_) => _onSearchChanged(),
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  hintText: 'Pretraži po nazivu proizvođača...',
+                  hintText: 'Pretraži po nazivu proizvođača..',
                   hintStyle: const TextStyle(color: Colors.white54),
                   filled: true,
                   fillColor: const Color(0xFF1E1E1E),
