@@ -1,8 +1,11 @@
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mojeauto_admin/helpers/authenticated_client.dart';
 import 'package:flutter/material.dart';
 import 'package:mojeauto_admin/screens/login_page.dart';
 import 'package:mojeauto_admin/helpers/token_manager.dart';
 
-class AdminLayout extends StatelessWidget {
+class AdminLayout extends StatefulWidget {
   final Widget content;
   final String currentRoute;
 
@@ -11,6 +14,38 @@ class AdminLayout extends StatelessWidget {
     required this.content,
     required this.currentRoute,
   });
+
+  @override
+  State<AdminLayout> createState() => _AdminLayoutState();
+}
+
+class _AdminLayoutState extends State<AdminLayout> {
+  String? firstName;
+  String? imageBase64;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final userId = await TokenManager().userId;
+    if (userId == null) return;
+
+    final response = await httpClient.get(
+      Uri.parse("${dotenv.env['API_BASE_URL']}/users?id=$userId"),
+      headers: {'accept': 'text/plain'},
+    );
+
+    if (response.statusCode == 200) {
+      final user = jsonDecode(response.body);
+      setState(() {
+        firstName = user['firstName'];
+        imageBase64 = user['imageData'];
+      });
+    }
+  }
 
   void _handleNavigation(BuildContext context, String route) {
     Navigator.pushReplacementNamed(context, route);
@@ -202,7 +237,6 @@ class AdminLayout extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 _userProfile(context),
               ],
             ),
@@ -223,9 +257,9 @@ class AdminLayout extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Pozdrav, Admin 👋",
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  Text(
+                    "Pozdrav, ${firstName ?? '...'} 👋",
+                    style: const TextStyle(fontSize: 18, color: Colors.white),
                   ),
                   const Text(
                     "Dobrodošao na administrativni dio aplikacije \"Moje Auto\"",
@@ -234,7 +268,7 @@ class AdminLayout extends StatelessWidget {
                   const SizedBox(height: 32),
                   const Divider(height: 1, thickness: 1, color: Colors.white12),
                   const SizedBox(height: 24),
-                  Expanded(child: content),
+                  Expanded(child: widget.content),
                 ],
               ),
             ),
@@ -250,7 +284,7 @@ class AdminLayout extends StatelessWidget {
     String title,
     String route,
   ) {
-    final isActive = currentRoute == route;
+    final isActive = widget.currentRoute == route;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -287,7 +321,15 @@ class AdminLayout extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: GestureDetector(
-          onTap: () => _handleNavigation(context, '/admin/profile'),
+          onTap: () async {
+            final result = await Navigator.pushNamed(
+              context,
+              '/admin/profile-edit',
+            );
+            if (result == true) {
+              _loadUserData();
+            }
+          },
           child: Container(
             decoration: BoxDecoration(
               color: const Color(0xFF232C39),
@@ -296,19 +338,25 @@ class AdminLayout extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 16,
-                  backgroundColor: Colors.amber,
-                  child: Icon(Icons.person, size: 18, color: Colors.black),
+                  backgroundColor: Colors.transparent,
+                  backgroundImage: imageBase64 != null
+                      ? MemoryImage(base64Decode(imageBase64!))
+                      : null,
+                  child: imageBase64 == null
+                      ? const Icon(Icons.person, size: 18, color: Colors.white)
+                      : null,
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    "Nedim",
-                    style: TextStyle(color: Colors.white),
+                    firstName ?? '',
+                    style: const TextStyle(color: Colors.white),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+
                 const Icon(
                   Icons.arrow_forward_ios,
                   color: Color.fromARGB(125, 255, 255, 255),

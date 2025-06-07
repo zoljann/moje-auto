@@ -81,6 +81,7 @@ class _LoginPageState extends State<LoginPage> {
         await TokenManager().saveTokens(
           result['token'],
           result['refreshToken'],
+          result['user'],
         );
         ScaffoldMessenger.of(
           context,

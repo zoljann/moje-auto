@@ -22,12 +22,24 @@ class TokenManager {
 
   String? get token => _token;
 
-  Future<void> saveTokens(String token, String refreshToken) async {
+  Future<void> saveTokens(
+    String token,
+    String refreshToken, [
+    Map<String, dynamic>? user,
+  ]) async {
     final prefs = await SharedPreferences.getInstance();
+
     await prefs.setString('jwt_token', token);
     await prefs.setString('refresh_token', refreshToken);
     _token = token;
     _refreshToken = refreshToken;
+
+    if (user != null) {
+      await prefs.setInt('user_id', user['userId']);
+      await prefs.setString('user_firstName', user['firstName']);
+      await prefs.setString('user_lastName', user['lastName']);
+    }
+
     _scheduleRefresh();
   }
 
@@ -71,8 +83,26 @@ class TokenManager {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('jwt_token');
     await prefs.remove('refresh_token');
+    await prefs.remove('user_id');
+    await prefs.remove('user_firstName');
+    await prefs.remove('user_lastName');
     _token = null;
     _refreshToken = null;
     _refreshTimer?.cancel();
+  }
+
+  Future<int?> get userId async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('user_id');
+  }
+
+  Future<String?> get userFirstName async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('user_firstName');
+  }
+
+  Future<String?> get userLastName async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('user_lastName');
   }
 }

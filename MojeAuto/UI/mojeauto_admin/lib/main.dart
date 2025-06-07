@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mojeauto_admin/screens/admin_profile_edit.dart';
 import 'package:mojeauto_admin/screens/category_page.dart';
 import 'package:mojeauto_admin/screens/country_page.dart';
 import 'package:mojeauto_admin/screens/delivery_methods_page.dart';
@@ -118,6 +119,11 @@ class MyApp extends StatelessWidget {
             page = AdminLayout(
               content: const OrderPage(),
               currentRoute: '/admin/orders',
+            );
+          case '/admin/profile-edit':
+            page = AdminLayout(
+              content: const AdminProfileEditPage(),
+              currentRoute: '/admin/profile-edit',
             );
             break;
           case '/login':
