@@ -412,6 +412,8 @@ class _UsersPageState extends State<UsersPage> {
                 onPicked: (isoDate) {
                   _birthDateIso = isoDate;
                 },
+                firstDate: DateTime(1900),
+                lastDate: DateTime.now(),
               ),
               if (editingUserId == null)
                 buildInputField(

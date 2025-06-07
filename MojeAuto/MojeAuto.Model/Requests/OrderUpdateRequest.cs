@@ -7,8 +7,8 @@ namespace MojeAuto.Model.Requests
         [Required]
         public int OrderStatusId { get; set; }
 
-        public int? DeliveryId { get; set; }
-
         public int? PaymentMethodId { get; set; }
+
+        public DeliveryUpdateRequest? Delivery { get; set; }
     }
 }

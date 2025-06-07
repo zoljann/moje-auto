@@ -31,6 +31,14 @@ public class OrderService : BaseCrudService<Order, OrderSearchRequest, OrderInse
 
         if (search != null)
         {
+            if (!string.IsNullOrWhiteSpace(search.User))
+            {
+                var term = search.User.ToLower();
+                query = query.Where(o =>
+                    o.User.FirstName.ToLower().Contains(term) ||
+                    o.User.LastName.ToLower().Contains(term));
+            }
+
             if (search.UserId.HasValue)
                 query = query.Where(o => o.UserId == search.UserId.Value);
 
@@ -44,12 +52,53 @@ public class OrderService : BaseCrudService<Order, OrderSearchRequest, OrderInse
                 query = query.Where(o => o.OrderDate <= search.ToDate.Value);
         }
 
+        if (search is BaseSearchRequest pagination && pagination.Page > 0 && pagination.PageSize > 0)
+        {
+            int skip = (pagination.Page - 1) * pagination.PageSize;
+            query = query.Skip(skip).Take(pagination.PageSize);
+        }
+
+
         var list = await query.ToListAsync();
 
         if (!list.Any())
             return ServiceResult<IEnumerable<Order>>.Fail("No orders found.");
 
         return ServiceResult<IEnumerable<Order>>.Ok(list);
+    }
+
+    public override async Task<ServiceResult<Order>> Update(int id, OrderUpdateRequest request)
+    {
+        var order = await _context.Orders
+            .Include(o => o.Delivery)
+            .FirstOrDefaultAsync(o => o.OrderId == id);
+
+        if (order == null)
+            return ServiceResult<Order>.Fail("Order not found.");
+
+        order.OrderStatusId = request.OrderStatusId;
+
+        if (request.PaymentMethodId.HasValue)
+            order.PaymentMethodId = request.PaymentMethodId.Value;
+
+        if (request.Delivery != null)
+        {
+            if (order.Delivery == null)
+                return ServiceResult<Order>.Fail("Associated delivery not found.");
+
+            if (request.Delivery.DeliveryMethodId.HasValue)
+                order.Delivery.DeliveryMethodId = request.Delivery.DeliveryMethodId.Value;
+
+            if (request.Delivery.DeliveryStatusId.HasValue)
+                order.Delivery.DeliveryStatusId = request.Delivery.DeliveryStatusId.Value;
+
+            if (request.Delivery.DeliveryDate.HasValue)
+                order.Delivery.DeliveryDate = request.Delivery.DeliveryDate.Value;
+        }
+
+        await _context.SaveChangesAsync();
+
+        return ServiceResult<Order>.Ok(order);
     }
 
     public override async Task<ServiceResult<Order>> Insert(OrderInsertRequest insertRequest)
@@ -86,9 +135,9 @@ public class OrderService : BaseCrudService<Order, OrderSearchRequest, OrderInse
 
         var delivery = new Delivery
         {
-            DeliveryMethodId = insertRequest.DeliveryId,
-            DeliveryStatusId = 1, // Assume "Processing" or similar
-            DeliveryDate = DateTime.UtcNow.AddDays(maxEta)
+            DeliveryMethodId = insertRequest.Delivery.DeliveryMethodId,
+            DeliveryStatusId = 1, // "Processing"
+            DeliveryDate = insertRequest.Delivery.DeliveryDate ?? DateTime.UtcNow.AddDays(maxEta)
         };
 
         _context.Deliveries.Add(delivery);

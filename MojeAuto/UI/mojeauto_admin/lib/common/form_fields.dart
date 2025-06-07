@@ -38,6 +38,8 @@ Widget buildDatePickerField({
   required String label,
   required String? Function(String?) validator,
   void Function(String)? onPicked,
+  DateTime? firstDate,
+  DateTime? lastDate,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,9 +65,9 @@ Widget buildDatePickerField({
           FocusScope.of(context).requestFocus(FocusNode());
           final pickedDate = await showDatePicker(
             context: context,
-            initialDate: DateTime(2000),
-            firstDate: DateTime(1900),
-            lastDate: DateTime.now(),
+            initialDate: DateTime.now(),
+            firstDate: firstDate ?? DateTime(1900),
+            lastDate: lastDate ?? DateTime.now(),
             builder: (context, child) =>
                 Theme(data: ThemeData.dark(), child: child!),
           );

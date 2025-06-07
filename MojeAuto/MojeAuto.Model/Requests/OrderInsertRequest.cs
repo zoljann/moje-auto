@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MojeAuto.Model.Requests;
+using System.ComponentModel.DataAnnotations;
 
 public class OrderInsertRequest
 {
@@ -9,7 +10,7 @@ public class OrderInsertRequest
     public int PaymentMethodId { get; set; }
 
     [Required]
-    public int DeliveryId { get; set; }
+    public DeliveryInsertRequest Delivery { get; set; } = null!;
 
     [Required]
     public List<OrderItem> OrderItems { get; set; } = new();

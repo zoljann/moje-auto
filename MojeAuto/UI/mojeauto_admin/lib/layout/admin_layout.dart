@@ -67,12 +67,6 @@ class AdminLayout extends StatelessWidget {
                           "Narudžbe",
                           '/admin/orders',
                         ),
-                        _navItem(
-                          context,
-                          Icons.local_shipping_outlined,
-                          "Dostave",
-                          '/admin/deliveries',
-                        ),
                         const Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16),
                           child: Divider(
