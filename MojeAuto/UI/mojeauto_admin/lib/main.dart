@@ -7,6 +7,7 @@ import 'package:mojeauto_admin/screens/delivery_statuses_page.dart';
 import 'package:mojeauto_admin/screens/manufacturer_page.dart';
 import 'package:mojeauto_admin/screens/order_statuses_page.dart';
 import 'package:mojeauto_admin/screens/part_car_page.dart';
+import 'package:mojeauto_admin/screens/part_page.dart';
 import 'package:mojeauto_admin/screens/payment_methods_page.dart';
 import 'package:mojeauto_admin/screens/users_page.dart';
 import 'package:mojeauto_admin/screens/users_role_page.dart';
@@ -105,6 +106,12 @@ class MyApp extends StatelessWidget {
             page = AdminLayout(
               content: const PartCarPage(),
               currentRoute: '/admin/part-cars',
+            );
+            break;
+          case '/admin/parts':
+            page = AdminLayout(
+              content: const PartPage(),
+              currentRoute: '/admin/parts',
             );
             break;
           case '/login':

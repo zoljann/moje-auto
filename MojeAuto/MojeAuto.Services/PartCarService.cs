@@ -31,11 +31,6 @@ public class PartCarService : BaseCrudService<PartCar, PartCarSearchRequest, Par
         if (search.CarId.HasValue)
             query = query.Where(x => x.CarId == search.CarId.Value);
 
-        if (search is BaseSearchRequest pagination)
-        {
-            int skip = (pagination.Page - 1) * pagination.PageSize;
-            query = query.Skip(skip).Take(pagination.PageSize);
-        }
 
         var list = await query.ToListAsync();
 

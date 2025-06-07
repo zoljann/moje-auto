@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mojeauto_admin/helpers/authenticated_client.dart';
 import 'package:mojeauto_admin/helpers/error_extractor.dart';
 import 'package:mojeauto_admin/common/pagination_controls.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 class PartCarPage extends StatefulWidget {
   const PartCarPage({super.key});
@@ -18,6 +19,8 @@ class _PartCarPageState extends State<PartCarPage> {
   List<dynamic> compatibilities = [];
   Map<int, bool> expandedCars = {};
   Map<int, String> partSearchQueries = {};
+  final Map<int, List<dynamic>> _groupedByCar = {};
+  List<dynamic> allCars = [];
 
   bool isLoading = true;
   bool showForm = false;
@@ -27,7 +30,9 @@ class _PartCarPageState extends State<PartCarPage> {
   int currentPage = 1;
   int pageSize = 7;
   bool hasNextPage = false;
+  bool _showPartValidationError = false;
 
+  final _formKey = GlobalKey<FormState>();
   final _searchController = TextEditingController();
 
   @override
@@ -38,8 +43,25 @@ class _PartCarPageState extends State<PartCarPage> {
 
   Future<void> _fetchAll() async {
     setState(() => isLoading = true);
-    await Future.wait([_fetchCars(), _fetchParts(), _fetchCompatibilities()]);
+    await Future.wait([
+      _fetchCars(),
+      _fetchParts(),
+      _fetchCompatibilities(),
+      _fetchAllCarsForDropdown(),
+    ]);
     setState(() => isLoading = false);
+  }
+
+  Future<void> _fetchAllCarsForDropdown() async {
+    final response = await httpClient.get(
+      Uri.parse(
+        "${dotenv.env['API_BASE_URL']}/cars",
+      ).replace(queryParameters: {'Page': '1', 'PageSize': '9999'}),
+    );
+
+    if (response.statusCode == 200) {
+      allCars = jsonDecode(response.body);
+    }
   }
 
   Future<void> _fetchCars() async {
@@ -74,35 +96,53 @@ class _PartCarPageState extends State<PartCarPage> {
     final response = await httpClient.get(
       Uri.parse("${dotenv.env['API_BASE_URL']}/part-cars"),
     );
-    if (response.statusCode == 200) compatibilities = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      compatibilities = jsonDecode(response.body);
+
+      _groupedByCar.clear();
+      for (var pc in compatibilities) {
+        final car = pc['car'];
+        if (car == null) continue;
+        final carId = car['carId'];
+
+        _groupedByCar.putIfAbsent(carId, () => []).add(pc);
+      }
+    }
   }
 
   Future<void> _addCompatibilities() async {
-    final payload = selectedPartIds
-        .map((id) => {'carId': selectedCarId, 'partId': id})
-        .toList();
-    final response = await httpClient.post(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/part-cars/batch"),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(payload),
-    );
+    bool anyFailed = false;
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      _clearForm();
-      await _fetchCompatibilities();
+    for (var partId in selectedPartIds) {
+      final payload = {'carId': selectedCarId, 'partId': partId};
+
+      final response = await httpClient.post(
+        Uri.parse("${dotenv.env['API_BASE_URL']}/part-cars"),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(payload),
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        anyFailed = true;
+        final error = extractErrorMessage(
+          response,
+          fallback: "Greška pri dodavanju dijela s ID $partId.",
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error), backgroundColor: Colors.red),
+        );
+      }
+    }
+
+    await _fetchCompatibilities();
+    _clearForm();
+
+    if (!anyFailed) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Kompatibilnosti dodane."),
+          content: Text("Svi dijelovi uspješno dodani."),
           backgroundColor: Colors.green,
         ),
-      );
-    } else {
-      final error = extractErrorMessage(
-        response,
-        fallback: "Greška pri dodavanju.",
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error), backgroundColor: Colors.red),
       );
     }
   }
@@ -201,111 +241,158 @@ class _PartCarPageState extends State<PartCarPage> {
   Widget _buildAddForm() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Dodaj kompatibilnosti",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Dodaj kompatibilnosti",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          DropdownButtonFormField<int>(
-            value: selectedCarId,
-            items: cars.map<DropdownMenuItem<int>>((car) {
-              return DropdownMenuItem<int>(
-                value: car['carId'],
-                child: Text("${car['brand']} ${car['model']} (${car['year']})"),
-              );
-            }).toList(),
-            onChanged: (value) {
-              setState(() {
-                selectedCarId = value;
-                selectedPartIds.clear();
-              });
-            },
-            decoration: const InputDecoration(
-              labelText: "Automobil",
-              filled: true,
-              fillColor: Color(0xFF1E1E1E),
-              labelStyle: TextStyle(color: Colors.white70),
-              border: OutlineInputBorder(borderSide: BorderSide.none),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<int>(
+              value: selectedCarId,
+              items: allCars.map<DropdownMenuItem<int>>((car) {
+                return DropdownMenuItem<int>(
+                  value: car['carId'],
+                  child: Text(
+                    "${car['brand']} ${car['model']} (${car['year']})",
+                  ),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedCarId = value;
+                  selectedPartIds.clear();
+                });
+              },
+              validator: (value) =>
+                  value == null ? 'Odaberite automobil' : null,
+              decoration: const InputDecoration(
+                labelText: "Automobil",
+                filled: true,
+                fillColor: Color(0xFF1E1E1E),
+                labelStyle: TextStyle(color: Colors.white70),
+                border: OutlineInputBorder(borderSide: BorderSide.none),
+              ),
+              dropdownColor: const Color(0xFF1E1E1E),
+              style: const TextStyle(color: Colors.white),
             ),
-            dropdownColor: const Color(0xFF1E1E1E),
-            style: const TextStyle(color: Colors.white),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 10,
-            runSpacing: 6,
-            children: parts
-                .where(
-                  (p) =>
-                      selectedCarId == null ||
-                      !compatibilities.any(
-                        (c) =>
-                            c['carId'] == selectedCarId &&
-                            c['partId'] == p['partId'],
-                      ),
-                )
-                .map(
-                  (part) => FilterChip(
-                    label: Text(
-                      part['name'],
-                      style: const TextStyle(color: Colors.white),
+            const SizedBox(height: 12),
+            MultiSelectDialogField<int>(
+              items: parts
+                  .where(
+                    (p) =>
+                        selectedCarId == null ||
+                        !compatibilities.any(
+                          (c) =>
+                              c['carId'] == selectedCarId &&
+                              c['partId'] == p['partId'],
+                        ),
+                  )
+                  .map((p) => MultiSelectItem<int>(p['partId'], p['name']))
+                  .toList(),
+              initialValue: selectedPartIds.toList(),
+              searchable: true,
+              title: const Text(
+                "Odabir dijelova",
+                style: TextStyle(color: Colors.white),
+              ),
+              buttonText: Text(
+                selectedPartIds.isEmpty
+                    ? "Odaberi dijelove"
+                    : "Odabrano (${selectedPartIds.length})",
+                style: const TextStyle(color: Colors.white70),
+              ),
+              selectedColor: const Color(0xFF3B82F6),
+              selectedItemsTextStyle: const TextStyle(color: Colors.white),
+              checkColor: Colors.white,
+              chipDisplay: MultiSelectChipDisplay.none(),
+              searchTextStyle: const TextStyle(color: Colors.white),
+              onConfirm: (values) {
+                setState(() {
+                  selectedPartIds = values.toSet().cast<int>();
+                  _showPartValidationError = false;
+                });
+              },
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E1E1E),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.white24),
+              ),
+              confirmText: const Text(
+                "OK",
+                style: TextStyle(color: Colors.white),
+              ),
+              cancelText: const Text(
+                "Poništi",
+                style: TextStyle(color: Colors.white70),
+              ),
+              dialogWidth: MediaQuery.of(context).size.width * 0.8,
+              dialogHeight: 400,
+              backgroundColor: const Color(0xFF1E1E1E),
+              itemsTextStyle: const TextStyle(color: Colors.white),
+              searchHint: "Pretraži dijelove..",
+              searchHintStyle: const TextStyle(color: Colors.white70),
+              searchIcon: const Icon(Icons.search, color: Colors.white70),
+              closeSearchIcon: const Icon(Icons.close, color: Colors.white70),
+            ),
+            if (_showPartValidationError)
+              const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Text(
+                  "Odaberite najmanje jedan dio.",
+                  style: TextStyle(color: Colors.redAccent, fontSize: 13),
+                ),
+              ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      if (selectedPartIds.isEmpty) {
+                        setState(() => _showPartValidationError = true);
+                        return;
+                      } else {
+                        _addCompatibilities();
+                      }
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF3B82F6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
                     ),
-                    selected: selectedPartIds.contains(part['partId']),
-                    onSelected: (bool selected) {
-                      setState(() {
-                        selected
-                            ? selectedPartIds.add(part['partId'])
-                            : selectedPartIds.remove(part['partId']);
-                      });
-                    },
+                  ),
+                  child: const Text(
+                    "Dodaj",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                TextButton(
+                  onPressed: _clearForm,
+                  style: TextButton.styleFrom(
                     backgroundColor: const Color(0xFF2A2A2A),
-                    selectedColor: const Color(0xFF3B82F6),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
                   ),
-                )
-                .toList(),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              ElevatedButton(
-                onPressed: selectedCarId != null && selectedPartIds.isNotEmpty
-                    ? _addCompatibilities
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3B82F6),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
-                  ),
+                  child: const Text("Nazad"),
                 ),
-                child: const Text(
-                  "Dodaj",
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-              const SizedBox(width: 12),
-              TextButton(
-                onPressed: _clearForm,
-                style: TextButton.styleFrom(
-                  backgroundColor: const Color(0xFF2A2A2A),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
-                  ),
-                ),
-                child: const Text("Nazad"),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -371,9 +458,8 @@ class _PartCarPageState extends State<PartCarPage> {
                   itemBuilder: (context, index) {
                     final car = cars[index];
                     final carId = car['carId'];
-                    final carCompatibilities = compatibilities
-                        .where((c) => c['carId'] == carId)
-                        .toList();
+                    final carCompatibilities = _groupedByCar[carId] ?? [];
+
                     expandedCars.putIfAbsent(carId, () => false);
                     partSearchQueries.putIfAbsent(carId, () => '');
 
@@ -426,95 +512,81 @@ class _PartCarPageState extends State<PartCarPage> {
                               ),
                               if (expandedCars[carId]!) ...[
                                 const SizedBox(height: 10),
-                                if (carCompatibilities.isNotEmpty) ...[
-                                  TextField(
-                                    onChanged: (value) => setState(() {
-                                      partSearchQueries[carId] = value
-                                          .toLowerCase();
-                                    }),
-                                    style: const TextStyle(
-                                      color: Colors.white70,
+                                TextField(
+                                  onChanged: (value) => setState(() {
+                                    partSearchQueries[carId] = value
+                                        .toLowerCase();
+                                  }),
+                                  style: const TextStyle(color: Colors.white70),
+                                  decoration: InputDecoration(
+                                    hintText: 'Pretraži dio..',
+                                    hintStyle: const TextStyle(
+                                      color: Colors.white54,
                                     ),
-                                    decoration: InputDecoration(
-                                      hintText: 'Pretraži dio..',
-                                      hintStyle: const TextStyle(
-                                        color: Colors.white54,
-                                      ),
-                                      filled: true,
-                                      fillColor: const Color(0xFF121212),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                        borderSide: BorderSide.none,
-                                      ),
+                                    filled: true,
+                                    fillColor: const Color(0xFF121212),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide.none,
                                     ),
                                   ),
-                                  const SizedBox(height: 10),
-                                  Wrap(
-                                    spacing: 8,
-                                    runSpacing: 6,
-                                    children: carCompatibilities
-                                        .where((pc) {
-                                          final part = parts.firstWhere(
-                                            (p) => p['partId'] == pc['partId'],
-                                            orElse: () => null,
-                                          );
-                                          return part?['name']
-                                                  ?.toLowerCase()
-                                                  .contains(
-                                                    partSearchQueries[carId]!,
-                                                  ) ??
-                                              false;
-                                        })
-                                        .map((pc) {
-                                          final part = parts.firstWhere(
-                                            (p) => p['partId'] == pc['partId'],
-                                            orElse: () => null,
-                                          );
-                                          return Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 6,
+                                ),
+                                const SizedBox(height: 10),
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 6,
+                                  children: carCompatibilities
+                                      .where((pc) {
+                                        final part = pc['part'];
+                                        return part?['name']
+                                                ?.toLowerCase()
+                                                .contains(
+                                                  partSearchQueries[carId]!,
+                                                ) ??
+                                            false;
+                                      })
+                                      .map((pc) {
+                                        final part = pc['part'];
+                                        return Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 6,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF2A2A2A),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
                                             ),
-                                            decoration: BoxDecoration(
-                                              color: const Color(0xFF2A2A2A),
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Text(
-                                                  part?['name'] ??
-                                                      'Nepoznat dio',
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                  ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                part?['name'] ?? 'Nepoznat dio',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
                                                 ),
-                                                const SizedBox(width: 6),
-                                                GestureDetector(
-                                                  onTap: () =>
-                                                      _deleteCompatibility(
-                                                        context,
-                                                        pc,
-                                                        part?['name'],
-                                                      ),
-                                                  child: const Icon(
-                                                    Icons.close,
-                                                    color: Colors.redAccent,
-                                                    size: 18,
-                                                  ),
+                                              ),
+                                              const SizedBox(width: 6),
+                                              GestureDetector(
+                                                onTap: () =>
+                                                    _deleteCompatibility(
+                                                      context,
+                                                      pc,
+                                                      part?['name'],
+                                                    ),
+                                                child: const Icon(
+                                                  Icons.close,
+                                                  color: Colors.redAccent,
+                                                  size: 18,
                                                 ),
-                                              ],
-                                            ),
-                                          );
-                                        })
-                                        .toList(),
-                                  ),
-                                ] else
-                                  const Text(
-                                    "Nema kompatibilnih dijelova.",
-                                    style: TextStyle(color: Colors.white60),
-                                  ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      })
+                                      .toList(),
+                                ),
                               ],
                             ],
                           ),
