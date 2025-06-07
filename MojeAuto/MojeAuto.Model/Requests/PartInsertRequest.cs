@@ -27,9 +27,6 @@ namespace MojeAuto.Model.Requests
         public int Quantity { get; set; }
 
         [Required]
-        public int TotalSold { get; set; }
-
-        [Required]
         public int ManufacturerId { get; set; }
 
         [Required]

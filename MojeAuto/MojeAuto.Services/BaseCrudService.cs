@@ -59,11 +59,12 @@ public class BaseCrudService<TEntity, TSearch, TInsert, TUpdate> : IBaseCrudServ
             }
         }
 
-        if (search is BaseSearchRequest pagination)
+        if (search is BaseSearchRequest pagination && pagination.Page > 0 && pagination.PageSize > 0)
         {
             int skip = (pagination.Page - 1) * pagination.PageSize;
             query = query.Skip(skip).Take(pagination.PageSize);
         }
+
 
         var list = await query.ToListAsync();
 

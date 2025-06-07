@@ -54,9 +54,7 @@ class _PartCarPageState extends State<PartCarPage> {
 
   Future<void> _fetchAllCarsForDropdown() async {
     final response = await httpClient.get(
-      Uri.parse(
-        "${dotenv.env['API_BASE_URL']}/cars",
-      ).replace(queryParameters: {'Page': '1', 'PageSize': '9999'}),
+      Uri.parse("${dotenv.env['API_BASE_URL']}/cars"),
     );
 
     if (response.statusCode == 200) {

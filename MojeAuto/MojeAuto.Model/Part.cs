@@ -13,7 +13,7 @@ public class Part
     [MaxLength(500)]
     public string? Description { get; set; }
 
-    [MaxLength(500)]
+    [MaxLength(20)]
     public string? Weight { get; set; }
 
     [Required]
@@ -25,7 +25,6 @@ public class Part
     [Required]
     public int Quantity { get; set; }
 
-    [Required]
     public int TotalSold { get; set; } = 0;
 
     [Required]
