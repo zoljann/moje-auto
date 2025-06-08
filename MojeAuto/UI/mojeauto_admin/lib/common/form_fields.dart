@@ -43,6 +43,7 @@ Widget buildDatePickerField({
 }) {
   return FormField<String>(
     validator: validator,
+     initialValue: controller.text.isNotEmpty ? controller.text : null,
     builder: (FormFieldState<String> field) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,7 +63,7 @@ Widget buildDatePickerField({
                 final iso = pickedDate.toIso8601String();
                 controller.text = DateFormat('dd.MM.yyyy').format(pickedDate);
                 onPicked?.call(iso);
-                field.didChange(iso); // important: trigger FormField change
+                field.didChange(iso);
               }
             },
             child: AbsorbPointer(

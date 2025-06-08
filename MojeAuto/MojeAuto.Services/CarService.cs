@@ -26,8 +26,6 @@ public class CarService : BaseCrudService<Car, CarSearchRequest, CarInsertReques
                 .ThenInclude(pc => pc.Part)
             .AsQueryable();
 
-
-
         if (!string.IsNullOrWhiteSpace(search.Brand))
         {
             var q = search.Brand.ToLower();

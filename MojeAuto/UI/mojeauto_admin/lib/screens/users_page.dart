@@ -9,6 +9,7 @@ import 'package:mojeauto_admin/common/form_fields.dart';
 import 'package:mojeauto_admin/common/pagination_controls.dart';
 import 'package:mojeauto_admin/helpers/error_extractor.dart';
 import 'package:intl/intl.dart';
+import 'package:mojeauto_admin/helpers/token_manager.dart';
 
 class UsersPage extends StatefulWidget {
   const UsersPage({super.key});
@@ -34,6 +35,7 @@ class _UsersPageState extends State<UsersPage> {
   String? _birthDateIso;
   List<dynamic> _userRoles = [];
   int? _selectedRoleId;
+  int? _currentUserId;
 
   final TextEditingController _searchController = TextEditingController();
   final _firstNameController = TextEditingController();
@@ -47,9 +49,15 @@ class _UsersPageState extends State<UsersPage> {
   @override
   void initState() {
     super.initState();
+    _initUserId();
     _fetchUsers();
     _fetchCountries();
     _fetchUserRoles();
+  }
+
+  Future<void> _initUserId() async {
+    final id = await TokenManager().userId;
+    setState(() => _currentUserId = id);
   }
 
   Future<void> _fetchUserRoles() async {
@@ -155,7 +163,7 @@ class _UsersPageState extends State<UsersPage> {
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
       setState(() {
-        users = result;
+        users = result.where((u) => u['userId'] != _currentUserId).toList();
         hasNextPage = result.length == pageSize;
         isLoading = false;
       });
@@ -296,205 +304,224 @@ class _UsersPageState extends State<UsersPage> {
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
-          child: Column(
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                editingUserId != null
-                    ? "Uređivanje korisnika"
-                    : "Dodavanje korisnika",
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 16),
-              buildInputField(
-                controller: _firstNameController,
-                label: "Ime",
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Unesite ime';
-                  }
-                  if (value.length < 2 || value.length > 50) {
-                    return 'Ime mora imati između 2 i 50 znakova';
-                  }
-                  return null;
-                },
-              ),
-              buildInputField(
-                controller: _lastNameController,
-                label: "Prezime",
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Unesite prezime';
-                  }
-                  if (value.length < 2 || value.length > 50) {
-                    return 'Prezime mora imati između 2 i 50 znakova';
-                  }
-                  return null;
-                },
-              ),
-              buildInputField(
-                controller: _emailController,
-                label: "E-mail",
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Unesite e-mail';
-                  }
-
-                  final emailRegex = RegExp(
-                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                  );
-                  if (!emailRegex.hasMatch(value)) {
-                    return 'Unesite ispravan e-mail, npr. nedim@gmail.com';
-                  }
-
-                  return null;
-                },
-              ),
-              buildDropdownField<dynamic>(
-                value: _selectedCountryId,
-                items: _countries,
-                label: "Država",
-                validator: (value) => value == null ? 'Odaberite državu' : null,
-                onChanged: (value) =>
-                    setState(() => _selectedCountryId = value),
-                itemLabel: (c) => c['name'],
-                itemValue: (c) => c['countryId'],
-              ),
-              const SizedBox(height: 12),
-              buildInputField(
-                controller: _addressController,
-                label: "Unesite adresu",
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Unesite prezime';
-                  }
-                  if (value.length < 2 || value.length > 50) {
-                    return 'Prezime mora imati između 2 i 100 znakova';
-                  }
-                  return null;
-                },
-              ),
-              buildInputField(
-                controller: _phoneController,
-                label: "Unesite broj mobitela",
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Unesite broj mobitela';
-                  }
-
-                  final numericRegex = RegExp(r'^\d+$');
-                  if (!numericRegex.hasMatch(value)) {
-                    return 'Broj smije sadržavati samo brojeve';
-                  }
-
-                  if (value.length < 6 || value.length > 15) {
-                    return 'Broj mora imati između 6 i 15 cifara';
-                  }
-
-                  return null;
-                },
-              ),
-              buildDatePickerField(
-                context: context,
-                controller: _birthDateController,
-                label: "Datum rođenja",
-                validator: (String? value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Unesite datum rođenja';
-                  }
-
-                  return null;
-                },
-                onPicked: (isoDate) {
-                  _birthDateIso = isoDate;
-                },
-                firstDate: DateTime(1900),
-                lastDate: DateTime.now(),
-              ),
-              if (editingUserId == null)
-                buildInputField(
-                  controller: _passwordController,
-                  label: "Lozinka",
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Unesite lozinku';
-                    }
-                    if (value.length < 6 || value.length > 100) {
-                      return 'Lozinka mora imati između 6 i 50 znakova';
-                    }
-                    return null;
-                  },
-                ),
-              buildDropdownField<dynamic>(
-                value: _selectedRoleId,
-                items: _userRoles,
-                label: "Uloga",
-                validator: (value) => value == null ? 'Odaberite ulogu' : null,
-                onChanged: (value) => setState(() => _selectedRoleId = value),
-                itemLabel: (r) => r['name'],
-                itemValue: (r) => r['userRoleId'],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                "Slika korisnika",
-                style: TextStyle(color: Colors.white70, fontSize: 14),
-              ),
-              const SizedBox(height: 8),
-              buildImagePickerPreview(
-                selectedImage: _selectedImage,
-                existingBase64Image: _existingImageBase64,
-                onTap: _pickImage,
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState?.validate() ?? false) {
-                        if (editingUserId != null) {
-                          _updateUser(editingUserId!);
-                        } else {
-                          _addUser();
+              Expanded(
+                flex: 7,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      editingUserId != null
+                          ? "Uređivanje korisnika"
+                          : "Dodavanje korisnika",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    buildInputField(
+                      controller: _firstNameController,
+                      label: "Ime",
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Unesite ime';
                         }
-                      }
-                    },
+                        if (value.length < 2 || value.length > 50) {
+                          return 'Ime mora imati između 2 i 50 znakova';
+                        }
+                        return null;
+                      },
+                    ),
+                    buildInputField(
+                      controller: _lastNameController,
+                      label: "Prezime",
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Unesite prezime';
+                        }
+                        if (value.length < 2 || value.length > 50) {
+                          return 'Prezime mora imati između 2 i 50 znakova';
+                        }
+                        return null;
+                      },
+                    ),
+                    buildInputField(
+                      controller: _emailController,
+                      label: "E-mail",
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Unesite e-mail';
+                        }
 
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF3B82F6),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
-                    ),
-                    child: Text(
-                      editingUserId != null ? "Uredi" : "Dodaj",
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  TextButton(
-                    onPressed: () {
-                      _clearForm();
-                      setState(() {
-                        editingUserId = null;
-                      });
-                    },
+                        final emailRegex = RegExp(
+                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                        );
+                        if (!emailRegex.hasMatch(value)) {
+                          return 'Unesite ispravan e-mail, npr. nedim@gmail.com';
+                        }
 
-                    style: TextButton.styleFrom(
-                      backgroundColor: const Color(0xFF2A2A2A),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
+                        return null;
+                      },
                     ),
-                    child: const Text("Nazad"),
-                  ),
-                ],
+                    buildDropdownField<dynamic>(
+                      value: _selectedCountryId,
+                      items: _countries,
+                      label: "Država",
+                      validator: (value) =>
+                          value == null ? 'Odaberite državu' : null,
+                      onChanged: (value) =>
+                          setState(() => _selectedCountryId = value),
+                      itemLabel: (c) => c['name'],
+                      itemValue: (c) => c['countryId'],
+                    ),
+                    const SizedBox(height: 12),
+                    buildInputField(
+                      controller: _addressController,
+                      label: "Unesite adresu",
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Unesite prezime';
+                        }
+                        if (value.length < 2 || value.length > 50) {
+                          return 'Prezime mora imati između 2 i 100 znakova';
+                        }
+                        return null;
+                      },
+                    ),
+                    buildInputField(
+                      controller: _phoneController,
+                      label: "Unesite broj mobitela",
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Unesite broj mobitela';
+                        }
+
+                        final numericRegex = RegExp(r'^\d+$');
+                        if (!numericRegex.hasMatch(value)) {
+                          return 'Broj smije sadržavati samo brojeve';
+                        }
+
+                        if (value.length < 6 || value.length > 15) {
+                          return 'Broj mora imati između 6 i 15 cifara';
+                        }
+
+                        return null;
+                      },
+                    ),
+                    buildDatePickerField(
+                      context: context,
+                      controller: _birthDateController,
+                      label: "Datum rođenja",
+                      validator: (String? value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Unesite datum rođenja';
+                        }
+
+                        return null;
+                      },
+                      onPicked: (isoDate) {
+                        _birthDateIso = isoDate;
+                      },
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime.now(),
+                    ),
+                    if (editingUserId == null)
+                      buildInputField(
+                        controller: _passwordController,
+                        label: "Lozinka",
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Unesite lozinku';
+                          }
+                          if (value.length < 6 || value.length > 100) {
+                            return 'Lozinka mora imati između 6 i 50 znakova';
+                          }
+                          return null;
+                        },
+                      ),
+                    buildDropdownField<dynamic>(
+                      value: _selectedRoleId,
+                      items: _userRoles,
+                      label: "Uloga",
+                      validator: (value) =>
+                          value == null ? 'Odaberite ulogu' : null,
+                      onChanged: (value) =>
+                          setState(() => _selectedRoleId = value),
+                      itemLabel: (r) => r['name'],
+                      itemValue: (r) => r['userRoleId'],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState?.validate() ?? false) {
+                              if (editingUserId != null) {
+                                _updateUser(editingUserId!);
+                              } else {
+                                _addUser();
+                              }
+                            }
+                          },
+
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF3B82F6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                          ),
+                          child: Text(
+                            editingUserId != null ? "Uredi" : "Dodaj",
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        TextButton(
+                          onPressed: () {
+                            _clearForm();
+                            setState(() {
+                              editingUserId = null;
+                            });
+                          },
+
+                          style: TextButton.styleFrom(
+                            backgroundColor: const Color(0xFF2A2A2A),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                          ),
+                          child: const Text("Nazad"),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 24),
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Slika korisnika",
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                    ),
+                    const SizedBox(height: 8),
+                    buildImagePickerPreview(
+                      selectedImage: _selectedImage,
+                      existingBase64Image: _existingImageBase64,
+                      onTap: _pickImage,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

@@ -213,8 +213,7 @@ class _AdminProfileEditPageState extends State<AdminProfileEditPage> {
                     context: context,
                     controller: _birthDateController,
                     label: "Datum rođenja",
-                    validator: (value) =>
-                        value == null || value.isEmpty ? "Unesite datum" : null,
+                    validator: (value) => null,
                     onPicked: (iso) => _birthDateIso = iso,
                     firstDate: DateTime(1900),
                     lastDate: DateTime.now(),

@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MojeAuto.Model.Common;
 using MojeAuto.Model.Requests;
 using MojeAuto.Services.Database;

@@ -31,7 +31,6 @@ public class PartCarService : BaseCrudService<PartCar, PartCarSearchRequest, Par
         if (search.CarId.HasValue)
             query = query.Where(x => x.CarId == search.CarId.Value);
 
-
         var list = await query.ToListAsync();
 
         if (!list.Any())
@@ -39,7 +38,6 @@ public class PartCarService : BaseCrudService<PartCar, PartCarSearchRequest, Par
 
         return ServiceResult<IEnumerable<PartCar>>.Ok(list);
     }
-
 
     public override async Task<ServiceResult<PartCar>> Insert(PartCarInsertRequest insertRequest)
     {
