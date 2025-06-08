@@ -243,14 +243,19 @@ class _ReportsPageState extends State<UserReportsPage> {
             ),
             const SizedBox(height: 20),
             buildDropdownField<dynamic>(
-              value: _selectedUserId,
+              value: _users.firstWhere(
+                (u) => u['userId'] == _selectedUserId,
+                orElse: () => null,
+              ),
               items: _users,
               label: "Korisnik",
-              onChanged: (value) => setState(() => _selectedUserId = value),
+              onChanged: (value) =>
+                  setState(() => _selectedUserId = value?['userId']),
               itemLabel: (u) => "${u['firstName']} ${u['lastName']}",
-              itemValue: (u) => u['userId'],
+              itemValue: (u) => u,
               validator: (v) => v == null ? 'Odaberi korisnika' : null,
             ),
+
             const SizedBox(height: 16),
             buildDatePickerField(
               context: context,

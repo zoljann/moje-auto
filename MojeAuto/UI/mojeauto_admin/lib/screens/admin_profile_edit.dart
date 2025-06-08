@@ -102,7 +102,7 @@ class _AdminProfileEditPageState extends State<AdminProfileEditPage> {
           backgroundColor: Colors.green,
         ),
       );
-        Navigator.pop(context, true);
+      Navigator.pop(context, true);
     } else {
       final error = extractErrorMessage(
         response,
@@ -181,15 +181,18 @@ class _AdminProfileEditPageState extends State<AdminProfileEditPage> {
                     },
                   ),
                   buildDropdownField<dynamic>(
-                    value: _selectedCountryId,
+                    value: _countries.firstWhere(
+                      (c) => c['countryId'] == _selectedCountryId,
+                      orElse: () => null,
+                    ),
                     items: _countries,
                     label: "Država",
                     validator: (v) => v == null ? 'Odaberite državu' : null,
                     onChanged: (val) => setState(() {
-                      _selectedCountryId = val;
+                      _selectedCountryId = val?['countryId'];
                     }),
                     itemLabel: (c) => c['name'],
-                    itemValue: (c) => c['countryId'],
+                    itemValue: (c) => c,
                   ),
                   const SizedBox(height: 12),
                   buildInputField(

@@ -299,15 +299,15 @@ class _CarsPageState extends State<CarsPage> {
                     return 'Unesite kubikažu';
                   }
 
-                  final cleaned = value.trim();
+                  final cleaned = value.trim().replaceAll(',', '.');
                   final regex = RegExp(r'^\d+(\.\d)?$');
                   if (!regex.hasMatch(cleaned)) {
-                    return 'Format mora biti npr. 2.5, koristite tačku';
+                    return 'Koristite zarez (,) kao decimalni separator, npr. 0,3';
                   }
 
                   final parsed = double.tryParse(cleaned);
-                  if (parsed == null || parsed <= 0 || parsed > 9.9) {
-                    return 'Kubikaža mora biti veća od 0 i najviše 9.9';
+                  if (parsed == null || parsed < 0.1 || parsed > 9.9) {
+                    return 'Kubikaža mora biti između 0,1 i 9,9';
                   }
                   return null;
                 },
@@ -362,7 +362,7 @@ class _CarsPageState extends State<CarsPage> {
                 },
               ),
               Text(
-                "Slika korisnika",
+                "Slika automobila",
                 style: TextStyle(color: Colors.white70, fontSize: 14),
               ),
               const SizedBox(height: 8),

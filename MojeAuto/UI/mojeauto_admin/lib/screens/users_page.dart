@@ -368,16 +368,21 @@ class _UsersPageState extends State<UsersPage> {
                       },
                     ),
                     buildDropdownField<dynamic>(
-                      value: _selectedCountryId,
+                      value: _countries.firstWhere(
+                        (c) => c['countryId'] == _selectedCountryId,
+                        orElse: () => null,
+                      ),
                       items: _countries,
                       label: "Država",
                       validator: (value) =>
                           value == null ? 'Odaberite državu' : null,
-                      onChanged: (value) =>
-                          setState(() => _selectedCountryId = value),
+                      onChanged: (value) => setState(
+                        () => _selectedCountryId = value?['countryId'],
+                      ),
                       itemLabel: (c) => c['name'],
-                      itemValue: (c) => c['countryId'],
+                      itemValue: (c) => c,
                     ),
+
                     const SizedBox(height: 12),
                     buildInputField(
                       controller: _addressController,
@@ -444,16 +449,21 @@ class _UsersPageState extends State<UsersPage> {
                         },
                       ),
                     buildDropdownField<dynamic>(
-                      value: _selectedRoleId,
+                      value: _userRoles.firstWhere(
+                        (r) => r['userRoleId'] == _selectedRoleId,
+                        orElse: () => null,
+                      ),
                       items: _userRoles,
                       label: "Uloga",
                       validator: (value) =>
                           value == null ? 'Odaberite ulogu' : null,
-                      onChanged: (value) =>
-                          setState(() => _selectedRoleId = value),
+                      onChanged: (value) => setState(
+                        () => _selectedRoleId = value?['userRoleId'],
+                      ),
                       itemLabel: (r) => r['name'],
-                      itemValue: (r) => r['userRoleId'],
+                      itemValue: (r) => r,
                     ),
+
                     const SizedBox(height: 12),
                     Row(
                       children: [

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 
 Widget buildInputField({
   required TextEditingController controller,
@@ -43,7 +44,7 @@ Widget buildDatePickerField({
 }) {
   return FormField<String>(
     validator: validator,
-     initialValue: controller.text.isNotEmpty ? controller.text : null,
+    initialValue: controller.text.isNotEmpty ? controller.text : null,
     builder: (FormFieldState<String> field) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,28 +159,78 @@ Widget buildDropdownField<T>({
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      DropdownButtonFormField<T>(
-        value: value,
-        items: items.map<DropdownMenuItem<T>>((item) {
-          return DropdownMenuItem<T>(
-            value: itemValue(item),
-            child: Text(itemLabel(item)),
-          );
-        }).toList(),
-        onChanged: onChanged,
+      DropdownSearch<T>(
+        selectedItem: value != null
+            ? items.firstWhere(
+                (e) => itemValue(e) == value,
+                orElse: () => items.first,
+              )
+            : null,
+        items: items,
+        itemAsString: itemLabel,
         validator: validator,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.white70),
-          filled: true,
-          fillColor: const Color(0xFF1E1E1E),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide.none,
+        onChanged: onChanged,
+        dropdownDecoratorProps: DropDownDecoratorProps(
+          dropdownSearchDecoration: InputDecoration(
+            labelText: label,
+            labelStyle: const TextStyle(color: Colors.white70),
+            filled: true,
+            fillColor: const Color(0xFF1E1E1E),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
+            ),
+            errorStyle: const TextStyle(color: Colors.redAccent),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 14,
+            ),
           ),
         ),
-        dropdownColor: const Color(0xFF1E1E1E),
-        style: const TextStyle(color: Colors.white),
+        popupProps: PopupProps.menu(
+          showSearchBox: true,
+          fit: FlexFit.loose,
+          constraints: const BoxConstraints(maxHeight: 300),
+          searchFieldProps: TextFieldProps(
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: 'Pretraga..',
+              hintStyle: const TextStyle(color: Colors.white54),
+              filled: true,
+              fillColor: const Color(0xFF1E1E1E),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 6,
+              ),
+            ),
+          ),
+          menuProps: const MenuProps(
+            backgroundColor: Color(0xFF1E1E1E),
+            elevation: 3,
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+          ),
+          itemBuilder: (context, item, isSelected) => Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: isSelected ? const Color(0xFF2C2C2C) : Colors.transparent,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              itemLabel(item),
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+        dropdownBuilder: (context, selectedItem) {
+          return Text(
+            selectedItem != null ? itemLabel(selectedItem) : '',
+            style: const TextStyle(color: Colors.white),
+          );
+        },
       ),
     ],
   );

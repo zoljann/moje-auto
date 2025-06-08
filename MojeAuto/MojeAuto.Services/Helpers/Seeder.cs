@@ -146,7 +146,6 @@ new PaymentMethod { Name = "Lično preuzimanje" }
             if (!db.OrderStatuses.Any())
             {
                 db.OrderStatuses.AddRange(
-                    new OrderStatus { Name = "U obradi" },
                     new OrderStatus { Name = "Plaćeno" },
                     new OrderStatus { Name = "Dovršeno" },
                     new OrderStatus { Name = "Otkazano" }
@@ -204,7 +203,7 @@ new PaymentMethod { Name = "Lično preuzimanje" }
                     new User { FirstName = "Naida", LastName = "Kadić", Email = "naida.kadic@example.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("pass"), Address = "Otoka 2", PhoneNumber = "062909090", BirthDate = new DateTime(1989, 11, 15), CountryId = 3, UserRoleId = 1, ImageData = LoadImage("SeedImages/avatar2.jpg") },
                     new User { FirstName = "Armin", LastName = "Karalić", Email = "armin.karalic@example.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("pass"), Address = "Ilidža 88", PhoneNumber = "061121212", BirthDate = new DateTime(1994, 7, 7), CountryId = 6, UserRoleId = 1, ImageData = LoadImage("SeedImages/avatar1.jpg") },
                     new User { FirstName = "Medina", LastName = "Mehić", Email = "medina.mehic@example.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("pass"), Address = "Dobrinja bb", PhoneNumber = "062131313", BirthDate = new DateTime(1997, 12, 29), CountryId = 8, UserRoleId = 1 },
-                    new User { FirstName = "Nedim", LastName = "Zolj", Email = "desktop@gmail.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("test"), Address = "Vrapčići 72", PhoneNumber = "062614400", BirthDate = new DateTime(2000, 10, 20), CountryId = 8, UserRoleId = 2, ImageData = LoadImage("SeedImages/avatar3.png") },
+                    new User { FirstName = "Nedim", LastName = "Zolj", Email = "desktop@gmail.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("test"), Address = "Vrapčići 72", PhoneNumber = "062614400", BirthDate = new DateTime(2000, 10, 20), CountryId = 8, UserRoleId = 2, ImageData = LoadImage("SeedImages/avatar3.png") }
                 );
 
                 db.SaveChanges();
@@ -213,36 +212,36 @@ new PaymentMethod { Name = "Lično preuzimanje" }
             if (!db.Parts.Any())
             {
                 db.Parts.AddRange(
-                    new Part { Name = "Zračni filter", CatalogNumber = "AF123", Description = "Filter za zrak motora", Weight = "0.3kg", Price = 19.99m, WarrantyMonths = 12, Quantity = 100, TotalSold = 20, ManufacturerId = 1, CategoryId = 1, EstimatedArrivalDays = 2, ImageData = LoadImage("SeedImages/part1.png") },
-                    new Part { Name = "Filter ulja", CatalogNumber = "OF444", Description = "Filter za ulje motora", Weight = "0.4kg", Price = 12.99m, WarrantyMonths = 12, Quantity = 80, TotalSold = 30, ManufacturerId = 9, CategoryId = 1, EstimatedArrivalDays = 3 },
-                    new Part { Name = "Kočione pločice", CatalogNumber = "BP789", Description = "Set kočionih pločica", Weight = "1.2kg", Price = 45.99m, WarrantyMonths = 18, Quantity = 150, TotalSold = 60, ManufacturerId = 14, CategoryId = 2, EstimatedArrivalDays = 1, ImageData = LoadImage("SeedImages/part2.png") },
-                    new Part { Name = "Amortizer", CatalogNumber = "SH321", Description = "Prednji amortizer", Weight = "3.1kg", Price = 79.99m, WarrantyMonths = 24, Quantity = 70, TotalSold = 35, ManufacturerId = 17, CategoryId = 3, EstimatedArrivalDays = 4 },
-                    new Part { Name = "Akumulator", CatalogNumber = "BT888", Description = "12V 60Ah akumulator", Weight = "15kg", Price = 89.99m, WarrantyMonths = 24, Quantity = 40, TotalSold = 10, ManufacturerId = 8, CategoryId = 4, EstimatedArrivalDays = 2, ImageData = LoadImage("SeedImages/part3.png") },
-                    new Part { Name = "Branik prednji", CatalogNumber = "BM456", Description = "Prednji plastični branik", Weight = "6.5kg", Price = 129.99m, WarrantyMonths = 12, Quantity = 25, TotalSold = 8, ManufacturerId = 13, CategoryId = 5, EstimatedArrivalDays = 3 },
-                    new Part { Name = "Sjedalo vozača", CatalogNumber = "SD777", Description = "Vozačko sjedalo s podešavanjem", Weight = "12kg", Price = 199.99m, WarrantyMonths = 24, Quantity = 15, TotalSold = 5, ManufacturerId = 19, CategoryId = 6, EstimatedArrivalDays = 5 },
-                    new Part { Name = "Ispušna cijev", CatalogNumber = "EX321", Description = "Završni dio ispušnog sistema", Weight = "2.5kg", Price = 59.99m, WarrantyMonths = 12, Quantity = 50, TotalSold = 18, ManufacturerId = 6, CategoryId = 7, EstimatedArrivalDays = 1, ImageData = LoadImage("SeedImages/part1.png") },
-                    new Part { Name = "Ventilator hladnjaka", CatalogNumber = "RF232", Description = "Ventilator za hlađenje motora", Weight = "3kg", Price = 74.99m, WarrantyMonths = 18, Quantity = 30, TotalSold = 12, ManufacturerId = 4, CategoryId = 8, EstimatedArrivalDays = 3 },
-                    new Part { Name = "Volan", CatalogNumber = "ST555", Description = "Kožni volan sa komandama", Weight = "1.7kg", Price = 110.00m, WarrantyMonths = 24, Quantity = 20, TotalSold = 7, ManufacturerId = 10, CategoryId = 9, EstimatedArrivalDays = 2, ImageData = LoadImage("SeedImages/part2.png") },
-                    new Part { Name = "Pumpa goriva", CatalogNumber = "FP898", Description = "Električna pumpa goriva", Weight = "1.1kg", Price = 65.00m, WarrantyMonths = 12, Quantity = 45, TotalSold = 20, ManufacturerId = 12, CategoryId = 10, EstimatedArrivalDays = 2 },
-                    new Part { Name = "Mjenjač 5 brzina", CatalogNumber = "TR789", Description = "Manualni mjenjač", Weight = "20kg", Price = 399.99m, WarrantyMonths = 36, Quantity = 10, TotalSold = 2, ManufacturerId = 1, CategoryId = 11, EstimatedArrivalDays = 4, ImageData = LoadImage("SeedImages/part3.png") },
-                    new Part { Name = "Set kvačila", CatalogNumber = "CL333", Description = "Kompletan set kvačila", Weight = "4.5kg", Price = 149.99m, WarrantyMonths = 24, Quantity = 35, TotalSold = 17, ManufacturerId = 15, CategoryId = 12, EstimatedArrivalDays = 1 },
-                    new Part { Name = "Pogonska osovina", CatalogNumber = "AX456", Description = "Prednja pogonska osovina", Weight = "6.0kg", Price = 89.99m, WarrantyMonths = 18, Quantity = 22, TotalSold = 9, ManufacturerId = 18, CategoryId = 13, EstimatedArrivalDays = 3 },
-                    new Part { Name = "Zračni jastuk", CatalogNumber = "AB777", Description = "Vozačev zračni jastuk", Weight = "2.3kg", Price = 210.00m, WarrantyMonths = 36, Quantity = 12, TotalSold = 3, ManufacturerId = 2, CategoryId = 14, EstimatedArrivalDays = 5, ImageData = LoadImage("SeedImages/part1.png") },
-                    new Part { Name = "Retrovizor lijevi", CatalogNumber = "MR111", Description = "Električni retrovizor s grijanjem", Weight = "1.1kg", Price = 45.50m, WarrantyMonths = 12, Quantity = 60, TotalSold = 21, ManufacturerId = 16, CategoryId = 15, EstimatedArrivalDays = 2 },
-                    new Part { Name = "Komplet klima uređaja", CatalogNumber = "AC999", Description = "Sistem klimatizacije", Weight = "8.5kg", Price = 299.99m, WarrantyMonths = 24, Quantity = 8, TotalSold = 4, ManufacturerId = 11, CategoryId = 16, EstimatedArrivalDays = 4, ImageData = LoadImage("SeedImages/part2.png") },
-                    new Part { Name = "Motor brisača", CatalogNumber = "WM555", Description = "Prednji motor brisača", Weight = "1.6kg", Price = 69.00m, WarrantyMonths = 18, Quantity = 32, TotalSold = 11, ManufacturerId = 5, CategoryId = 17, EstimatedArrivalDays = 2 },
-                    new Part { Name = "Filter kabine", CatalogNumber = "CF654", Description = "Filter zraka za kabinu", Weight = "0.2kg", Price = 14.99m, WarrantyMonths = 12, Quantity = 120, TotalSold = 40, ManufacturerId = 7, CategoryId = 18, EstimatedArrivalDays = 1, ImageData = LoadImage("SeedImages/part3.png") },
-                    new Part { Name = "Zupčasti remen", CatalogNumber = "TB123", Description = "Remen razvoda", Weight = "0.8kg", Price = 34.99m, WarrantyMonths = 12, Quantity = 75, TotalSold = 25, ManufacturerId = 3, CategoryId = 19, EstimatedArrivalDays = 2 },
-                    new Part { Name = "Pumpa za vodu", CatalogNumber = "WP010", Description = "Pumpa za hlađenje motora", Weight = "1.1kg", Price = 42.99m, WarrantyMonths = 12, Quantity = 60, TotalSold = 22, ManufacturerId = 9, CategoryId = 8, EstimatedArrivalDays = 2, ImageData = LoadImage("SeedImages/part1.png") },
-new Part { Name = "Kočione pločice", CatalogNumber = "BP220", Description = "Set prednjih kočionih pločica", Weight = "1.5kg", Price = 34.50m, WarrantyMonths = 18, Quantity = 80, TotalSold = 40, ManufacturerId = 14, CategoryId = 2, EstimatedArrivalDays = 3 },
-new Part { Name = "Set kvačila", CatalogNumber = "CL320", Description = "Kompletan set kvačila", Weight = "4.2kg", Price = 159.99m, WarrantyMonths = 24, Quantity = 30, TotalSold = 12, ManufacturerId = 13, CategoryId = 12, EstimatedArrivalDays = 4, ImageData = LoadImage("SeedImages/part2.png") },
-new Part { Name = "Amortizer", CatalogNumber = "SH110", Description = "Prednji lijevi amortizer", Weight = "3.5kg", Price = 79.00m, WarrantyMonths = 18, Quantity = 45, TotalSold = 15, ManufacturerId = 3, CategoryId = 3, EstimatedArrivalDays = 1 },
-new Part { Name = "Ulje za motor", CatalogNumber = "EO555", Description = "Sintetičko ulje 5W-40", Weight = "4.0kg", Price = 49.90m, WarrantyMonths = 12, Quantity = 70, TotalSold = 35, ManufacturerId = 6, CategoryId = 1, EstimatedArrivalDays = 5, ImageData = LoadImage("SeedImages/part3.png") },
-new Part { Name = "Disk kočnice", CatalogNumber = "BD770", Description = "Ventilirani disk kočnice", Weight = "6.2kg", Price = 65.50m, WarrantyMonths = 24, Quantity = 50, TotalSold = 27, ManufacturerId = 15, CategoryId = 2, EstimatedArrivalDays = 2 },
-new Part { Name = "Kompresor klime", CatalogNumber = "AC890", Description = "Kompresor klima uređaja", Weight = "7.3kg", Price = 210.00m, WarrantyMonths = 24, Quantity = 25, TotalSold = 8, ManufacturerId = 12, CategoryId = 16, EstimatedArrivalDays = 3, ImageData = LoadImage("SeedImages/part1.png") },
-new Part { Name = "Lambda sonda", CatalogNumber = "LS999", Description = "Senzor kisika za ispušni sistem", Weight = "0.6kg", Price = 69.00m, WarrantyMonths = 12, Quantity = 40, TotalSold = 14, ManufacturerId = 8, CategoryId = 7, EstimatedArrivalDays = 1 },
-new Part { Name = "Brisači", CatalogNumber = "WS100", Description = "Set prednjih brisača", Weight = "0.9kg", Price = 22.90m, WarrantyMonths = 12, Quantity = 90, TotalSold = 38, ManufacturerId = 18, CategoryId = 17, EstimatedArrivalDays = 2, ImageData = LoadImage("SeedImages/part2.png") },
-new Part { Name = "Alternator", CatalogNumber = "ALT333", Description = "Generator električne energije", Weight = "5.7kg", Price = 135.00m, WarrantyMonths = 24, Quantity = 20, TotalSold = 11, ManufacturerId = 2, CategoryId = 4, EstimatedArrivalDays = 4 }
+                    new Part { Name = "Zračni filter", CatalogNumber = "AF123", Description = "Filter za zrak motora", Weight = "0,3", Price = 19.99m, WarrantyMonths = 12, Quantity = 100, TotalSold = 20, ManufacturerId = 1, CategoryId = 1, EstimatedArrivalDays = 2, ImageData = LoadImage("SeedImages/part1.png") },
+                    new Part { Name = "Filter ulja", CatalogNumber = "OF444", Description = "Filter za ulje motora", Weight = "0,4", Price = 12.99m, WarrantyMonths = 12, Quantity = 80, TotalSold = 30, ManufacturerId = 9, CategoryId = 1, EstimatedArrivalDays = 3 },
+                    new Part { Name = "Kočione pločice", CatalogNumber = "BP789", Description = "Set kočionih pločica", Weight = "1,2", Price = 45.99m, WarrantyMonths = 18, Quantity = 150, TotalSold = 60, ManufacturerId = 14, CategoryId = 2, EstimatedArrivalDays = 1, ImageData = LoadImage("SeedImages/part2.png") },
+                    new Part { Name = "Amortizer", CatalogNumber = "SH321", Description = "Prednji amortizer", Weight = "3,1", Price = 79.99m, WarrantyMonths = 24, Quantity = 70, TotalSold = 35, ManufacturerId = 17, CategoryId = 3, EstimatedArrivalDays = 4 },
+                    new Part { Name = "Akumulator", CatalogNumber = "BT888", Description = "12V 60Ah akumulator", Weight = "15", Price = 89.99m, WarrantyMonths = 24, Quantity = 40, TotalSold = 10, ManufacturerId = 8, CategoryId = 4, EstimatedArrivalDays = 2, ImageData = LoadImage("SeedImages/part3.png") },
+                    new Part { Name = "Branik prednji", CatalogNumber = "BM456", Description = "Prednji plastični branik", Weight = "6,5", Price = 129.99m, WarrantyMonths = 12, Quantity = 25, TotalSold = 8, ManufacturerId = 13, CategoryId = 5, EstimatedArrivalDays = 3 },
+                    new Part { Name = "Sjedalo vozača", CatalogNumber = "SD777", Description = "Vozačko sjedalo s podešavanjem", Weight = "12", Price = 199.99m, WarrantyMonths = 24, Quantity = 15, TotalSold = 5, ManufacturerId = 19, CategoryId = 6, EstimatedArrivalDays = 5 },
+                    new Part { Name = "Ispušna cijev", CatalogNumber = "EX321", Description = "Završni dio ispušnog sistema", Weight = "2,5", Price = 59.99m, WarrantyMonths = 12, Quantity = 50, TotalSold = 18, ManufacturerId = 6, CategoryId = 7, EstimatedArrivalDays = 1, ImageData = LoadImage("SeedImages/part1.png") },
+                    new Part { Name = "Ventilator hladnjaka", CatalogNumber = "RF232", Description = "Ventilator za hlađenje motora", Weight = "3", Price = 74.99m, WarrantyMonths = 18, Quantity = 30, TotalSold = 12, ManufacturerId = 4, CategoryId = 8, EstimatedArrivalDays = 3 },
+                    new Part { Name = "Volan", CatalogNumber = "ST555", Description = "Kožni volan sa komandama", Weight = "1,7", Price = 110.00m, WarrantyMonths = 24, Quantity = 20, TotalSold = 7, ManufacturerId = 10, CategoryId = 9, EstimatedArrivalDays = 2, ImageData = LoadImage("SeedImages/part2.png") },
+                    new Part { Name = "Pumpa goriva", CatalogNumber = "FP898", Description = "Električna pumpa goriva", Weight = "1,1", Price = 65.00m, WarrantyMonths = 12, Quantity = 45, TotalSold = 20, ManufacturerId = 12, CategoryId = 10, EstimatedArrivalDays = 2 },
+                    new Part { Name = "Mjenjač 5 brzina", CatalogNumber = "TR789", Description = "Manualni mjenjač", Weight = "20", Price = 399.99m, WarrantyMonths = 36, Quantity = 10, TotalSold = 2, ManufacturerId = 1, CategoryId = 11, EstimatedArrivalDays = 4, ImageData = LoadImage("SeedImages/part3.png") },
+                    new Part { Name = "Set kvačila", CatalogNumber = "CL333", Description = "Kompletan set kvačila", Weight = "4,5", Price = 149.99m, WarrantyMonths = 24, Quantity = 35, TotalSold = 17, ManufacturerId = 15, CategoryId = 12, EstimatedArrivalDays = 1 },
+                    new Part { Name = "Pogonska osovina", CatalogNumber = "AX456", Description = "Prednja pogonska osovina", Weight = "6,0", Price = 89.99m, WarrantyMonths = 18, Quantity = 22, TotalSold = 9, ManufacturerId = 18, CategoryId = 13, EstimatedArrivalDays = 3 },
+                    new Part { Name = "Zračni jastuk", CatalogNumber = "AB777", Description = "Vozačev zračni jastuk", Weight = "2,3", Price = 210.00m, WarrantyMonths = 36, Quantity = 12, TotalSold = 3, ManufacturerId = 2, CategoryId = 14, EstimatedArrivalDays = 5, ImageData = LoadImage("SeedImages/part1.png") },
+                    new Part { Name = "Retrovizor lijevi", CatalogNumber = "MR111", Description = "Električni retrovizor s grijanjem", Weight = "1,1", Price = 45.50m, WarrantyMonths = 12, Quantity = 60, TotalSold = 21, ManufacturerId = 16, CategoryId = 15, EstimatedArrivalDays = 2 },
+                    new Part { Name = "Komplet klima uređaja", CatalogNumber = "AC999", Description = "Sistem klimatizacije", Weight = "8,5", Price = 299.99m, WarrantyMonths = 24, Quantity = 8, TotalSold = 4, ManufacturerId = 11, CategoryId = 16, EstimatedArrivalDays = 4, ImageData = LoadImage("SeedImages/part2.png") },
+                    new Part { Name = "Motor brisača", CatalogNumber = "WM555", Description = "Prednji motor brisača", Weight = "1,6", Price = 69.00m, WarrantyMonths = 18, Quantity = 32, TotalSold = 11, ManufacturerId = 5, CategoryId = 17, EstimatedArrivalDays = 2 },
+                    new Part { Name = "Filter kabine", CatalogNumber = "CF654", Description = "Filter zraka za kabinu", Weight = "0,2", Price = 14.99m, WarrantyMonths = 12, Quantity = 120, TotalSold = 40, ManufacturerId = 7, CategoryId = 18, EstimatedArrivalDays = 1, ImageData = LoadImage("SeedImages/part3.png") },
+                    new Part { Name = "Zupčasti remen", CatalogNumber = "TB123", Description = "Remen razvoda", Weight = "0,8", Price = 34.99m, WarrantyMonths = 12, Quantity = 75, TotalSold = 25, ManufacturerId = 3, CategoryId = 19, EstimatedArrivalDays = 2 },
+                    new Part { Name = "Pumpa za vodu", CatalogNumber = "WP010", Description = "Pumpa za hlađenje motora", Weight = "1,5", Price = 42.99m, WarrantyMonths = 12, Quantity = 60, TotalSold = 22, ManufacturerId = 9, CategoryId = 8, EstimatedArrivalDays = 2, ImageData = LoadImage("SeedImages/part1.png") },
+new Part { Name = "Kočione pločice", CatalogNumber = "BP220", Description = "Set prednjih kočionih pločica", Weight = "1,5", Price = 34.50m, WarrantyMonths = 18, Quantity = 80, TotalSold = 40, ManufacturerId = 14, CategoryId = 2, EstimatedArrivalDays = 3 },
+new Part { Name = "Set kvačila", CatalogNumber = "CL320", Description = "Kompletan set kvačila", Weight = "4,2", Price = 159.99m, WarrantyMonths = 24, Quantity = 30, TotalSold = 12, ManufacturerId = 13, CategoryId = 12, EstimatedArrivalDays = 4, ImageData = LoadImage("SeedImages/part2.png") },
+new Part { Name = "Amortizer", CatalogNumber = "SH110", Description = "Prednji lijevi amortizer", Weight = "3,5", Price = 79.00m, WarrantyMonths = 18, Quantity = 45, TotalSold = 15, ManufacturerId = 3, CategoryId = 3, EstimatedArrivalDays = 1 },
+new Part { Name = "Ulje za motor", CatalogNumber = "EO555", Description = "Sintetičko ulje 5W-40", Weight = "4", Price = 49.90m, WarrantyMonths = 12, Quantity = 70, TotalSold = 35, ManufacturerId = 6, CategoryId = 1, EstimatedArrivalDays = 5, ImageData = LoadImage("SeedImages/part3.png") },
+new Part { Name = "Disk kočnice", CatalogNumber = "BD770", Description = "Ventilirani disk kočnice", Weight = "6,2", Price = 65.50m, WarrantyMonths = 24, Quantity = 50, TotalSold = 27, ManufacturerId = 15, CategoryId = 2, EstimatedArrivalDays = 2 },
+new Part { Name = "Kompresor klime", CatalogNumber = "AC890", Description = "Kompresor klima uređaja", Weight = "7,3", Price = 210.00m, WarrantyMonths = 24, Quantity = 25, TotalSold = 8, ManufacturerId = 12, CategoryId = 16, EstimatedArrivalDays = 3, ImageData = LoadImage("SeedImages/part1.png") },
+new Part { Name = "Lambda sonda", CatalogNumber = "LS999", Description = "Senzor kisika za ispušni sistem", Weight = "0,6", Price = 69.00m, WarrantyMonths = 12, Quantity = 40, TotalSold = 14, ManufacturerId = 8, CategoryId = 7, EstimatedArrivalDays = 1 },
+new Part { Name = "Brisači", CatalogNumber = "WS100", Description = "Set prednjih brisača", Weight = "0,9", Price = 22.90m, WarrantyMonths = 12, Quantity = 90, TotalSold = 38, ManufacturerId = 18, CategoryId = 17, EstimatedArrivalDays = 2, ImageData = LoadImage("SeedImages/part2.png") },
+new Part { Name = "Alternator", CatalogNumber = "ALT333", Description = "Generator električne energije", Weight = "5,7", Price = 135.00m, WarrantyMonths = 24, Quantity = 20, TotalSold = 11, ManufacturerId = 2, CategoryId = 4, EstimatedArrivalDays = 4 }
 
                 );
 
@@ -334,10 +333,9 @@ new PartCar { PartId = 20, CarId = 9 }
                 for (int i = 0; i < 30; i++)
                 {
                     var user = users[random.Next(users.Count)];
-                    var part = parts[random.Next(parts.Count)];
-                    var quantity = random.Next(1, 5);
                     var payment = paymentMethods[random.Next(paymentMethods.Count)];
-                    var status = orderStatuses[random.Next(orderStatuses.Count)];
+                    var validStatuses = orderStatuses.Where(s => s.OrderStatusId != 3).ToList();
+                    var status = validStatuses[random.Next(validStatuses.Count)];
                     var deliveryStatus = deliveryStatuses[random.Next(deliveryStatuses.Count)];
                     var deliveryMethod = deliveryMethods[random.Next(deliveryMethods.Count)];
 
@@ -350,23 +348,31 @@ new PartCar { PartId = 20, CarId = 9 }
 
                     deliveriesToAdd.Add(delivery);
 
+                    var orderItems = new List<OrderItem>();
+                    int numberOfItems = random.Next(1, 4);
+
+                    for (int j = 0; j < numberOfItems; j++)
+                    {
+                        var itemPart = parts[random.Next(parts.Count)];
+                        var itemQuantity = random.Next(1, 5);
+
+                        orderItems.Add(new OrderItem
+                        {
+                            PartId = itemPart.PartId,
+                            Quantity = itemQuantity,
+                            UnitPrice = itemPart.Price
+                        });
+                    }
+
                     var order = new Order
                     {
                         UserId = user.UserId,
                         OrderDate = DateTime.Now.AddDays(-random.Next(1, 10)),
-                        TotalAmount = part.Price * quantity,
                         PaymentMethodId = payment.PaymentMethodId,
                         OrderStatusId = status.OrderStatusId,
-                        Delivery = delivery, // set navigation property
-                        OrderItems = new List<OrderItem>
-            {
-                new OrderItem
-                {
-                    PartId = part.PartId,
-                    Quantity = quantity,
-                    UnitPrice = part.Price
-                }
-            }
+                        Delivery = delivery,
+                        TotalAmount = orderItems.Sum(oi => oi.UnitPrice * oi.Quantity),
+                        OrderItems = orderItems
                     };
 
                     ordersToAdd.Add(order);

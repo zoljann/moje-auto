@@ -233,27 +233,38 @@ class _OrderPageState extends State<OrderPage> {
                   ),
                   const SizedBox(height: 16),
                   buildDropdownField<dynamic>(
-                    value: _selectedOrderStatusId,
+                    value: orderStatuses.firstWhere(
+                      (s) => s['orderStatusId'] == _selectedOrderStatusId,
+                      orElse: () => null,
+                    ),
                     items: orderStatuses,
                     label: "Status narudžbe",
                     validator: (value) =>
                         value == null ? 'Odaberite status narudžbe' : null,
-                    onChanged: (value) =>
-                        setState(() => _selectedOrderStatusId = value),
+                    onChanged: (value) => setState(
+                      () => _selectedOrderStatusId = value?['orderStatusId'],
+                    ),
                     itemLabel: (s) => s['name'],
-                    itemValue: (s) => s['orderStatusId'],
+                    itemValue: (s) => s, // return full object
                   ),
+
                   const SizedBox(height: 16),
                   buildDropdownField<dynamic>(
-                    value: _selectedPaymentMethodId,
+                    value: paymentMethods.firstWhere(
+                      (p) => p['paymentMethodId'] == _selectedPaymentMethodId,
+                      orElse: () => null,
+                    ),
                     items: paymentMethods,
                     label: "Metoda plaćanja",
                     validator: (_) => null,
-                    onChanged: (value) =>
-                        setState(() => _selectedPaymentMethodId = value),
+                    onChanged: (value) => setState(
+                      () =>
+                          _selectedPaymentMethodId = value?['paymentMethodId'],
+                    ),
                     itemLabel: (p) => p['name'],
-                    itemValue: (p) => p['paymentMethodId'],
+                    itemValue: (p) => p,
                   ),
+
                   const SizedBox(height: 16),
                   const Text(
                     "Detalji dostave",
@@ -265,28 +276,40 @@ class _OrderPageState extends State<OrderPage> {
                   ),
                   const SizedBox(height: 16),
                   buildDropdownField<dynamic>(
-                    value: _selectedDeliveryMethodId,
+                    value: deliveryMethods.firstWhere(
+                      (m) => m['deliveryMethodId'] == _selectedDeliveryMethodId,
+                      orElse: () => null,
+                    ),
                     items: deliveryMethods,
                     label: "Metoda dostave",
                     validator: (value) =>
                         value == null ? 'Odaberite metodu' : null,
-                    onChanged: (value) =>
-                        setState(() => _selectedDeliveryMethodId = value),
+                    onChanged: (value) => setState(
+                      () => _selectedDeliveryMethodId =
+                          value?['deliveryMethodId'],
+                    ),
                     itemLabel: (m) => m['name'],
-                    itemValue: (m) => m['deliveryMethodId'],
+                    itemValue: (m) => m,
                   ),
+
                   const SizedBox(height: 16),
                   buildDropdownField<dynamic>(
-                    value: _selectedDeliveryStatusId,
+                    value: deliveryStatuses.firstWhere(
+                      (s) => s['deliveryStatusId'] == _selectedDeliveryStatusId,
+                      orElse: () => null,
+                    ),
                     items: deliveryStatuses,
                     label: "Status dostave",
                     validator: (value) =>
                         value == null ? 'Odaberite status' : null,
-                    onChanged: (value) =>
-                        setState(() => _selectedDeliveryStatusId = value),
+                    onChanged: (value) => setState(
+                      () => _selectedDeliveryStatusId =
+                          value?['deliveryStatusId'],
+                    ),
                     itemLabel: (s) => s['name'],
-                    itemValue: (s) => s['deliveryStatusId'],
+                    itemValue: (s) => s,
                   ),
+
                   const SizedBox(height: 16),
                   buildDatePickerField(
                     context: context,
@@ -465,11 +488,24 @@ class _OrderPageState extends State<OrderPage> {
                         itemCount: orders.length,
                         itemBuilder: (context, index) {
                           final order = orders[index];
+                          final statusName =
+                              order['orderStatus']['name']
+                                  ?.toString()
+                                  .toLowerCase() ??
+                              '';
+
+                          Color backgroundColor = const Color(0xFF1E1E1E);
+
+                          if (statusName == 'otkazano') {
+                            backgroundColor = const Color(0xFF5A1C1C);
+                          } else if (statusName == 'dovršeno') {
+                            backgroundColor = const Color(0xFF1E3D1E);
+                          }
                           return Container(
                             margin: const EdgeInsets.only(bottom: 12),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1E1E1E),
+                              color: backgroundColor,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(

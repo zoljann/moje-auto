@@ -270,17 +270,20 @@ class _ManufacturerPageState extends State<ManufacturerPage> {
                     },
                   ),
                   buildDropdownField<dynamic>(
-                    value: _selectedCountryId,
+                    value: countries.firstWhere(
+                      (c) => c['countryId'] == _selectedCountryId,
+                      orElse: () => null,
+                    ),
                     items: countries,
                     label: "Država",
                     validator: (value) =>
                         value == null ? 'Odaberite državu' : null,
-                    onChanged: (value) =>
-                        setState(() => _selectedCountryId = value),
+                    onChanged: (value) => setState(() {
+                      _selectedCountryId = value?['countryId'];
+                    }),
                     itemLabel: (c) => c['name'],
-                    itemValue: (c) => c['countryId'],
+                    itemValue: (c) => c,
                   ),
-
                   const SizedBox(height: 20),
                   Row(
                     children: [

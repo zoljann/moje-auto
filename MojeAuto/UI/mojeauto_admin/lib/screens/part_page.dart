@@ -441,28 +441,37 @@ class _PartPageState extends State<PartPage> {
                     },
                   ),
                   buildDropdownField<dynamic>(
-                    value: _selectedManufacturerId,
+                    value: manufacturersList.firstWhere(
+                      (m) => m['manufacturerId'] == _selectedManufacturerId,
+                      orElse: () => null,
+                    ),
                     items: manufacturersList,
                     label: "Proizvođač",
                     validator: (value) =>
                         value == null ? 'Odaberite proizvođača' : null,
-                    onChanged: (value) =>
-                        setState(() => _selectedManufacturerId = value),
+                    onChanged: (value) => setState(
+                      () => _selectedManufacturerId = value?['manufacturerId'],
+                    ),
                     itemLabel: (m) => m['name'],
-                    itemValue: (m) => m['manufacturerId'],
+                    itemValue: (m) => m,
                   ),
                   const SizedBox(height: 16),
                   buildDropdownField<dynamic>(
-                    value: _selectedCategoryId,
+                    value: categoriesList.firstWhere(
+                      (c) => c['categoryId'] == _selectedCategoryId,
+                      orElse: () => null,
+                    ),
                     items: categoriesList,
                     label: "Kategorija",
                     validator: (value) =>
                         value == null ? 'Odaberite kategoriju' : null,
-                    onChanged: (value) =>
-                        setState(() => _selectedCategoryId = value),
+                    onChanged: (value) => setState(
+                      () => _selectedCategoryId = value?['categoryId'],
+                    ),
                     itemLabel: (c) => c['name'],
-                    itemValue: (c) => c['categoryId'],
+                    itemValue: (c) => c,
                   ),
+
                   const SizedBox(height: 16),
                   buildInputField(
                     controller: _arrivalDaysController,
