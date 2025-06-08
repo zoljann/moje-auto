@@ -78,8 +78,8 @@ class _PartPageState extends State<PartPage> {
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
       setState(() {
-        parts = result;
-        hasNextPage = result.length == pageSize;
+        hasNextPage = result.length == pageSize + 1;
+        parts = hasNextPage ? result.take(pageSize).toList() : result;
         isLoading = false;
       });
     } else {

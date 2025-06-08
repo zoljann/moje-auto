@@ -162,9 +162,11 @@ class _UsersPageState extends State<UsersPage> {
 
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
+      hasNextPage = result.length == pageSize + 1;
+      final trimmed = hasNextPage ? result.take(pageSize).toList() : result;
+
       setState(() {
-        users = result.where((u) => u['userId'] != _currentUserId).toList();
-        hasNextPage = result.length == pageSize;
+        users = trimmed.where((u) => u['userId'] != _currentUserId).toList();
         isLoading = false;
       });
     } else {

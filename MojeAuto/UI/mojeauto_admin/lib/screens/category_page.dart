@@ -56,8 +56,8 @@ class _CategoryPageState extends State<CategoryPage> {
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
       setState(() {
-        categories = result;
-        hasNextPage = result.length == pageSize;
+        hasNextPage = result.length == pageSize + 1;
+        categories = hasNextPage ? result.take(pageSize).toList() : result;
         isLoading = false;
       });
     } else {

@@ -55,8 +55,8 @@ class _UsersRolePageState extends State<UsersRolePage> {
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
       setState(() {
-        roles = result;
-        hasNextPage = result.length == pageSize;
+        hasNextPage = result.length == pageSize + 1;
+        roles = hasNextPage ? result.take(pageSize).toList() : result;
         isLoading = false;
       });
     } else {

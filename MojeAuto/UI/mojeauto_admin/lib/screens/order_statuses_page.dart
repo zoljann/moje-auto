@@ -55,8 +55,8 @@ class _OrderStatusesPageState extends State<OrderStatusesPage> {
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
       setState(() {
-        statuses = result;
-        hasNextPage = result.length == pageSize;
+        hasNextPage = result.length == pageSize + 1;
+        statuses = hasNextPage ? result.take(pageSize).toList() : result;
         isLoading = false;
       });
     } else {

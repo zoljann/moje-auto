@@ -113,8 +113,8 @@ class _CarsPageState extends State<CarsPage> {
       final result = jsonDecode(response.body);
 
       setState(() {
-        cars = result;
-        hasNextPage = result.length == pageSize;
+        hasNextPage = result.length == pageSize + 1;
+        cars = hasNextPage ? result.take(pageSize).toList() : result;
         isLoading = false;
       });
     } else {

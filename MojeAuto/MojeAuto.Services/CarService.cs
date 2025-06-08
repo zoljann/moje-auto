@@ -69,7 +69,7 @@ public class CarService : BaseCrudService<Car, CarSearchRequest, CarInsertReques
         if (search is BaseSearchRequest pagination && pagination.Page > 0 && pagination.PageSize > 0)
         {
             int skip = (pagination.Page - 1) * pagination.PageSize;
-            query = query.Skip(skip).Take(pagination.PageSize);
+            query = query.Skip(skip).Take(pagination.PageSize + 1);
         }
 
         var list = await query.ToListAsync();

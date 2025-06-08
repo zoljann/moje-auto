@@ -56,8 +56,8 @@ class _CountryPageState extends State<CountryPage> {
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
       setState(() {
-        countries = result;
-        hasNextPage = result.length == pageSize;
+        hasNextPage = result.length == pageSize + 1;
+        countries = hasNextPage ? result.take(pageSize).toList() : result;
         isLoading = false;
       });
     } else {

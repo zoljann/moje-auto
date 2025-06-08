@@ -72,8 +72,8 @@ class _ManufacturerPageState extends State<ManufacturerPage> {
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
       setState(() {
-        manufacturers = result;
-        hasNextPage = result.length == pageSize;
+        hasNextPage = result.length == pageSize + 1;
+        manufacturers = hasNextPage ? result.take(pageSize).toList() : result;
         isLoading = false;
       });
     } else {
