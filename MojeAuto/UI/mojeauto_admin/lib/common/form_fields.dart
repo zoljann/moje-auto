@@ -41,47 +41,57 @@ Widget buildDatePickerField({
   DateTime? firstDate,
   DateTime? lastDate,
 }) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      TextFormField(
-        controller: controller,
-        readOnly: true,
-        style: const TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.white70),
-          filled: true,
-          fillColor: const Color(0xFF1E1E1E),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide.none,
+  return FormField<String>(
+    validator: validator,
+    builder: (FormFieldState<String> field) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GestureDetector(
+            onTap: () async {
+              FocusScope.of(context).unfocus();
+              final pickedDate = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: firstDate ?? DateTime(1900),
+                lastDate: lastDate ?? DateTime.now(),
+                builder: (context, child) =>
+                    Theme(data: ThemeData.dark(), child: child!),
+              );
+              if (pickedDate != null) {
+                final iso = pickedDate.toIso8601String();
+                controller.text = DateFormat('dd.MM.yyyy').format(pickedDate);
+                onPicked?.call(iso);
+                field.didChange(iso); // important: trigger FormField change
+              }
+            },
+            child: AbsorbPointer(
+              child: TextFormField(
+                controller: controller,
+                readOnly: true,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: label,
+                  labelStyle: const TextStyle(color: Colors.white70),
+                  filled: true,
+                  fillColor: const Color(0xFF1E1E1E),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                  suffixIcon: const Icon(
+                    Icons.calendar_today,
+                    color: Colors.white54,
+                  ),
+                  errorText: field.errorText,
+                ),
+              ),
+            ),
           ),
-          suffixIcon: const Icon(Icons.calendar_today, color: Colors.white54),
-          errorStyle: const TextStyle(color: Colors.redAccent),
-        ),
-        validator: validator,
-        onTap: () async {
-          FocusScope.of(context).requestFocus(FocusNode());
-          final pickedDate = await showDatePicker(
-            context: context,
-            initialDate: DateTime.now(),
-            firstDate: firstDate ?? DateTime(1900),
-            lastDate: lastDate ?? DateTime.now(),
-            builder: (context, child) =>
-                Theme(data: ThemeData.dark(), child: child!),
-          );
-          if (pickedDate != null) {
-            controller.text = DateFormat('dd.MM.yyyy').format(pickedDate);
-
-            if (onPicked != null) {
-              onPicked(pickedDate.toIso8601String());
-            }
-          }
-        },
-      ),
-      const SizedBox(height: 12),
-    ],
+          const SizedBox(height: 12),
+        ],
+      );
+    },
   );
 }
 

@@ -34,6 +34,7 @@ class _OrderPageState extends State<OrderPage> {
   String? _deliveryDateIso;
   String? _fromDateIso;
   String? _toDateIso;
+  int? _selectedOrderStatusIdFilter;
 
   final _formKey = GlobalKey<FormState>();
   final _deliveryDateController = TextEditingController();
@@ -57,6 +58,10 @@ class _OrderPageState extends State<OrderPage> {
       'Page': currentPage.toString(),
       'PageSize': pageSize.toString(),
     };
+
+    if (_selectedOrderStatusIdFilter != null) {
+      queryParams['OrderStatusId'] = _selectedOrderStatusIdFilter.toString();
+    }
 
     if (_fromDateIso != null && _fromDateIso!.isNotEmpty) {
       queryParams['FromDate'] = _fromDateIso!;
@@ -402,6 +407,48 @@ class _OrderPageState extends State<OrderPage> {
                   ),
                 ],
               ),
+              if (orderStatuses.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: DropdownButtonFormField<int>(
+                    value: _selectedOrderStatusIdFilter,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: const Color(0xFF1E1E1E),
+                      labelText: 'Filtriraj po statusu narudžbe',
+                      labelStyle: const TextStyle(color: Colors.white),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    dropdownColor: const Color(0xFF1E1E1E),
+                    style: const TextStyle(color: Colors.white),
+                    items: [
+                      const DropdownMenuItem<int>(
+                        value: null,
+                        child: Text(
+                          "Svi statusi",
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                      ),
+                      ...orderStatuses.map<DropdownMenuItem<int>>((status) {
+                        return DropdownMenuItem<int>(
+                          value: status['orderStatusId'],
+                          child: Text(status['name']),
+                        );
+                      }),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedOrderStatusIdFilter = value;
+                      });
+                      _fetchOrders();
+                    },
+                  ),
+                ),
+
+              const SizedBox(height: 12),
 
               const SizedBox(height: 16),
               Expanded(

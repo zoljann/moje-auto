@@ -11,6 +11,7 @@ import 'package:mojeauto_admin/screens/order_statuses_page.dart';
 import 'package:mojeauto_admin/screens/part_car_page.dart';
 import 'package:mojeauto_admin/screens/part_page.dart';
 import 'package:mojeauto_admin/screens/payment_methods_page.dart';
+import 'package:mojeauto_admin/screens/user_reports_page.dart';
 import 'package:mojeauto_admin/screens/users_page.dart';
 import 'package:mojeauto_admin/screens/users_role_page.dart';
 import 'screens/cars_page.dart';
@@ -124,6 +125,12 @@ class MyApp extends StatelessWidget {
             page = AdminLayout(
               content: const AdminProfileEditPage(),
               currentRoute: '/admin/profile-edit',
+            );
+            break;
+          case '/admin/reports':
+            page = AdminLayout(
+              content: const UserReportsPage(),
+              currentRoute: '/admin/reports',
             );
             break;
           case '/login':
