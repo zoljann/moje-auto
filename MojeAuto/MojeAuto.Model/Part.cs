@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 public class Part
 {
@@ -41,5 +42,6 @@ public class Part
     public Category Category { get; set; } = null!;
 
     public ICollection<OrderItem>? OrderItems { get; set; }
+    [JsonIgnore]
     public ICollection<PartCar>? CompatibleCars { get; set; }
 }

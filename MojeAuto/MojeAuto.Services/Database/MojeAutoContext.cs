@@ -72,7 +72,7 @@ namespace MojeAuto.Services.Database
                 .HasOne(pc => pc.Car)
                 .WithMany(c => c.CompatibleParts)
                 .HasForeignKey(pc => pc.CarId)
-                .OnDelete(DeleteBehavior.Restrict);
+                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Order>()
                 .Property(o => o.TotalAmount)
@@ -95,12 +95,6 @@ namespace MojeAuto.Services.Database
                 .WithOne()
                 .HasForeignKey<Order>(o => o.DeliveryId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<PartCar>()
-            .HasOne(pc => pc.Car)
-            .WithMany()
-            .HasForeignKey(pc => pc.CarId)
-            .OnDelete(DeleteBehavior.Cascade);
 
             base.OnModelCreating(modelBuilder);
         }

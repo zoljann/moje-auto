@@ -5,6 +5,7 @@ import 'package:mojeauto_admin/helpers/authenticated_client.dart';
 import 'package:mojeauto_admin/helpers/error_extractor.dart';
 import 'package:mojeauto_admin/common/pagination_controls.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:mojeauto_admin/common/form_fields.dart';
 
 class PartCarPage extends StatefulWidget {
   const PartCarPage({super.key});
@@ -65,7 +66,7 @@ class _PartCarPageState extends State<PartCarPage> {
   Future<void> _fetchCars() async {
     final queryParams = {
       'Page': currentPage.toString(),
-      'PageSize': pageSize.toString(),
+      'PageSize': (pageSize + 1).toString(),
     };
     if (carSearchQuery.length >= 2) {
       queryParams['Brand'] = carSearchQuery;
@@ -79,7 +80,7 @@ class _PartCarPageState extends State<PartCarPage> {
 
     if (response.statusCode == 200) {
       cars = jsonDecode(response.body);
-      hasNextPage = cars.length == pageSize;
+      hasNextPage = cars.length >= pageSize;
     }
   }
 
@@ -253,33 +254,27 @@ class _PartCarPageState extends State<PartCarPage> {
               ),
             ),
             const SizedBox(height: 16),
-            DropdownButtonFormField<int>(
-              value: selectedCarId,
-              items: allCars.map<DropdownMenuItem<int>>((car) {
-                return DropdownMenuItem<int>(
-                  value: car['carId'],
-                  child: Text(
-                    "${car['brand']} ${car['model']} (${car['year']})",
-                  ),
-                );
-              }).toList(),
+            buildDropdownField<Map<String, dynamic>>(
+              value: selectedCarId != null
+                  ? allCars.firstWhere(
+                          (c) => c['carId'] == selectedCarId,
+                          orElse: () => null,
+                        )
+                        as Map<String, dynamic>?
+                  : null,
+              items: allCars.cast<Map<String, dynamic>>(),
+              label: "Automobil",
+              validator: (value) =>
+                  value == null ? 'Odaberite automobil' : null,
               onChanged: (value) {
                 setState(() {
-                  selectedCarId = value;
+                  selectedCarId = value?['carId'];
                   selectedPartIds.clear();
                 });
               },
-              validator: (value) =>
-                  value == null ? 'Odaberite automobil' : null,
-              decoration: const InputDecoration(
-                labelText: "Automobil",
-                filled: true,
-                fillColor: Color(0xFF1E1E1E),
-                labelStyle: TextStyle(color: Colors.white70),
-                border: OutlineInputBorder(borderSide: BorderSide.none),
-              ),
-              dropdownColor: const Color(0xFF1E1E1E),
-              style: const TextStyle(color: Colors.white),
+              itemLabel: (car) =>
+                  "${car['brand']} ${car['model']} (${car['year']})",
+              itemValue: (car) => car,
             ),
             const SizedBox(height: 12),
             MultiSelectDialogField<int>(

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 public class Car
 {
@@ -23,6 +24,6 @@ public class Car
     public int Year { get; set; }
 
     public byte[]? ImageData { get; set; }
-
+    [JsonIgnore]
     public ICollection<PartCar>? CompatibleParts { get; set; }
 }

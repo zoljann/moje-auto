@@ -296,19 +296,25 @@ class _CarsPageState extends State<CarsPage> {
                 label: "Kubikaža",
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Unesite kubikažu';
+                    return 'Unesite vrijednost';
                   }
 
-                  final cleaned = value.trim().replaceAll(',', '.');
-                  final regex = RegExp(r'^\d+(\.\d)?$');
-                  if (!regex.hasMatch(cleaned)) {
+                  final trimmed = value.replaceAll('kg', '').trim();
+
+                  if (trimmed == '.' || trimmed.contains('.')) {
                     return 'Koristite zarez (,) kao decimalni separator, npr. 0,3';
                   }
 
-                  final parsed = double.tryParse(cleaned);
-                  if (parsed == null || parsed < 0.1 || parsed > 9.9) {
-                    return 'Kubikaža mora biti između 0,1 i 9,9';
+                  final regex = RegExp(r'^\d+(,\d{1,2})?$');
+                  if (!regex.hasMatch(trimmed)) {
+                    return 'Unesite broj između 0,1 i 10 (npr. 0,3)';
                   }
+
+                  final parsed = double.tryParse(trimmed.replaceAll(',', '.'));
+                  if (parsed == null || parsed < 0.1 || parsed > 10) {
+                    return 'Vrijednost mora biti između 0,1 i 10';
+                  }
+
                   return null;
                 },
               ),
