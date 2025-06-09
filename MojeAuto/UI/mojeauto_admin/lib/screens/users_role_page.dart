@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mojeauto_admin/env_config.dart';
 import 'package:mojeauto_admin/helpers/authenticated_client.dart';
 import 'package:mojeauto_admin/common/form_fields.dart';
 import 'package:mojeauto_admin/common/pagination_controls.dart';
@@ -47,7 +47,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
 
     final response = await httpClient.get(
       Uri.parse(
-        "${dotenv.env['API_BASE_URL']}/user-roles",
+        "${EnvConfig.baseUrl}/user-roles",
       ).replace(queryParameters: queryParams),
       headers: {'accept': 'text/plain'},
     );
@@ -69,7 +69,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
 
   Future<void> _addRole() async {
     final response = await httpClient.post(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/user-roles"),
+      Uri.parse("${EnvConfig.baseUrl}/user-roles"),
       headers: {'Content-Type': 'application/json', 'accept': 'text/plain'},
       body: jsonEncode({'name': _nameController.text.trim()}),
     );
@@ -96,7 +96,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
 
   Future<void> _updateRole(int id) async {
     final response = await httpClient.put(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/user-roles/$id"),
+      Uri.parse("${EnvConfig.baseUrl}/user-roles/$id"),
       headers: {'Content-Type': 'application/json', 'accept': 'text/plain'},
       body: jsonEncode({'name': _nameController.text.trim()}),
     );
@@ -123,7 +123,7 @@ class _UsersRolePageState extends State<UsersRolePage> {
 
   Future<void> _deleteRoleConfirmed(int id) async {
     final response = await httpClient.delete(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/user-roles/$id"),
+      Uri.parse("${EnvConfig.baseUrl}/user-roles/$id"),
     );
 
     if (response.statusCode == 204) {

@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mojeauto_admin/helpers/authenticated_client.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
@@ -8,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mojeauto_admin/common/form_fields.dart';
 import 'package:mojeauto_admin/common/pagination_controls.dart';
 import 'package:mojeauto_admin/helpers/error_extractor.dart';
+import 'package:mojeauto_admin/env_config.dart';
 
 class CarsPage extends StatefulWidget {
   const CarsPage({super.key});
@@ -47,7 +47,7 @@ class _CarsPageState extends State<CarsPage> {
   }
 
   Future<void> _addCar() async {
-    final uri = Uri.parse("${dotenv.env['API_BASE_URL']}/cars");
+    final uri = Uri.parse("${EnvConfig.baseUrl}/cars");
     final request = http.MultipartRequest('POST', uri);
 
     request.fields['vin'] = _vinController.text.trim();
@@ -104,7 +104,7 @@ class _CarsPageState extends State<CarsPage> {
 
     final response = await httpClient.get(
       Uri.parse(
-        "${dotenv.env['API_BASE_URL']}/cars",
+        "${EnvConfig.baseUrl}/cars",
       ).replace(queryParameters: queryParams),
       headers: {'accept': 'text/plain'},
     );
@@ -127,7 +127,7 @@ class _CarsPageState extends State<CarsPage> {
 
   Future<void> _deleteCar(BuildContext context, int carId) async {
     final response = await httpClient.delete(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/cars/$carId"),
+      Uri.parse("${EnvConfig.baseUrl}/cars/$carId"),
       headers: {'accept': 'text/plain'},
     );
 
@@ -151,7 +151,7 @@ class _CarsPageState extends State<CarsPage> {
   }
 
   Future<void> _updateCar(int id) async {
-    final uri = Uri.parse("${dotenv.env['API_BASE_URL']}/cars/$id");
+    final uri = Uri.parse("${EnvConfig.baseUrl}/cars/$id");
     final request = http.MultipartRequest('PUT', uri);
 
     request.fields['vin'] = _vinController.text.trim();

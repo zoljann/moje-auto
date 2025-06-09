@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mojeauto_admin/env_config.dart';
 import 'package:mojeauto_admin/helpers/authenticated_client.dart';
 import 'package:mojeauto_admin/common/form_fields.dart';
 import 'package:mojeauto_admin/common/pagination_controls.dart';
@@ -70,7 +70,7 @@ class _PartPageState extends State<PartPage> {
 
     final response = await httpClient.get(
       Uri.parse(
-        "${dotenv.env['API_BASE_URL']}/parts",
+        "${EnvConfig.baseUrl}/parts",
       ).replace(queryParameters: queryParams),
       headers: {'accept': 'text/plain'},
     );
@@ -92,7 +92,7 @@ class _PartPageState extends State<PartPage> {
 
   Future<void> _fetchManufacturers() async {
     final response = await httpClient.get(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/manufacturers"),
+      Uri.parse("${EnvConfig.baseUrl}/manufacturers"),
       headers: {'accept': 'text/plain'},
     );
 
@@ -105,7 +105,7 @@ class _PartPageState extends State<PartPage> {
 
   Future<void> _fetchCategories() async {
     final response = await httpClient.get(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/categories"),
+      Uri.parse("${EnvConfig.baseUrl}/categories"),
       headers: {'accept': 'text/plain'},
     );
 
@@ -117,7 +117,7 @@ class _PartPageState extends State<PartPage> {
   }
 
   Future<void> _addPart() async {
-    final uri = Uri.parse("${dotenv.env['API_BASE_URL']}/parts");
+    final uri = Uri.parse("${EnvConfig.baseUrl}/parts");
     final request = http.MultipartRequest('POST', uri);
 
     request.fields['Name'] = _nameController.text.trim();
@@ -155,7 +155,7 @@ class _PartPageState extends State<PartPage> {
   }
 
   Future<void> _updatePart(int id) async {
-    final uri = Uri.parse("${dotenv.env['API_BASE_URL']}/parts/$id");
+    final uri = Uri.parse("${EnvConfig.baseUrl}/parts/$id");
     final request = http.MultipartRequest('PUT', uri);
 
     request.fields['Name'] = _nameController.text.trim();
@@ -194,7 +194,7 @@ class _PartPageState extends State<PartPage> {
 
   Future<void> _deletePartConfirmed(int id) async {
     final response = await httpClient.delete(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/parts/$id"),
+      Uri.parse("${EnvConfig.baseUrl}/parts/$id"),
     );
 
     if (response.statusCode == 204) {

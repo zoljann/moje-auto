@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mojeauto_admin/env_config.dart';
 import 'package:mojeauto_admin/helpers/authenticated_client.dart';
 import 'package:mojeauto_admin/common/form_fields.dart';
 import 'package:mojeauto_admin/common/pagination_controls.dart';
@@ -48,7 +48,7 @@ class _DeliveryMethodsPageState extends State<DeliveryMethodsPage> {
 
     final response = await httpClient.get(
       Uri.parse(
-        "${dotenv.env['API_BASE_URL']}/delivery-methods",
+        "${EnvConfig.baseUrl}/delivery-methods",
       ).replace(queryParameters: queryParams),
       headers: {'accept': 'text/plain'},
     );
@@ -70,7 +70,7 @@ class _DeliveryMethodsPageState extends State<DeliveryMethodsPage> {
 
   Future<void> _addMethod() async {
     final response = await httpClient.post(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/delivery-methods"),
+      Uri.parse("${EnvConfig.baseUrl}/delivery-methods"),
       headers: {'Content-Type': 'application/json', 'accept': 'text/plain'},
       body: jsonEncode({
         'name': _nameController.text.trim(),
@@ -100,7 +100,7 @@ class _DeliveryMethodsPageState extends State<DeliveryMethodsPage> {
 
   Future<void> _updateMethod(int id) async {
     final response = await httpClient.put(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/delivery-methods/$id"),
+      Uri.parse("${EnvConfig.baseUrl}/delivery-methods/$id"),
       headers: {'Content-Type': 'application/json', 'accept': 'text/plain'},
       body: jsonEncode({
         'name': _nameController.text.trim(),
@@ -130,7 +130,7 @@ class _DeliveryMethodsPageState extends State<DeliveryMethodsPage> {
 
   Future<void> _deleteMethodConfirmed(int id) async {
     final response = await httpClient.delete(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/delivery-methods/$id"),
+      Uri.parse("${EnvConfig.baseUrl}/delivery-methods/$id"),
     );
 
     if (response.statusCode == 204) {

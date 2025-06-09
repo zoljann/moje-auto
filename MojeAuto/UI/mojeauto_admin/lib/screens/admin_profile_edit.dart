@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mojeauto_admin/helpers/authenticated_client.dart';
 import 'package:mojeauto_admin/helpers/error_extractor.dart';
@@ -9,7 +8,7 @@ import 'package:mojeauto_admin/helpers/token_manager.dart';
 import 'package:mojeauto_admin/common/form_fields.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-
+import 'package:mojeauto_admin/env_config.dart';
 class AdminProfileEditPage extends StatefulWidget {
   const AdminProfileEditPage({super.key});
 
@@ -40,7 +39,7 @@ class _AdminProfileEditPageState extends State<AdminProfileEditPage> {
 
   Future<void> _fetchCountries() async {
     final response = await httpClient.get(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/countries"),
+      Uri.parse("${EnvConfig.baseUrl}/countries"),
       headers: {'accept': 'text/plain'},
     );
     if (response.statusCode == 200) {
@@ -51,7 +50,7 @@ class _AdminProfileEditPageState extends State<AdminProfileEditPage> {
   Future<void> _fetchAdminUser() async {
     final userId = await TokenManager().userId;
     final response = await httpClient.get(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/users?id=$userId"),
+      Uri.parse("${EnvConfig.baseUrl}/users?id=$userId"),
       headers: {'accept': 'text/plain'},
     );
 
@@ -75,7 +74,7 @@ class _AdminProfileEditPageState extends State<AdminProfileEditPage> {
 
   Future<void> _updateAdminUser() async {
     final userId = await TokenManager().userId;
-    final uri = Uri.parse("${dotenv.env['API_BASE_URL']}/users/$userId");
+    final uri = Uri.parse("${EnvConfig.baseUrl}/users/$userId");
     final request = http.MultipartRequest('PUT', uri);
 
     request.fields['firstName'] = _firstNameController.text.trim();

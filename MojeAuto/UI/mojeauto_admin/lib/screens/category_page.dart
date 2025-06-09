@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mojeauto_admin/helpers/authenticated_client.dart';
 import 'package:mojeauto_admin/common/form_fields.dart';
 import 'package:mojeauto_admin/common/pagination_controls.dart';
 import 'package:mojeauto_admin/helpers/error_extractor.dart';
+import 'package:mojeauto_admin/env_config.dart';
 
 class CategoryPage extends StatefulWidget {
   const CategoryPage({super.key});
@@ -48,7 +48,7 @@ class _CategoryPageState extends State<CategoryPage> {
 
     final response = await httpClient.get(
       Uri.parse(
-        "${dotenv.env['API_BASE_URL']}/categories",
+        "${EnvConfig.baseUrl}/categories",
       ).replace(queryParameters: queryParams),
       headers: {'accept': 'text/plain'},
     );
@@ -70,7 +70,7 @@ class _CategoryPageState extends State<CategoryPage> {
 
   Future<void> _addCategory() async {
     final response = await httpClient.post(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/categories"),
+      Uri.parse("${EnvConfig.baseUrl}/categories"),
       headers: {'Content-Type': 'application/json', 'accept': 'text/plain'},
       body: jsonEncode({
         'name': _nameController.text.trim(),
@@ -102,7 +102,7 @@ class _CategoryPageState extends State<CategoryPage> {
 
   Future<void> _updateCategory(int id) async {
     final response = await httpClient.put(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/categories/$id"),
+      Uri.parse("${EnvConfig.baseUrl}/categories/$id"),
       headers: {'Content-Type': 'application/json', 'accept': 'text/plain'},
       body: jsonEncode({
         'name': _nameController.text.trim(),
@@ -134,7 +134,7 @@ class _CategoryPageState extends State<CategoryPage> {
 
   Future<void> _deleteCategoryConfirmed(int id) async {
     final response = await httpClient.delete(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/categories/$id"),
+      Uri.parse("${EnvConfig.baseUrl}/categories/$id"),
     );
 
     if (response.statusCode == 204) {

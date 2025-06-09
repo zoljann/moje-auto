@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mojeauto_admin/env_config.dart';
 import 'package:mojeauto_admin/helpers/authenticated_client.dart';
 import 'package:mojeauto_admin/common/form_fields.dart';
 import 'package:mojeauto_admin/common/pagination_controls.dart';
@@ -47,7 +47,7 @@ class _OrderStatusesPageState extends State<OrderStatusesPage> {
 
     final response = await httpClient.get(
       Uri.parse(
-        "${dotenv.env['API_BASE_URL']}/order-statuses",
+        "${EnvConfig.baseUrl}/order-statuses",
       ).replace(queryParameters: queryParams),
       headers: {'accept': 'text/plain'},
     );
@@ -69,7 +69,7 @@ class _OrderStatusesPageState extends State<OrderStatusesPage> {
 
   Future<void> _addStatus() async {
     final response = await httpClient.post(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/order-statuses"),
+      Uri.parse("${EnvConfig.baseUrl}/order-statuses"),
       headers: {'Content-Type': 'application/json', 'accept': 'text/plain'},
       body: jsonEncode({'name': _nameController.text.trim()}),
     );
@@ -96,7 +96,7 @@ class _OrderStatusesPageState extends State<OrderStatusesPage> {
 
   Future<void> _updateStatus(int id) async {
     final response = await httpClient.put(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/order-statuses/$id"),
+      Uri.parse("${EnvConfig.baseUrl}/order-statuses/$id"),
       headers: {'Content-Type': 'application/json', 'accept': 'text/plain'},
       body: jsonEncode({'name': _nameController.text.trim()}),
     );
@@ -123,7 +123,7 @@ class _OrderStatusesPageState extends State<OrderStatusesPage> {
 
   Future<void> _deleteStatusConfirmed(int id) async {
     final response = await httpClient.delete(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/order-statuses/$id"),
+      Uri.parse("${EnvConfig.baseUrl}/order-statuses/$id"),
     );
 
     if (response.statusCode == 204) {

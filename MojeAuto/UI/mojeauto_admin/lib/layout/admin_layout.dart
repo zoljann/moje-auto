@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mojeauto_admin/helpers/authenticated_client.dart';
 import 'package:flutter/material.dart';
 import 'package:mojeauto_admin/screens/login_page.dart';
 import 'package:mojeauto_admin/helpers/token_manager.dart';
+import 'package:mojeauto_admin/env_config.dart';
 
 class AdminLayout extends StatefulWidget {
   final Widget content;
@@ -34,7 +34,7 @@ class _AdminLayoutState extends State<AdminLayout> {
     if (userId == null) return;
 
     final response = await httpClient.get(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/users?id=$userId"),
+      Uri.parse("${EnvConfig.baseUrl}/users?id=$userId"),
       headers: {'accept': 'text/plain'},
     );
 

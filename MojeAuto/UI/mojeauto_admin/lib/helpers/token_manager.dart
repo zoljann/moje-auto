@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mojeauto_admin/env_config.dart';
 
 class TokenManager {
   static final TokenManager _instance = TokenManager._internal();
@@ -62,7 +62,7 @@ class TokenManager {
     if (_refreshToken == null) return;
 
     final response = await http.post(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/login/refresh"),
+      Uri.parse("${EnvConfig.baseUrl}/login/refresh"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode(_refreshToken),
     );

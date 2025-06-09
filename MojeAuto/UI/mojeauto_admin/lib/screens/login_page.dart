@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mojeauto_admin/env_config.dart';
 import 'package:mojeauto_admin/layout/admin_layout.dart';
 import 'package:mojeauto_admin/helpers/token_manager.dart';
 import 'package:mojeauto_admin/screens/cars_page.dart';
@@ -60,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     final response = await http.post(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/login"),
+      Uri.parse("${EnvConfig.baseUrl}/login"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({"email": email, "password": password}),
     );

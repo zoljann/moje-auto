@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mojeauto_admin/env_config.dart';
 import 'package:mojeauto_admin/helpers/authenticated_client.dart';
 import 'package:mojeauto_admin/common/form_fields.dart';
 import 'package:mojeauto_admin/common/pagination_controls.dart';
@@ -39,7 +39,7 @@ class _ManufacturerPageState extends State<ManufacturerPage> {
 
   Future<void> _fetchCountries() async {
     final response = await httpClient.get(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/countries"),
+      Uri.parse("${EnvConfig.baseUrl}/countries"),
       headers: {'accept': 'text/plain'},
     );
 
@@ -64,7 +64,7 @@ class _ManufacturerPageState extends State<ManufacturerPage> {
 
     final response = await httpClient.get(
       Uri.parse(
-        "${dotenv.env['API_BASE_URL']}/manufacturers",
+        "${EnvConfig.baseUrl}/manufacturers",
       ).replace(queryParameters: queryParams),
       headers: {'accept': 'text/plain'},
     );
@@ -86,7 +86,7 @@ class _ManufacturerPageState extends State<ManufacturerPage> {
 
   Future<void> _addManufacturer() async {
     final response = await httpClient.post(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/manufacturers"),
+      Uri.parse("${EnvConfig.baseUrl}/manufacturers"),
       headers: {'Content-Type': 'application/json', 'accept': 'text/plain'},
       body: jsonEncode({
         'name': _nameController.text.trim(),
@@ -116,7 +116,7 @@ class _ManufacturerPageState extends State<ManufacturerPage> {
 
   Future<void> _updateManufacturer(int id) async {
     final response = await httpClient.put(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/manufacturers/$id"),
+      Uri.parse("${EnvConfig.baseUrl}/manufacturers/$id"),
       headers: {'Content-Type': 'application/json', 'accept': 'text/plain'},
       body: jsonEncode({
         'name': _nameController.text.trim(),
@@ -146,7 +146,7 @@ class _ManufacturerPageState extends State<ManufacturerPage> {
 
   Future<void> _deleteManufacturerConfirmed(int id) async {
     final response = await httpClient.delete(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/manufacturers/$id"),
+      Uri.parse("${EnvConfig.baseUrl}/manufacturers/$id"),
     );
 
     if (response.statusCode == 204) {

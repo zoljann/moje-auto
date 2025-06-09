@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mojeauto_admin/env_config.dart';
 import 'package:mojeauto_admin/helpers/authenticated_client.dart';
 import 'package:mojeauto_admin/common/form_fields.dart';
 import 'package:mojeauto_admin/common/pagination_controls.dart';
@@ -48,7 +48,7 @@ class _CountryPageState extends State<CountryPage> {
 
     final response = await httpClient.get(
       Uri.parse(
-        "${dotenv.env['API_BASE_URL']}/countries",
+        "${EnvConfig.baseUrl}/countries",
       ).replace(queryParameters: queryParams),
       headers: {'accept': 'text/plain'},
     );
@@ -70,7 +70,7 @@ class _CountryPageState extends State<CountryPage> {
 
   Future<void> _addCountry() async {
     final response = await httpClient.post(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/countries"),
+      Uri.parse("${EnvConfig.baseUrl}/countries"),
       headers: {'Content-Type': 'application/json', 'accept': 'text/plain'},
       body: jsonEncode({
         'name': _nameController.text.trim(),
@@ -100,7 +100,7 @@ class _CountryPageState extends State<CountryPage> {
 
   Future<void> _updateCountry(int id) async {
     final response = await httpClient.put(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/countries/$id"),
+      Uri.parse("${EnvConfig.baseUrl}/countries/$id"),
       headers: {'Content-Type': 'application/json', 'accept': 'text/plain'},
       body: jsonEncode({
         'name': _nameController.text.trim(),
@@ -130,7 +130,7 @@ class _CountryPageState extends State<CountryPage> {
 
   Future<void> _deleteCountryConfirmed(int id) async {
     final response = await httpClient.delete(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/countries/$id"),
+      Uri.parse("${EnvConfig.baseUrl}/countries/$id"),
     );
 
     if (response.statusCode == 204) {

@@ -2,7 +2,7 @@ import 'dart:ui' as ui;
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mojeauto_admin/env_config.dart';
 import 'package:intl/intl.dart';
 import 'package:mojeauto_admin/common/form_fields.dart';
 import 'package:mojeauto_admin/helpers/authenticated_client.dart';
@@ -37,7 +37,7 @@ class _ReportsPageState extends State<UserReportsPage> {
 
   Future<void> _fetchUsers() async {
     final response = await httpClient.get(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/users"),
+      Uri.parse("${EnvConfig.baseUrl}/users"),
       headers: {'accept': 'text/plain'},
     );
 
@@ -55,7 +55,7 @@ class _ReportsPageState extends State<UserReportsPage> {
     });
 
     final response = await httpClient.get(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/orders"),
+      Uri.parse("${EnvConfig.baseUrl}/orders"),
       headers: {'accept': 'text/plain'},
     );
 

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mojeauto_admin/env_config.dart';
 import 'package:mojeauto_admin/helpers/authenticated_client.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
@@ -62,7 +62,7 @@ class _UsersPageState extends State<UsersPage> {
 
   Future<void> _fetchUserRoles() async {
     final response = await httpClient.get(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/user-roles"),
+      Uri.parse("${EnvConfig.baseUrl}/user-roles"),
       headers: {'accept': 'text/plain'},
     );
 
@@ -75,7 +75,7 @@ class _UsersPageState extends State<UsersPage> {
 
   Future<void> _fetchCountries() async {
     final response = await httpClient.get(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/countries"),
+      Uri.parse("${EnvConfig.baseUrl}/countries"),
       headers: {'accept': 'text/plain'},
     );
 
@@ -87,7 +87,7 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   Future<void> _addUser() async {
-    final uri = Uri.parse("${dotenv.env['API_BASE_URL']}/users");
+    final uri = Uri.parse("${EnvConfig.baseUrl}/users");
     final request = http.MultipartRequest('POST', uri);
 
     request.fields['firstName'] = _firstNameController.text.trim();
@@ -155,7 +155,7 @@ class _UsersPageState extends State<UsersPage> {
 
     final response = await httpClient.get(
       Uri.parse(
-        "${dotenv.env['API_BASE_URL']}/users",
+        "${EnvConfig.baseUrl}/users",
       ).replace(queryParameters: queryParams),
       headers: {'accept': 'text/plain'},
     );
@@ -179,7 +179,7 @@ class _UsersPageState extends State<UsersPage> {
 
   Future<void> _deleteUser(BuildContext context, int userId) async {
     final response = await httpClient.delete(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/users/$userId"),
+      Uri.parse("${EnvConfig.baseUrl}/users/$userId"),
       headers: {'accept': 'text/plain'},
     );
 
@@ -203,7 +203,7 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   Future<void> _updateUser(int id) async {
-    final uri = Uri.parse("${dotenv.env['API_BASE_URL']}/users/$id");
+    final uri = Uri.parse("${EnvConfig.baseUrl}/users/$id");
     final request = http.MultipartRequest('PUT', uri);
 
     request.fields['firstName'] = _firstNameController.text.trim();

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mojeauto_admin/env_config.dart';
 import 'package:mojeauto_admin/helpers/authenticated_client.dart';
 import 'package:mojeauto_admin/helpers/error_extractor.dart';
 import 'package:mojeauto_admin/common/pagination_controls.dart';
@@ -55,7 +55,7 @@ class _PartCarPageState extends State<PartCarPage> {
 
   Future<void> _fetchAllCarsForDropdown() async {
     final response = await httpClient.get(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/cars"),
+      Uri.parse("${EnvConfig.baseUrl}/cars"),
     );
 
     if (response.statusCode == 200) {
@@ -74,7 +74,7 @@ class _PartCarPageState extends State<PartCarPage> {
 
     final response = await httpClient.get(
       Uri.parse(
-        "${dotenv.env['API_BASE_URL']}/cars",
+        "${EnvConfig.baseUrl}/cars",
       ).replace(queryParameters: queryParams),
     );
 
@@ -86,14 +86,14 @@ class _PartCarPageState extends State<PartCarPage> {
 
   Future<void> _fetchParts() async {
     final response = await httpClient.get(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/parts"),
+      Uri.parse("${EnvConfig.baseUrl}/parts"),
     );
     if (response.statusCode == 200) parts = jsonDecode(response.body);
   }
 
   Future<void> _fetchCompatibilities() async {
     final response = await httpClient.get(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/part-cars"),
+      Uri.parse("${EnvConfig.baseUrl}/part-cars"),
     );
     if (response.statusCode == 200) {
       compatibilities = jsonDecode(response.body);
@@ -116,7 +116,7 @@ class _PartCarPageState extends State<PartCarPage> {
       final payload = {'carId': selectedCarId, 'partId': partId};
 
       final response = await httpClient.post(
-        Uri.parse("${dotenv.env['API_BASE_URL']}/part-cars"),
+        Uri.parse("${EnvConfig.baseUrl}/part-cars"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(payload),
       );
@@ -148,7 +148,7 @@ class _PartCarPageState extends State<PartCarPage> {
 
   Future<void> _deleteCompatibilityConfirmed(dynamic pc) async {
     final response = await httpClient.delete(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/part-cars/${pc['partCarId']}"),
+      Uri.parse("${EnvConfig.baseUrl}/part-cars/${pc['partCarId']}"),
     );
     if (response.statusCode == 204) {
       await _fetchCompatibilities();

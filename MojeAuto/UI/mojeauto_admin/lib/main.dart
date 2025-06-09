@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mojeauto_admin/env_config.dart';
 import 'package:mojeauto_admin/screens/admin_profile_edit.dart';
 import 'package:mojeauto_admin/screens/category_page.dart';
 import 'package:mojeauto_admin/screens/country_page.dart';
@@ -21,7 +21,6 @@ import 'helpers/token_manager.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
   await TokenManager().initialize();
   runApp(const MyApp());
 }

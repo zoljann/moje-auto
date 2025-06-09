@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mojeauto_admin/env_config.dart';
 import 'package:mojeauto_admin/helpers/authenticated_client.dart';
 import 'package:mojeauto_admin/common/form_fields.dart';
 import 'package:mojeauto_admin/common/pagination_controls.dart';
@@ -76,7 +76,7 @@ class _OrderPageState extends State<OrderPage> {
 
     final response = await httpClient.get(
       Uri.parse(
-        "${dotenv.env['API_BASE_URL']}/orders",
+        "${EnvConfig.baseUrl}/orders",
       ).replace(queryParameters: queryParams),
       headers: {'accept': 'text/plain'},
     );
@@ -98,7 +98,7 @@ class _OrderPageState extends State<OrderPage> {
 
   Future<void> _fetchDeliveryMethods() async {
     final response = await httpClient.get(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/delivery-methods"),
+      Uri.parse("${EnvConfig.baseUrl}/delivery-methods"),
       headers: {'accept': 'text/plain'},
     );
 
@@ -111,7 +111,7 @@ class _OrderPageState extends State<OrderPage> {
 
   Future<void> _fetchDeliveryStatuses() async {
     final response = await httpClient.get(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/delivery-statuses"),
+      Uri.parse("${EnvConfig.baseUrl}/delivery-statuses"),
       headers: {'accept': 'text/plain'},
     );
 
@@ -124,7 +124,7 @@ class _OrderPageState extends State<OrderPage> {
 
   Future<void> _fetchPaymentMethods() async {
     final response = await httpClient.get(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/payment-methods"),
+      Uri.parse("${EnvConfig.baseUrl}/payment-methods"),
       headers: {'accept': 'text/plain'},
     );
 
@@ -137,7 +137,7 @@ class _OrderPageState extends State<OrderPage> {
 
   Future<void> _fetchOrderStatuses() async {
     final response = await httpClient.get(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/order-statuses"),
+      Uri.parse("${EnvConfig.baseUrl}/order-statuses"),
       headers: {'accept': 'text/plain'},
     );
 
@@ -150,7 +150,7 @@ class _OrderPageState extends State<OrderPage> {
 
   Future<void> _updateOrder(int id) async {
     final response = await httpClient.put(
-      Uri.parse("${dotenv.env['API_BASE_URL']}/orders/$id"),
+      Uri.parse("${EnvConfig.baseUrl}/orders/$id"),
       headers: {'Content-Type': 'application/json', 'accept': 'text/plain'},
       body: jsonEncode({
         'orderStatusId': _selectedOrderStatusId,
