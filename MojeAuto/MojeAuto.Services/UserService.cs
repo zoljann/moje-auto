@@ -126,6 +126,11 @@ public class UserService : BaseCrudService<User, UserSearchRequest, UserInsertRe
 
         MapUpdateRequestToEntity(updateRequest, user);
 
+        if (!string.IsNullOrWhiteSpace(updateRequest.Password))
+        {
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(updateRequest.Password);
+        }
+
         if (updateRequest.Image != null && updateRequest.Image.Length > 0)
         {
             using var ms = new MemoryStream();

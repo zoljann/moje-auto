@@ -14,7 +14,7 @@ namespace MojeAuto.API.Controllers
         {
         }
 
-        [Authorize(Roles = "Admin")]
+        [AllowAnonymous]
         [HttpGet]
         public override async Task<ActionResult<IEnumerable<User>>> Get([FromQuery] UserSearchRequest search, [FromQuery] int? id = null)
         {

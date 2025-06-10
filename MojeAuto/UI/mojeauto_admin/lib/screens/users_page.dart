@@ -444,8 +444,8 @@ class _UsersPageState extends State<UsersPage> {
                           if (value == null || value.isEmpty) {
                             return 'Unesite lozinku';
                           }
-                          if (value.length < 6 || value.length > 100) {
-                            return 'Lozinka mora imati između 6 i 50 znakova';
+                          if (value.length < 3 || value.length > 100) {
+                            return 'Lozinka mora imati između 3 i 50 znakova';
                           }
                           return null;
                         },

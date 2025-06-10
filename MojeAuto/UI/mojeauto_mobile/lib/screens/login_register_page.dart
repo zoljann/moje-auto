@@ -2,6 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mojeauto_mobile/env_config.dart';
+import 'package:mojeauto_mobile/common/form_fields.dart';
+import 'package:mojeauto_mobile/helpers/notification_helper.dart';
+import 'package:mojeauto_mobile/layout/main_page.dart';
+import 'package:mojeauto_mobile/helpers/token_manager.dart';
 
 class LoginRegisterPage extends StatefulWidget {
   const LoginRegisterPage({super.key});
@@ -13,6 +17,7 @@ class LoginRegisterPage extends StatefulWidget {
 class _LoginRegisterPageState extends State<LoginRegisterPage> {
   bool _isLogin = true;
   bool _obscurePassword = true;
+  String? _birthDateIso;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -22,6 +27,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
   final _lastNameController = TextEditingController();
   final _addressController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _birthDateController = TextEditingController();
 
   List<dynamic> _countries = [];
   String? _selectedCountryId;
@@ -40,6 +46,100 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
     if (response.statusCode == 200) {
       setState(() => _countries = jsonDecode(response.body));
     }
+  }
+
+  Future<void> _login() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    try {
+      final response = await http.post(
+        Uri.parse("${EnvConfig.baseUrl}/login"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"email": email, "password": password}),
+      );
+      final result = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        await TokenManager().saveTokens(
+          result['token'],
+          result['refreshToken'],
+          result['user'],
+        );
+        NotificationHelper.success(context, 'Uspješna prijava');
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => MainPage()),
+        );
+      } else {
+        NotificationHelper.error(context, 'Pogrešan email ili lozinka.');
+        _passwordController.clear();
+      }
+    } catch (e) {
+      NotificationHelper.error(context, 'Pogrešan email ili lozinka.');
+      _passwordController.clear();
+    }
+  }
+
+  Future<void> _registerUser() async {
+    final uri = Uri.parse("${EnvConfig.baseUrl}/users");
+    final request = http.MultipartRequest('POST', uri);
+
+    request.fields['firstName'] = _firstNameController.text.trim();
+    request.fields['lastName'] = _lastNameController.text.trim();
+    request.fields['email'] = _emailController.text.trim();
+    request.fields['phoneNumber'] = _phoneController.text.trim();
+    request.fields['address'] = _addressController.text.trim();
+    request.fields['password'] = _passwordController.text.trim();
+    request.fields['userRoleId'] = '1';
+
+    if (_birthDateIso != null) {
+      request.fields['birthDate'] = _birthDateIso!;
+    }
+
+    if (_selectedCountryId != null) {
+      request.fields['countryId'] = _selectedCountryId!;
+    }
+
+    try {
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        NotificationHelper.success(
+          context,
+          'Uspješno ste se registrovali, prijavite se',
+        );
+        _clearForm();
+        setState(() => _isLogin = true);
+      } else {
+        NotificationHelper.error(
+          context,
+          'Nešto je pošlo po krivu, pokušajte ponovo',
+        );
+        _passwordController.clear();
+      }
+    } catch (e) {
+      NotificationHelper.error(
+        context,
+        'Nešto je pošlo po krivu, pokušajte ponovo',
+      );
+      _passwordController.clear();
+    }
+  }
+
+  void _clearForm() {
+    _formKey.currentState?.reset();
+    _emailController.clear();
+    _passwordController.clear();
+    _firstNameController.clear();
+    _lastNameController.clear();
+    _addressController.clear();
+    _phoneController.clear();
+    _birthDateController.clear();
+    _selectedCountryId = null;
+    _birthDateIso = null;
   }
 
   @override
@@ -86,16 +186,18 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                       controller: _firstNameController,
                       style: const TextStyle(color: Colors.white),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Unesite ime';
+                        final trimmed = value?.trim() ?? '';
+                        if (trimmed.isEmpty) return 'Unesite ime';
+                        if (trimmed.length < 3) {
+                          return 'Ime mora imati najmanje 3 slova';
                         }
-                        if (value.length > 50) {
+                        if (trimmed.length > 50) {
                           return 'Ime ne smije biti duže od 50 karaktera';
                         }
                         return null;
                       },
                       decoration: InputDecoration(
-                        hintText: 'Ime',
+                        labelText: 'Ime',
                         hintStyle: const TextStyle(color: Colors.grey),
                         filled: true,
                         fillColor: fieldFillColor,
@@ -110,16 +212,18 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                       controller: _lastNameController,
                       style: const TextStyle(color: Colors.white),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Unesite prezime';
+                        final trimmed = value?.trim() ?? '';
+                        if (trimmed.isEmpty) return 'Unesite prezime';
+                        if (trimmed.length < 3) {
+                          return 'Prezime mora imati najmanje 3 slova';
                         }
-                        if (value.length > 50) {
+                        if (trimmed.length > 50) {
                           return 'Prezime ne smije biti duže od 50 karaktera';
                         }
                         return null;
                       },
                       decoration: InputDecoration(
-                        hintText: 'Prezime',
+                        labelText: 'Prezime',
                         hintStyle: const TextStyle(color: Colors.grey),
                         filled: true,
                         fillColor: fieldFillColor,
@@ -145,7 +249,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                       return null;
                     },
                     decoration: InputDecoration(
-                      hintText: 'Email',
+                      labelText: 'Email',
                       hintStyle: const TextStyle(color: Colors.grey),
                       filled: true,
                       fillColor: fieldFillColor,
@@ -162,13 +266,13 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                       if (value == null || value.isEmpty) {
                         return 'Unesite lozinku';
                       }
-                      if (value.length < 6 || value.length > 50) {
-                        return 'Lozinka mora imati između 6 i 50 karaktera';
+                      if (value.length < 3 || value.length > 50) {
+                        return 'Lozinka mora imati između 3 i 50 karaktera';
                       }
                       return null;
                     },
                     decoration: InputDecoration(
-                      hintText: 'Lozinka',
+                      labelText: 'Lozinka',
                       hintStyle: const TextStyle(color: Colors.grey),
                       filled: true,
                       fillColor: fieldFillColor,
@@ -192,36 +296,22 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                   if (!_isLogin) const SizedBox(height: 16),
 
                   if (!_isLogin)
-                    DropdownButtonFormField<String>(
+                    buildDropdownField<String>(
                       value: _selectedCountryId,
-                      dropdownColor: fieldFillColor,
-                      style: const TextStyle(color: Colors.white),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Odaberite državu';
-                        }
-                        return null;
-                      },
-                      items: _countries.map<DropdownMenuItem<String>>((
-                        country,
-                      ) {
-                        return DropdownMenuItem<String>(
-                          value: country['countryId'].toString(),
-                          child: Text(country['name']),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() => _selectedCountryId = value);
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'Država',
-                        hintStyle: const TextStyle(color: Colors.grey),
-                        filled: true,
-                        fillColor: fieldFillColor,
-                        border: border,
-                      ),
+                      items: _countries
+                          .map((c) => c['countryId'].toString())
+                          .toList(),
+                      label: 'Država',
+                      validator: (val) => val == null || val.isEmpty
+                          ? 'Odaberite državu'
+                          : null,
+                      onChanged: (val) =>
+                          setState(() => _selectedCountryId = val),
+                      itemLabel: (val) => _countries.firstWhere(
+                        (c) => c['countryId'].toString() == val,
+                      )['name'],
+                      itemValue: (val) => val,
                     ),
-
                   if (!_isLogin) const SizedBox(height: 16),
 
                   if (!_isLogin)
@@ -238,7 +328,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                         return null;
                       },
                       decoration: InputDecoration(
-                        hintText: 'Adresa',
+                        labelText: 'Adresa',
                         hintStyle: const TextStyle(color: Colors.grey),
                         filled: true,
                         fillColor: fieldFillColor,
@@ -254,7 +344,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                       style: const TextStyle(color: Colors.white),
                       keyboardType: TextInputType.phone,
                       validator: (value) {
-                        final phoneRegex = RegExp(r'^\d{3,20}\$');
+                        final phoneRegex = RegExp(r'^\d{3,20}$');
                         if (value == null || value.isEmpty) {
                           return 'Unesite broj telefona';
                         }
@@ -264,12 +354,32 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                         return null;
                       },
                       decoration: InputDecoration(
-                        hintText: 'Broj telefona',
+                        labelText: 'Broj telefona',
                         hintStyle: const TextStyle(color: Colors.grey),
                         filled: true,
                         fillColor: fieldFillColor,
                         border: border,
                       ),
+                    ),
+
+                  if (!_isLogin) const SizedBox(height: 16),
+
+                  if (!_isLogin)
+                    buildDatePickerField(
+                      context: context,
+                      controller: _birthDateController,
+                      label: "Datum rođenja",
+                      validator: (String? value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Unesite datum rođenja';
+                        }
+                        return null;
+                      },
+                      onPicked: (isoDate) {
+                        _birthDateIso = isoDate;
+                      },
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime.now(),
                     ),
 
                   const SizedBox(height: 24),
@@ -286,9 +396,14 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                       ),
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          // TODO: handle login or register logic
+                          if (_isLogin) {
+                            _login();
+                          } else {
+                            _registerUser();
+                          }
                         }
                       },
+
                       child: Text(
                         _isLogin ? "Prijavi se" : "Registruj se",
                         style: const TextStyle(
@@ -310,6 +425,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                       _lastNameController.clear();
                       _addressController.clear();
                       _phoneController.clear();
+                      _birthDateController.clear();
                       _selectedCountryId = null;
                       setState(() => _isLogin = !_isLogin);
                     },

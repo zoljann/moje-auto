@@ -9,6 +9,34 @@ public class PartService : BaseCrudService<Part, PartSearchRequest, PartInsertRe
     {
     }
 
+    public override async Task<ServiceResult<IEnumerable<Part>>> Get(PartSearchRequest search, int? id = null)
+    {
+        var query = _context.Parts
+            .Include(p => p.Manufacturer)
+            .Include(p => p.Category)
+            .AsQueryable();
+
+        if (id.HasValue)
+        {
+            var entity = await query.FirstOrDefaultAsync(p => p.PartId == id.Value);
+            if (entity == null)
+                return ServiceResult<IEnumerable<Part>>.Fail("Part not found.");
+            return ServiceResult<IEnumerable<Part>>.Ok(new List<Part> { entity });
+        }
+
+        if (!string.IsNullOrWhiteSpace(search.Name))
+            query = query.Where(p => p.Name.Contains(search.Name));
+
+        if (search.Page > 0 && search.PageSize > 0)
+        {
+            int skip = (search.Page - 1) * search.PageSize;
+            query = query.Skip(skip).Take(search.PageSize + 1);
+        }
+
+        var result = await query.ToListAsync();
+        return ServiceResult<IEnumerable<Part>>.Ok(result);
+    }
+
     public override async Task<ServiceResult<Part>> Insert(PartInsertRequest insertRequest)
     {
         var manufacturerExists = await _context.Manufacturers.AnyAsync(m => m.ManufacturerId == insertRequest.ManufacturerId);
