@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mojeauto_mobile/env_config.dart';
 import 'package:mojeauto_mobile/screens/part_search.dart';
+import 'package:mojeauto_mobile/screens/car_choose.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -75,6 +76,17 @@ class _HomePageState extends State<HomePage> {
                     child: TextField(
                       controller: _searchController,
                       style: const TextStyle(color: Colors.white),
+                      onSubmitted: (query) {
+                        if (query.trim().isNotEmpty) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  PartSearchPage(initialQuery: query.trim()),
+                            ),
+                          );
+                        }
+                      },
                       decoration: InputDecoration(
                         hintText: 'Pretraži dijelove..',
                         hintStyle: const TextStyle(color: Colors.grey),
@@ -89,34 +101,6 @@ class _HomePageState extends State<HomePage> {
                           onPressed: () => print("open camera"),
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF7D5EFF),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 16,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    onPressed: () {
-                      final query = _searchController.text.trim();
-                      if (query.isNotEmpty) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => PartSearchPage(initialQuery: query),
-                          ),
-                        );
-                      }
-                    },
-                    child: const Text(
-                      "Pretraži",
-                      style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ],
@@ -135,9 +119,16 @@ class _HomePageState extends State<HomePage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: () => print("odaberi vozilo"),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const CarChoose(),
+                          ),
+                        );
+                      },
                       child: const Text(
-                        "Odaberi vozilo",
+                        "Odaberi automobil",
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
@@ -174,6 +165,10 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.white,
                     ),
                   ),
+                  Text(
+                    " (Odaberite kategoriju za pretragu)",
+                    style: TextStyle(color: Colors.white70, fontSize: 13),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
@@ -209,8 +204,17 @@ class _HomePageState extends State<HomePage> {
                   itemBuilder: (context, index) {
                     final category = _filteredCategories[index];
                     return InkWell(
-                      onTap: () =>
-                          print("Category ID: ${category['categoryId']}"),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => PartSearchPage(
+                              initialQuery: '',
+                              initialCategoryIds: [category['categoryId']],
+                            ),
+                          ),
+                        );
+                      },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           vertical: 14,

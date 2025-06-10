@@ -16,6 +16,13 @@ public class PartService : BaseCrudService<Part, PartSearchRequest, PartInsertRe
             .Include(p => p.Category)
             .AsQueryable();
 
+        if (search.CarId.HasValue)
+        {
+            query = query.Where(p =>
+                _context.PartCars.Any(pc => pc.PartId == p.PartId && pc.CarId == search.CarId));
+        }
+
+
         if (id.HasValue)
         {
             var entity = await query.FirstOrDefaultAsync(p => p.PartId == id.Value);
@@ -26,6 +33,20 @@ public class PartService : BaseCrudService<Part, PartSearchRequest, PartInsertRe
 
         if (!string.IsNullOrWhiteSpace(search.Name))
             query = query.Where(p => p.Name.Contains(search.Name));
+
+        if (search.CategoryIds != null && search.CategoryIds.Any())
+            query = query.Where(p => search.CategoryIds.Contains(p.CategoryId));
+
+        if (search.ManufacturerIds != null && search.ManufacturerIds.Any())
+            query = query.Where(p => search.ManufacturerIds.Contains(p.ManufacturerId));
+
+
+        if (search.SortByPriceEnabled)
+        {
+            query = search.SortByPriceDescending == true
+                ? query.OrderByDescending(p => p.Price)
+                : query.OrderBy(p => p.Price);
+        }
 
         if (search.Page > 0 && search.PageSize > 0)
         {

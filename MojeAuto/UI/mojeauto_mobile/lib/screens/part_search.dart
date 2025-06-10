@@ -2,10 +2,18 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mojeauto_mobile/env_config.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 
 class PartSearchPage extends StatefulWidget {
   final String initialQuery;
-  const PartSearchPage({super.key, required this.initialQuery});
+  final List<int>? initialCategoryIds;
+
+  const PartSearchPage({
+    super.key,
+    required this.initialQuery,
+    this.initialCategoryIds,
+  });
 
   @override
   State<PartSearchPage> createState() => _PartSearchPageState();
@@ -17,34 +25,93 @@ class _PartSearchPageState extends State<PartSearchPage> {
   bool hasNextPage = true;
   int currentPage = 1;
   final int pageSize = 7;
+  List<int> selectedCategoryIds = [];
+  List<int> selectedManufacturerIds = [];
+  bool sortByPriceEnabled = false;
+  bool sortDescending = false;
+  late TextEditingController _searchController;
+  List<dynamic> allCars = [];
+  List<int> selectedCarIds = [];
+
+  List<dynamic> allCategories = [];
+  List<dynamic> allManufacturers = [];
 
   @override
   void initState() {
     super.initState();
+    _searchController = TextEditingController(text: widget.initialQuery);
+
+    if (widget.initialCategoryIds != null) {
+      selectedCategoryIds = List<int>.from(widget.initialCategoryIds!);
+    }
+
+    _loadFilters();
     _fetchParts();
   }
 
-  Future<void> _fetchParts() async {
-    if (isLoading || !hasNextPage) return;
+  Future<void> _loadFilters() async {
+    final catRes = await http.get(Uri.parse("${EnvConfig.baseUrl}/categories"));
+    final manRes = await http.get(
+      Uri.parse("${EnvConfig.baseUrl}/manufacturers"),
+    );
+    final carRes = await http.get(Uri.parse("${EnvConfig.baseUrl}/cars"));
+
+    if (catRes.statusCode == 200 &&
+        manRes.statusCode == 200 &&
+        carRes.statusCode == 200) {
+      setState(() {
+        allCategories = jsonDecode(catRes.body);
+        allManufacturers = jsonDecode(manRes.body);
+        allCars = jsonDecode(carRes.body);
+      });
+    }
+  }
+
+  Future<void> _fetchParts({bool reset = false}) async {
+    if (isLoading || (!hasNextPage && !reset)) return;
+
+    if (reset) {
+      setState(() {
+        currentPage = 1;
+        parts.clear();
+        hasNextPage = true;
+      });
+    }
 
     setState(() => isLoading = true);
 
     final queryParams = {
       'Page': currentPage.toString(),
       'PageSize': pageSize.toString(),
-      'Name': widget.initialQuery,
+      'Name': _searchController.text,
+      if (sortByPriceEnabled) 'SortByPriceEnabled': 'true',
+      if (sortByPriceEnabled)
+        'SortByPriceDescending': sortDescending.toString(),
     };
 
+    final buffer = StringBuffer(Uri(queryParameters: queryParams).query);
+
+    for (final id in selectedCategoryIds) {
+      buffer.write('&CategoryIds=$id');
+    }
+
+    for (final id in selectedManufacturerIds) {
+      buffer.write('&ManufacturerIds=$id');
+    }
+
+    if (selectedCarIds.isNotEmpty) {
+      buffer.write('&CarId=${selectedCarIds.first}');
+    }
+
+    final url = "${EnvConfig.baseUrl}/parts?$buffer";
+
     final response = await http.get(
-      Uri.parse(
-        "${EnvConfig.baseUrl}/parts",
-      ).replace(queryParameters: queryParams),
+      Uri.parse(url),
       headers: {'accept': 'text/plain'},
     );
 
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
-
       final trimmed = result.length > pageSize
           ? result.take(pageSize).toList()
           : result;
@@ -73,31 +140,88 @@ class _PartSearchPageState extends State<PartSearchPage> {
       builder: (_) => Wrap(
         children: [
           ListTile(
-            leading: const Icon(Icons.arrow_upward, color: Colors.white),
-            title: const Text(
+            leading: Icon(
+              Icons.arrow_upward,
+              color: sortByPriceEnabled && !sortDescending
+                  ? Colors.greenAccent
+                  : Colors.white,
+            ),
+            title: Text(
               "Cijena: Od niže prema višoj",
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(
+                color: sortByPriceEnabled && !sortDescending
+                    ? Colors.greenAccent
+                    : Colors.white,
+              ),
             ),
             onTap: () {
               setState(() {
-                parts.sort((a, b) => a['price'].compareTo(b['price']));
+                sortByPriceEnabled = true;
+                sortDescending = false;
               });
               Navigator.pop(context);
+              _fetchParts(reset: true);
             },
           ),
           ListTile(
-            leading: const Icon(Icons.arrow_downward, color: Colors.white),
-            title: const Text(
+            leading: Icon(
+              Icons.arrow_downward,
+              color: sortByPriceEnabled && sortDescending
+                  ? Colors.greenAccent
+                  : Colors.white,
+            ),
+            title: Text(
               "Cijena: Od više prema nižoj",
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(
+                color: sortByPriceEnabled && sortDescending
+                    ? Colors.greenAccent
+                    : Colors.white,
+              ),
             ),
             onTap: () {
               setState(() {
-                parts.sort((a, b) => b['price'].compareTo(a['price']));
+                sortByPriceEnabled = true;
+                sortDescending = true;
               });
               Navigator.pop(context);
+              _fetchParts(reset: true);
             },
           ),
+
+          if (sortByPriceEnabled)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Center(
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      sortByPriceEnabled = false;
+                      sortDescending = false;
+                      Navigator.pop(context);
+                      _fetchParts(reset: true);
+                    });
+                  },
+                  icon: const Icon(Icons.swap_vert, color: Colors.white),
+                  label: const Text(
+                    "Poništi sortiranje",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueGrey,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -106,61 +230,261 @@ class _PartSearchPageState extends State<PartSearchPage> {
   void _openFilterMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: const Color(0xFF2A2D31),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (_) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Filteri",
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
+      builder: (_) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.4,
+        minChildSize: 0.4,
+        maxChildSize: 0.95,
+        builder: (context, scrollController) {
+          return SingleChildScrollView(
+            controller: scrollController,
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Filteri",
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
 
-            // Example filter items
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF7D5EFF),
-              ),
-              child: const Text("Proizvođač"),
-              onPressed: () {
-                print("Filter by manufacturer");
-                Navigator.pop(context);
-              },
+                MultiSelectDialogField<int>(
+                  items: allManufacturers
+                      .map(
+                        (m) => MultiSelectItem<int>(
+                          m['manufacturerId'],
+                          m['name'],
+                        ),
+                      )
+                      .toList(),
+                  initialValue: selectedManufacturerIds,
+                  searchable: true,
+                  title: const Text(
+                    "Proizvođači",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  selectedColor: const Color(0xFF9D8CFF),
+                  itemsTextStyle: const TextStyle(color: Colors.white),
+                  checkColor: Colors.white,
+                  buttonIcon: const Icon(Icons.factory, color: Colors.white),
+                  buttonText: const Text(
+                    "Odaberi proizvođače",
+                    style: TextStyle(
+                      color: Color(0xFFDCD5FF),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  chipDisplay: MultiSelectChipDisplay(
+                    chipColor: const Color(0xFF3A3D41),
+                    textStyle: const TextStyle(color: Colors.white),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: const BorderSide(color: Colors.white70),
+                    ),
+                    onTap: (val) {
+                      setState(() {
+                        selectedManufacturerIds.remove(val);
+                        _fetchParts(reset: true);
+                      });
+                    },
+                  ),
+                  confirmText: const Text(
+                    "OK",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  cancelText: const Text(
+                    "Poništi",
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                  onConfirm: (values) {
+                    selectedManufacturerIds = List<int>.from(values);
+                    Navigator.pop(context);
+                    _fetchParts(reset: true);
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                MultiSelectDialogField<int>(
+                  items: allCategories
+                      .map(
+                        (c) => MultiSelectItem<int>(c['categoryId'], c['name']),
+                      )
+                      .toList(),
+                  initialValue: selectedCategoryIds,
+                  searchable: true,
+                  title: const Text(
+                    "Kategorije",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  selectedColor: const Color(0xFF9D8CFF),
+                  itemsTextStyle: const TextStyle(color: Colors.white),
+                  checkColor: Colors.white,
+                  buttonIcon: const Icon(Icons.category, color: Colors.white),
+                  buttonText: const Text(
+                    "Odaberi kategorije",
+                    style: TextStyle(
+                      color: Color(0xFFDCD5FF),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  chipDisplay: MultiSelectChipDisplay(
+                    chipColor: const Color(0xFF3A3D41),
+                    textStyle: const TextStyle(color: Colors.white),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: const BorderSide(color: Colors.white70),
+                    ),
+                    onTap: (val) {
+                      setState(() {
+                        selectedCategoryIds.remove(val);
+                        _fetchParts(reset: true);
+                      });
+                    },
+                  ),
+                  confirmText: const Text(
+                    "OK",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  cancelText: const Text(
+                    "Poništi",
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                  onConfirm: (values) {
+                    selectedCategoryIds = List<int>.from(values);
+                    Navigator.pop(context);
+                    _fetchParts(reset: true);
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                DropdownSearch<int>(
+                  items: allCars.map<int>((c) => c['carId'] as int).toList(),
+                  selectedItem: selectedCarIds.isNotEmpty
+                      ? selectedCarIds.first
+                      : null,
+                  popupProps: PopupProps.menu(
+                    showSearchBox: true,
+                    searchFieldProps: TextFieldProps(
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        hintText: 'Pretraži automobile..',
+                        hintStyle: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                    itemBuilder: (context, item, isSelected) {
+                      final car = allCars.firstWhere((c) => c['carId'] == item);
+                      final label =
+                          "${car['brand']} ${car['model']} ${car['year']}";
+                      return ListTile(
+                        title: Text(
+                          label,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      );
+                    },
+                  ),
+                  dropdownDecoratorProps: DropDownDecoratorProps(
+                    dropdownSearchDecoration: InputDecoration(
+                      labelStyle: const TextStyle(
+                        color: Color(
+                          0xFFDCD5FF,
+                        ), // match category/manufacturer color
+                        fontWeight: FontWeight.w500,
+                      ),
+                      filled: true,
+                      fillColor: const Color(0xFF2A2D31),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                  dropdownBuilder: (context, selectedItem) {
+                    if (selectedItem == null) {
+                      return const Text(
+                        "Odaberi automobil",
+                        style: TextStyle(
+                          color: Color(0xFFDCD5FF),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      );
+                    }
+                    final car = allCars.firstWhere(
+                      (c) => c['carId'] == selectedItem,
+                    );
+                    final label =
+                        "${car['brand']} ${car['model']} ${car['year']}";
+                    return Text(
+                      label,
+                      style: const TextStyle(color: Colors.white),
+                    );
+                  },
+                  filterFn: (item, filter) {
+                    final car = allCars.firstWhere((c) => c['carId'] == item);
+                    final label =
+                        "${car['brand']} ${car['model']} ${car['year']}"
+                            .toLowerCase();
+                    return label.contains(filter.toLowerCase());
+                  },
+                  onChanged: (val) {
+                    setState(() {
+                      selectedCarIds = val != null ? [val] : [];
+                    });
+                    _fetchParts(reset: true);
+                  },
+                ),
+
+                const SizedBox(height: 30),
+                if (selectedCategoryIds.isNotEmpty ||
+                    selectedManufacturerIds.isNotEmpty)
+                  Center(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          selectedCategoryIds.clear();
+                          selectedManufacturerIds.clear();
+                          selectedCarIds.clear();
+                          Navigator.pop(context);
+                          _fetchParts(reset: true);
+                        });
+                      },
+                      icon: const Icon(Icons.clear, color: Colors.white),
+                      label: const Text(
+                        "Poništi filtere",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueGrey,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                const SizedBox(height: 30),
+              ],
             ),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF7D5EFF),
-              ),
-              child: const Text("Kategorija"),
-              onPressed: () {
-                print("Filter by category");
-                Navigator.pop(context);
-              },
-            ),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF7D5EFF),
-              ),
-              child: const Text("Vozilo"),
-              onPressed: () {
-                print("Filter by car");
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -171,18 +495,46 @@ class _PartSearchPageState extends State<PartSearchPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Rezultati za: ${widget.initialQuery}"),
         backgroundColor: bgColor,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF2A2D31),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: TextField(
+            controller: _searchController,
+            onSubmitted: (val) {
+              setState(() {
+                parts.clear();
+                currentPage = 1;
+              });
+              _fetchParts(reset: true);
+            },
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              hintText: 'Pretraži dijelove...',
+              hintStyle: TextStyle(color: Colors.white70),
+              border: InputBorder.none,
+              icon: Icon(Icons.search, color: Colors.grey),
+            ),
+          ),
+        ),
+
         actions: [
+          IconButton(
+            icon: const Icon(Icons.sort),
+            onPressed: () => _openSortMenu(context),
+          ),
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: () => _openFilterMenu(context),
           ),
         ],
-        leading: IconButton(
-          icon: const Icon(Icons.sort),
-          onPressed: () => _openSortMenu(context),
-        ),
       ),
 
       backgroundColor: bgColor,
@@ -313,6 +665,21 @@ class _PartSearchPageState extends State<PartSearchPage> {
                 ),
               );
             }),
+
+            if (!isLoading && parts.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 40),
+                  child: Text(
+                    "Nema pronađenih dijelova.",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white70,
+                    ),
+                  ),
+                ),
+              ),
 
             if (hasNextPage)
               Padding(
