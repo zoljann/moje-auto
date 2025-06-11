@@ -2,8 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mojeauto_mobile/env_config.dart';
+import 'package:mojeauto_mobile/screens/part_compare.dart';
 import 'package:mojeauto_mobile/screens/part_search.dart';
 import 'package:mojeauto_mobile/screens/car_choose.dart';
+import 'package:mojeauto_mobile/screens/profile_page.dart';
+import 'package:mojeauto_mobile/helpers/token_manager.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,6 +21,7 @@ class _HomePageState extends State<HomePage> {
   bool isLoading = false;
   bool _showAllCategories = false;
   final _scrollController = ScrollController();
+  String? _userImageBase64;
 
   @override
   void initState() {
@@ -25,6 +29,7 @@ class _HomePageState extends State<HomePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.jumpTo(0);
     });
+    _fetchUserImage();
     _fetchCategories();
   }
 
@@ -40,6 +45,19 @@ class _HomePageState extends State<HomePage> {
         _categories = result;
         _filteredCategories = result;
         isLoading = false;
+      });
+    }
+  }
+
+  _fetchUserImage() async {
+    final userId = await TokenManager().userId;
+    final response = await http.get(
+      Uri.parse("${EnvConfig.baseUrl}/users?id=$userId"),
+    );
+    if (response.statusCode == 200) {
+      final user = jsonDecode(response.body);
+      setState(() {
+        _userImageBase64 = user['imageData'];
       });
     }
   }
@@ -67,7 +85,36 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: bgColor,
-      appBar: AppBar(backgroundColor: bgColor),
+      appBar: AppBar(
+        backgroundColor: bgColor,
+        actions: [
+          GestureDetector(
+            onTap: () {
+              FocusScope.of(context).unfocus();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfilePage()),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(
+                right: 16,
+                top: 8,
+              ),
+              child: CircleAvatar(
+                radius: 18,
+                backgroundColor: Colors.grey[800],
+                backgroundImage: _userImageBase64 != null
+                    ? MemoryImage(base64Decode(_userImageBase64!))
+                    : null,
+                child: _userImageBase64 == null
+                    ? const Icon(Icons.person, size: 20, color: Colors.white)
+                    : null,
+              ),
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           controller: _scrollController,
@@ -109,8 +156,6 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               const SizedBox(height: 20),
-
-              // Buttons
               Row(
                 children: [
                   Expanded(
@@ -144,7 +189,14 @@ class _HomePageState extends State<HomePage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: () => print("usporedi dijelove"),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const PartComparePage(),
+                          ),
+                        );
+                      },
                       child: const Text(
                         "Usporedi dijelove",
                         style: TextStyle(color: Colors.white),
@@ -154,8 +206,6 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               const SizedBox(height: 24),
-
-              // Category section
               Row(
                 children: const [
                   Text(
@@ -173,8 +223,6 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               const SizedBox(height: 16),
-
-              // Category search
               TextField(
                 onChanged: _filterCategories,
                 style: const TextStyle(color: Colors.white),
@@ -188,8 +236,6 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Category list
               if (isLoading)
                 const CircularProgressIndicator()
               else
