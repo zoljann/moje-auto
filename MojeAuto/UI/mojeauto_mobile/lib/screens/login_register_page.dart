@@ -162,8 +162,9 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
             child: Form(
               key: _formKey,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 70),
                   const Icon(
                     Icons.person_pin,
                     size: 80,

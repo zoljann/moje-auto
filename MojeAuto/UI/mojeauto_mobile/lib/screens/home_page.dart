@@ -13,15 +13,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final TextEditingController _searchController = TextEditingController();
   List<dynamic> _categories = [];
   List<dynamic> _filteredCategories = [];
   bool isLoading = false;
   bool _showAllCategories = false;
+  final _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.jumpTo(0);
+    });
     _fetchCategories();
   }
 
@@ -67,38 +70,38 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(backgroundColor: bgColor),
       body: SafeArea(
         child: SingleChildScrollView(
+          controller: _scrollController,
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
               Row(
                 children: [
                   Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      style: const TextStyle(color: Colors.white),
-                      onSubmitted: (query) {
-                        if (query.trim().isNotEmpty) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  PartSearchPage(initialQuery: query.trim()),
-                            ),
-                          );
-                        }
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'Pretraži dijelove..',
-                        hintStyle: const TextStyle(color: Colors.grey),
-                        filled: true,
-                        fillColor: fieldFillColor,
-                        border: border,
-                        suffixIcon: IconButton(
-                          icon: const Icon(
-                            Icons.camera_alt,
-                            color: Colors.grey,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                const PartSearchPage(initialQuery: ''),
                           ),
-                          onPressed: () => print("open camera"),
+                        );
+                      },
+                      child: AbsorbPointer(
+                        child: TextField(
+                          enabled: false,
+                          decoration: InputDecoration(
+                            hintText: 'Pretraži dijelove..',
+                            hintStyle: const TextStyle(color: Colors.grey),
+                            filled: true,
+                            fillColor: fieldFillColor,
+                            border: border,
+                            suffixIcon: const Icon(
+                              Icons.search,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ),
                     ),
@@ -122,9 +125,7 @@ class _HomePageState extends State<HomePage> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (_) => const CarChoose(),
-                          ),
+                          MaterialPageRoute(builder: (_) => const CarChoose()),
                         );
                       },
                       child: const Text(
@@ -239,7 +240,7 @@ class _HomePageState extends State<HomePage> {
                 TextButton(
                   onPressed: () => setState(() => _showAllCategories = true),
                   child: const Text(
-                    "Pogledaj više kategorija..",
+                    "Učitaj više kategorija..",
                     style: TextStyle(color: Colors.white),
                   ),
                 ),

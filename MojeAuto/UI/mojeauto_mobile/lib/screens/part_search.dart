@@ -8,11 +8,13 @@ import 'package:dropdown_search/dropdown_search.dart';
 class PartSearchPage extends StatefulWidget {
   final String initialQuery;
   final List<int>? initialCategoryIds;
+  final List<int>? initialCarIds;
 
   const PartSearchPage({
     super.key,
     required this.initialQuery,
     this.initialCategoryIds,
+    this.initialCarIds,
   });
 
   @override
@@ -29,7 +31,8 @@ class _PartSearchPageState extends State<PartSearchPage> {
   List<int> selectedManufacturerIds = [];
   bool sortByPriceEnabled = false;
   bool sortDescending = false;
-  late TextEditingController _searchController;
+  late final TextEditingController _searchController;
+  final FocusNode _searchFocusNode = FocusNode();
   List<dynamic> allCars = [];
   List<int> selectedCarIds = [];
 
@@ -43,6 +46,19 @@ class _PartSearchPageState extends State<PartSearchPage> {
 
     if (widget.initialCategoryIds != null) {
       selectedCategoryIds = List<int>.from(widget.initialCategoryIds!);
+    }
+
+    if (widget.initialCarIds != null) {
+      selectedCarIds = List<int>.from(widget.initialCarIds!);
+    }
+
+    if (widget.initialQuery.isEmpty &&
+        (widget.initialCategoryIds == null ||
+            widget.initialCategoryIds!.isEmpty) &&
+        (widget.initialCarIds == null || widget.initialCarIds!.isEmpty)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        FocusScope.of(context).requestFocus(_searchFocusNode);
+      });
     }
 
     _loadFilters();
@@ -508,6 +524,7 @@ class _PartSearchPageState extends State<PartSearchPage> {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: TextField(
             controller: _searchController,
+            focusNode: _searchFocusNode,
             onSubmitted: (val) {
               setState(() {
                 parts.clear();
@@ -666,10 +683,17 @@ class _PartSearchPageState extends State<PartSearchPage> {
               );
             }),
 
-            if (!isLoading && parts.isEmpty)
+            if (isLoading && parts.isEmpty)
+              const SizedBox(
+                height: 300,
+                child: Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                ),
+              )
+            else if (!isLoading && parts.isEmpty)
               const Center(
                 child: Padding(
-                  padding: EdgeInsets.only(top: 40),
+                  padding: EdgeInsets.only(top: 100),
                   child: Text(
                     "Nema pronađenih dijelova.",
                     style: TextStyle(
@@ -681,7 +705,7 @@ class _PartSearchPageState extends State<PartSearchPage> {
                 ),
               ),
 
-            if (hasNextPage)
+            if (hasNextPage && parts.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: GestureDetector(
