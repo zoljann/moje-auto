@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mojeauto_mobile/env_config.dart';
+import 'package:mojeauto_mobile/screens/qr_scan_page.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:mojeauto_mobile/screens/part_detail.dart';
@@ -100,11 +101,12 @@ class _PartSearchPageState extends State<PartSearchPage> {
     final queryParams = {
       'Page': currentPage.toString(),
       'PageSize': pageSize.toString(),
-      'Name': _searchController.text,
-      if (sortByPriceEnabled) 'SortByPriceEnabled': 'true',
-      if (sortByPriceEnabled)
-        'SortByPriceDescending': sortDescending.toString(),
     };
+
+    final searchTerm = _searchController.text.trim();
+    if (searchTerm.length >= 2) {
+      queryParams['Name'] = searchTerm;
+    }
 
     final buffer = StringBuffer(Uri(queryParameters: queryParams).query);
 
@@ -526,7 +528,7 @@ class _PartSearchPageState extends State<PartSearchPage> {
           child: TextField(
             controller: _searchController,
             focusNode: _searchFocusNode,
-            onSubmitted: (val) {
+            onChanged: (val) {
               setState(() {
                 parts.clear();
                 currentPage = 1;
@@ -544,6 +546,24 @@ class _PartSearchPageState extends State<PartSearchPage> {
         ),
 
         actions: [
+          IconButton(
+            icon: const Icon(Icons.qr_code),
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const QRScanPage()),
+              );
+
+              if (result != null &&
+                  result is String &&
+                  result.trim().isNotEmpty) {
+                setState(() {
+                  _searchController.text = result.trim();
+                });
+                _fetchParts(reset: true);
+              }
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.sort),
             onPressed: () => _openSortMenu(context),

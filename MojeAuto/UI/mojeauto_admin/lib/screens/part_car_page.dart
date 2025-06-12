@@ -68,8 +68,9 @@ class _PartCarPageState extends State<PartCarPage> {
       'Page': currentPage.toString(),
       'PageSize': (pageSize + 1).toString(),
     };
-    if (carSearchQuery.length >= 2) {
-      queryParams['Brand'] = carSearchQuery;
+
+    if (carSearchQuery.trim().length >= 2) {
+      queryParams['Brand'] = carSearchQuery.trim();
     }
 
     final response = await httpClient.get(
@@ -79,8 +80,17 @@ class _PartCarPageState extends State<PartCarPage> {
     );
 
     if (response.statusCode == 200) {
-      cars = jsonDecode(response.body);
-      hasNextPage = cars.length >= pageSize;
+      final data = jsonDecode(response.body);
+      setState(() {
+        cars = List<Map<String, dynamic>>.from(data);
+        hasNextPage = cars.length > pageSize;
+        if (hasNextPage) cars = cars.take(pageSize).toList();
+      });
+    } else {
+      setState(() {
+        cars = [];
+        hasNextPage = false;
+      });
     }
   }
 
@@ -446,6 +456,13 @@ class _PartCarPageState extends State<PartCarPage> {
         Expanded(
           child: isLoading
               ? const Center(child: CircularProgressIndicator())
+              : cars.isEmpty
+              ? const Center(
+                  child: Text(
+                    "Nema pronađenih automobila.",
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                )
               : ListView.builder(
                   itemCount: cars.length,
                   itemBuilder: (context, index) {

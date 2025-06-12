@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mojeauto_mobile/screens/about_us.dart';
 import 'package:mojeauto_mobile/screens/home_page.dart';
 import 'package:mojeauto_mobile/screens/cart_page.dart';
 import 'package:mojeauto_mobile/screens/order_list_page.dart';
@@ -37,6 +38,7 @@ class _MainPageState extends State<MainPage> {
           child: ListView(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
             children: [
+              const SizedBox(height: 32),
               ListTile(
                 leading: const Icon(Icons.local_offer),
                 title: const Text('Moje narudžbe'),
@@ -49,13 +51,13 @@ class _MainPageState extends State<MainPage> {
               ),
               ListTile(
                 leading: const Icon(Icons.info_outline),
-                title: const Text('Uslovi korištenja'),
-                onTap: () {},
-              ),
-              ListTile(
-                leading: const Icon(Icons.contact_mail),
-                title: const Text('Kontakt'),
-                onTap: () {},
+                title: const Text('O nama'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => AboutUsPage()),
+                  );
+                },
               ),
               const Divider(),
               ListTile(
@@ -84,6 +86,7 @@ class _MainPageState extends State<MainPage> {
           ),
         ),
       ),
+
       body: Stack(
         children: [
           _pages[_selectedIndex],

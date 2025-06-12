@@ -72,8 +72,6 @@ class _OrderListPageState extends State<OrderListPage> {
       body: jsonEncode({'orderStatusId': _cancelStatusId}),
     );
 
-    print(response.statusCode);
-
     if (response.statusCode == 200 || response.statusCode == 204) {
       NotificationHelper.success(context, 'Narudžba je otkazana.');
       _fetchOrders();
@@ -149,7 +147,7 @@ class _OrderListPageState extends State<OrderListPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "Narudžba #${index + 1}",
+                            "Narudžba #${_orders.length - index}",
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -189,7 +187,7 @@ class _OrderListPageState extends State<OrderListPage> {
                         style: const TextStyle(color: Colors.white70),
                       ),
                       Text(
-                        "Isporuka: $deliveryDate",
+                        "Najkasnija isporuka: $deliveryDate",
                         style: const TextStyle(color: Colors.white70),
                       ),
                       Text(

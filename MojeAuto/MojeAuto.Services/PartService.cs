@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using MojeAuto.Model.Common;
 using MojeAuto.Model.Requests;
 using MojeAuto.Services.Database;
+using System.Linq.Expressions;
 
 public class PartService : BaseCrudService<Part, PartSearchRequest, PartInsertRequest, PartUpdateRequest>
 {
@@ -35,13 +37,54 @@ public class PartService : BaseCrudService<Part, PartSearchRequest, PartInsertRe
         }
 
         if (!string.IsNullOrWhiteSpace(search.Name))
-            query = query.Where(p => p.Name.Contains(search.Name));
+        {
+            var term = $"%{search.Name.Trim()}%";
+            query = query.Where(p =>
+                EF.Functions.Like(p.Name, term) ||
+                EF.Functions.Like(p.CatalogNumber, term));
+        }
+
+
 
         if (search.CategoryIds != null && search.CategoryIds.Any())
             query = query.Where(p => search.CategoryIds.Contains(p.CategoryId));
 
         if (search.ManufacturerIds != null && search.ManufacturerIds.Any())
             query = query.Where(p => search.ManufacturerIds.Contains(p.ManufacturerId));
+
+        var searchProps = typeof(PartSearchRequest).GetProperties();
+        foreach (var prop in searchProps)
+        {
+            if (prop.Name is nameof(PartSearchRequest.Name)
+                || prop.Name == nameof(PartSearchRequest.CategoryIds)
+                || prop.Name == nameof(PartSearchRequest.ManufacturerIds)
+                || prop.Name == nameof(PartSearchRequest.CarId))
+                continue;
+
+            var value = prop.GetValue(search);
+            if (value == null) continue;
+
+            var entityProp = typeof(Part).GetProperty(prop.Name);
+            if (entityProp == null) continue;
+
+            var parameter = Expression.Parameter(typeof(Part), "p");
+            var left = Expression.Property(parameter, entityProp);
+            var right = Expression.Constant(value);
+
+            Expression body;
+            if (entityProp.PropertyType == typeof(string))
+            {
+                var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) })!;
+                body = Expression.Call(left, containsMethod, right);
+            }
+            else
+            {
+                body = Expression.Equal(left, right);
+            }
+
+            var predicate = Expression.Lambda<Func<Part, bool>>(body, parameter);
+            query = query.Where(predicate);
+        }
 
         if (search.SortByPriceEnabled)
         {

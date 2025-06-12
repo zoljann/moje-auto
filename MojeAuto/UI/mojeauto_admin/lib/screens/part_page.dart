@@ -572,7 +572,7 @@ class _PartPageState extends State<PartPage> {
                 onChanged: (_) => _onSearchChanged(),
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  hintText: 'Pretraži po nazivu dijela..',
+                  hintText: 'Pretraži po nazivu dijela ili kataloškom broju..',
                   hintStyle: const TextStyle(color: Colors.white54),
                   filled: true,
                   fillColor: const Color(0xFF1E1E1E),
