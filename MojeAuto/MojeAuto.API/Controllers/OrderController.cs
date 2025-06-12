@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MojeAuto.Model.Common;
 using MojeAuto.Model.Requests;
+using MojeAuto.Services;
 
 namespace MojeAuto.API.Controllers
 {
@@ -9,9 +10,12 @@ namespace MojeAuto.API.Controllers
     [Route("orders")]
     public class OrderController : BaseCrudController<Order, OrderSearchRequest, OrderInsertRequest, OrderUpdateRequest>
     {
-        public OrderController(IBaseCrudService<Order, OrderSearchRequest, OrderInsertRequest, OrderUpdateRequest> service)
+        private readonly StripeService _stripeService;
+
+        public OrderController(IBaseCrudService<Order, OrderSearchRequest, OrderInsertRequest, OrderUpdateRequest> service, StripeService stripeService)
             : base(service)
         {
+            _stripeService = stripeService;
         }
 
         [AllowAnonymous]
@@ -28,5 +32,11 @@ namespace MojeAuto.API.Controllers
             return await base.Update(id, updateRequest);
         }
 
+        [HttpPost("stripe")]
+        public async Task<IActionResult> CreateStripeIntent([FromBody] StripePaymentRequest request)
+        {
+            var result = await _stripeService.CreatePaymentIntent(request.Amount);
+            return Ok(result);
+        }
     }
 }

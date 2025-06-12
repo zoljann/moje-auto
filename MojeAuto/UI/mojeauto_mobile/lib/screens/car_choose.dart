@@ -303,6 +303,8 @@ class _CarChooseState extends State<CarChoose> {
                 _selectedCar = null;
                 _filteredCategories = _categories;
                 _searchController.clear();
+                _filteredCars = [];
+                _isSearching = false;
               });
             } else {
               Navigator.pop(context);
@@ -345,7 +347,9 @@ class _CarChooseState extends State<CarChoose> {
                     ...carsToDisplay
                         .take(_carsToShow)
                         .map((car) => _buildCarTile(car, fieldFillColor)),
-                  if (_isSearching && _filteredCars.isEmpty && _selectedCar == null)
+                  if (_isSearching &&
+                      _filteredCars.isEmpty &&
+                      _selectedCar == null)
                     const Padding(
                       padding: EdgeInsets.only(top: 20),
                       child: Center(

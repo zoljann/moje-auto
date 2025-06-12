@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
 import 'package:mojeauto_mobile/env_config.dart';
 import 'package:mojeauto_mobile/helpers/error_extractor.dart';
@@ -96,7 +97,7 @@ class _OrderPageState extends State<OrderPage> {
     await req.send();
   }
 
-  Future<void> _placeOrder() async {
+  Future<void> _placeOrder({String? paymentIntentId}) async {
     if (!_formKey.currentState!.validate()) return;
 
     final userId = await TokenManager().userId;
@@ -122,6 +123,7 @@ class _OrderPageState extends State<OrderPage> {
         "deliveryStatusId": 1,
       },
       "orderItems": orderItems,
+      if (paymentIntentId != null) "paymentReference": paymentIntentId,
     });
 
     setState(() => _isLoading = true);
@@ -133,7 +135,6 @@ class _OrderPageState extends State<OrderPage> {
     setState(() => _isLoading = false);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      NotificationHelper.success(context, "Narudžba uspješno kreirana");
       Navigator.pop(context, true);
     } else {
       final error = extractErrorMessage(
@@ -141,6 +142,60 @@ class _OrderPageState extends State<OrderPage> {
         fallback: "Greška pri kreiranju narudžbe.",
       );
       NotificationHelper.error(context, error);
+    }
+  }
+
+  Future<void> _createPayment() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final userId = await TokenManager().userId;
+    if (userId == null) return;
+
+    await _updateUser();
+
+    final totalAmount = _calculateTotal();
+    final convertedAmount = double.parse(
+      (totalAmount / 1.95583).toStringAsFixed(2),
+    );
+
+    final res = await http.post(
+      Uri.parse('${EnvConfig.baseUrl}/orders/stripe'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'amount': convertedAmount}),
+    );
+
+    if (res.statusCode != 200) {
+      NotificationHelper.error(context, 'Greška pri kreiranju plaćanja.');
+      return;
+    }
+
+    final data = jsonDecode(res.body);
+    final clientSecret = data['clientSecret'];
+    final paymentIntentId = data['paymentIntentId'];
+
+    try {
+      await Stripe.instance.initPaymentSheet(
+        paymentSheetParameters: SetupPaymentSheetParameters(
+          paymentIntentClientSecret: clientSecret,
+          style: ThemeMode.dark,
+          merchantDisplayName: 'MojeAuto',
+        ),
+      );
+
+      await Stripe.instance.presentPaymentSheet();
+
+      await _placeOrder(paymentIntentId: paymentIntentId);
+
+      if (!mounted) return;
+    } on StripeException catch (e) {
+      if (!mounted) return;
+      NotificationHelper.error(
+        context,
+        "Plaćanje otkazano: ${e.error.localizedMessage ?? 'Nepoznata greška'}",
+      );
+    } catch (e) {
+      if (!mounted) return;
+      NotificationHelper.error(context, "Plaćanje otkazano ili neuspješno.");
     }
   }
 
@@ -298,7 +353,23 @@ class _OrderPageState extends State<OrderPage> {
                             ),
                             minimumSize: const Size.fromHeight(50),
                           ),
-                          onPressed: _placeOrder,
+                          onPressed: () {
+                            final selected = _paymentMethods.firstWhere(
+                              (p) =>
+                                  p['paymentMethodId'].toString() ==
+                                  _selectedPaymentMethodId,
+                              orElse: () => null,
+                            );
+
+                            if (selected != null &&
+                                selected['name'].toString().toLowerCase() ==
+                                    'stripe') {
+                              _createPayment();
+                            } else {
+                              _placeOrder();
+                            }
+                          },
+
                           child: Text(
                             _getPaymentButtonText(),
                             style: const TextStyle(

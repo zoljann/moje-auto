@@ -12,6 +12,8 @@ public class OrderInsertRequest
     [Required]
     public DeliveryInsertRequest Delivery { get; set; } = null!;
 
+    public string? PaymentReference { get; set; }
+
     [Required]
     public List<OrderItemInsertRequest> OrderItems { get; set; } = new();
 }

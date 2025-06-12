@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MojeAuto.Model.Common;
 using MojeAuto.Model.Requests;
+using MojeAuto.Services;
 using MojeAuto.Services.Database;
 using MojeAuto.Services.Helpers;
 using System.Text;
@@ -59,6 +60,7 @@ builder.Services.AddScoped<IBaseCrudService<PartCar, PartCarSearchRequest, PartC
 builder.Services.AddScoped<IBaseCrudService<PaymentMethod, PaymentMethodSearchRequest, PaymentMethodInsertRequest, PaymentMethodUpdateRequest>, PaymentMethodService>();
 builder.Services.AddScoped<IBaseCrudService<UserRole, UserRoleSearchRequest, UserRoleInsertRequest, UserRoleUpdateRequest>, UserRoleService>();
 builder.Services.AddScoped<IBaseCrudService<Order, OrderSearchRequest, OrderInsertRequest, OrderUpdateRequest>, OrderService>();
+builder.Services.AddScoped<StripeService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>

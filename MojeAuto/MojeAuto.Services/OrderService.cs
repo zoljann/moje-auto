@@ -108,7 +108,6 @@ public class OrderService : BaseCrudService<Order, OrderSearchRequest, OrderInse
             .Where(p => partIds.Contains(p.PartId))
             .ToDictionaryAsync(p => p.PartId);
 
-        // Validate all parts exist and quantities are available
         foreach (var item in insertRequest.OrderItems)
         {
             if (!parts.TryGetValue(item.PartId, out var part))
@@ -118,25 +117,19 @@ public class OrderService : BaseCrudService<Order, OrderSearchRequest, OrderInse
                 return ServiceResult<Order>.Fail($"Nema na stanju dijela '{part.Name}'. Zatraženo: {item.Quantity}, Dostupno: {part.Quantity}");
         }
 
-        // Calculate total amount based on current part prices (not client-provided)
         decimal totalAmount = insertRequest.OrderItems
             .Sum(x => x.Quantity * parts[x.PartId].Price);
 
-        // Find initial order status
-        var pendingStatus = await _context.OrderStatuses
-            .FirstOrDefaultAsync(x => x.Name == "Naručeno");
+        var orderStatusName = string.IsNullOrEmpty(insertRequest.PaymentReference)
+            ? "Naručeno"
+            : "Plaćeno";
 
-        if (pendingStatus == null)
-        {
-            pendingStatus = await _context.OrderStatuses
-                .OrderBy(x => x.OrderStatusId)
-                .FirstOrDefaultAsync();
+        var orderStatus = await _context.OrderStatuses
+            .FirstOrDefaultAsync(x => x.Name == orderStatusName);
 
-            if (pendingStatus == null)
-                return ServiceResult<Order>.Fail("Nije pronađen nijedan status narudžbe.");
-        }
+        if (orderStatus == null)
+            return ServiceResult<Order>.Fail($"Status narudžbe '{orderStatusName}' nije pronađen.");
 
-        // Calculate estimated delivery date based on slowest part, to front on Part will be attached estimatedarrivaldays
         int maxEta = insertRequest.OrderItems
             .Max(x => parts[x.PartId].EstimatedArrivalDays);
 
@@ -168,9 +161,10 @@ public class OrderService : BaseCrudService<Order, OrderSearchRequest, OrderInse
             UserId = insertRequest.UserId,
             OrderDate = DateTime.UtcNow,
             PaymentMethodId = insertRequest.PaymentMethodId,
-            OrderStatusId = pendingStatus.OrderStatusId,
+            OrderStatusId = orderStatus.OrderStatusId,
             TotalAmount = totalAmount,
             DeliveryId = delivery.DeliveryId,
+            PaymentReference = insertRequest.PaymentReference
         };
 
         _context.Orders.Add(order);

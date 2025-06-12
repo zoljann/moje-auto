@@ -301,9 +301,16 @@ class _CartPageState extends State<CartPage> {
                           await prefs.remove('cart_$userId');
                         }
 
+                         if (!mounted) return;
+
                         setState(() {
                           _cartItems.clear();
                         });
+
+                        NotificationHelper.success(
+                          context,
+                          "Narudžba uspješno izvršena!",
+                        );
                       }
                     },
 

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:mojeauto_mobile/env_config.dart';
 import 'package:mojeauto_mobile/screens/login_register_page.dart';
 import 'package:mojeauto_mobile/helpers/token_manager.dart';
 import 'package:mojeauto_mobile/layout/main_page.dart';
@@ -6,6 +8,8 @@ import 'package:mojeauto_mobile/layout/main_page.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await TokenManager().initialize();
+  Stripe.publishableKey = EnvConfig.stripePublicKey;
+  await Stripe.instance.applySettings();
   runApp(const MyApp());
 }
 

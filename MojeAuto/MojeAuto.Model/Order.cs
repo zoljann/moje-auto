@@ -21,6 +21,7 @@ public class Order
 
     [Required]
     public int DeliveryId { get; set; }
+    public string? PaymentReference { get; set; }
 
     public User User { get; set; } = null!;
     public PaymentMethod PaymentMethod { get; set; } = null!;
