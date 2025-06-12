@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mojeauto_mobile/screens/home_page.dart';
 import 'package:mojeauto_mobile/screens/cart_page.dart';
+import 'package:mojeauto_mobile/screens/order_list_page.dart';
 import 'package:mojeauto_mobile/screens/profile_page.dart';
 import 'package:mojeauto_mobile/helpers/token_manager.dart';
 import 'package:mojeauto_mobile/helpers/notification_helper.dart';
@@ -38,8 +39,13 @@ class _MainPageState extends State<MainPage> {
             children: [
               ListTile(
                 leading: const Icon(Icons.local_offer),
-                title: const Text('Promocije'),
-                onTap: () {},
+                title: const Text('Moje narudžbe'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => OrderListPage()),
+                  );
+                },
               ),
               ListTile(
                 leading: const Icon(Icons.info_outline),

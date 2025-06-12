@@ -345,7 +345,7 @@ class _CarChooseState extends State<CarChoose> {
                     ...carsToDisplay
                         .take(_carsToShow)
                         .map((car) => _buildCarTile(car, fieldFillColor)),
-                  if (_isSearching && _filteredCars.isEmpty)
+                  if (_isSearching && _filteredCars.isEmpty && _selectedCar == null)
                     const Padding(
                       padding: EdgeInsets.only(top: 20),
                       child: Center(

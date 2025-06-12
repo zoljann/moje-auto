@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MojeAuto.Services.Database;
 
@@ -11,9 +12,11 @@ using MojeAuto.Services.Database;
 namespace MojeAuto.Services.Migrations
 {
     [DbContext(typeof(MojeAutoContext))]
-    partial class MojeAutoContextModelSnapshot : ModelSnapshot
+    [Migration("20250612084310_Migration53")]
+    partial class Migration53
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -457,10 +460,10 @@ namespace MojeAuto.Services.Migrations
 
                     b.HasKey("PartCarId");
 
-                    b.HasIndex("PartId");
-
-                    b.HasIndex("CarId", "PartId")
+                    b.HasIndex("CarId")
                         .IsUnique();
+
+                    b.HasIndex("PartId");
 
                     b.ToTable("PartCars");
                 });
@@ -695,8 +698,8 @@ namespace MojeAuto.Services.Migrations
             modelBuilder.Entity("PartCar", b =>
                 {
                     b.HasOne("Car", "Car")
-                        .WithMany("CompatibleParts")
-                        .HasForeignKey("CarId")
+                        .WithOne()
+                        .HasForeignKey("PartCar", "CarId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -728,11 +731,6 @@ namespace MojeAuto.Services.Migrations
                     b.Navigation("Country");
 
                     b.Navigation("UserRole");
-                });
-
-            modelBuilder.Entity("Car", b =>
-                {
-                    b.Navigation("CompatibleParts");
                 });
 
             modelBuilder.Entity("Category", b =>

@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:mojeauto_mobile/env_config.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:mojeauto_mobile/screens/part_detail.dart';
 
 class PartSearchPage extends StatefulWidget {
   final String initialQuery;
@@ -461,7 +462,7 @@ class _PartSearchPageState extends State<PartSearchPage> {
                   },
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 10),
                 if (selectedCategoryIds.isNotEmpty ||
                     selectedManufacturerIds.isNotEmpty)
                   Center(
@@ -564,121 +565,122 @@ class _PartSearchPageState extends State<PartSearchPage> {
               final manufacturer = part['manufacturer']?['name'] ?? 'Nepoznato';
               final category = part['category']?['name'] ?? 'Nepoznato';
 
-              return Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2A2D31),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (imageData != null)
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PartDetailPage(partId: part['partId']),
+                    ),
+                  );
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2A2D31),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       ClipRRect(
                         borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(16),
                         ),
-                        child: Image.memory(
-                          base64Decode(imageData),
-                          width: double.infinity,
-                          height: 180,
-                          fit: BoxFit.cover,
-                        ),
+                        child: imageData != null
+                            ? Image.memory(
+                                base64Decode(imageData),
+                                width: double.infinity,
+                                height: 180,
+                                fit: BoxFit.cover,
+                              )
+                            : Container(
+                                width: double.infinity,
+                                height: 180,
+                                color: const Color(0xFF3A3D41),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.image_not_supported_outlined,
+                                    size: 60,
+                                    color: Colors.white38,
+                                  ),
+                                ),
+                              ),
                       ),
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            part['name'] ?? '',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            "Kataloški broj: ${part['catalogNumber'] ?? '-'}",
-                            style: const TextStyle(color: Colors.grey),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  "Proizvođač: $manufacturer",
-                                  style: const TextStyle(color: Colors.white70),
-                                ),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  "Kategorija: $category",
-                                  style: const TextStyle(color: Colors.white70),
-                                  textAlign: TextAlign.right,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Text(
-                                "Cijena: ${part['price']} KM",
-                                style: const TextStyle(
-                                  color: Colors.greenAccent,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const Spacer(),
-                              Text(
-                                "Garancija: ${part['warrantyMonths']} mj.",
-                                style: const TextStyle(color: Colors.white70),
-                              ),
-                            ],
-                          ),
-                          if (part['description'] != null &&
-                              (part['description'] as String).trim().isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 10),
-                              child: Text(
-                                part['description'],
-                                style: const TextStyle(color: Colors.white70),
-                              ),
-                            ),
-                          const SizedBox(height: 12),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF7D5EFF),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              icon: const Icon(
-                                Icons.add_shopping_cart,
+
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              part['name'] ?? '',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
-                              label: const Text(
-                                "Dodaj u korpu",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "Kataloški broj: ${part['catalogNumber'] ?? '-'}",
+                              style: const TextStyle(color: Colors.grey),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    "Proizvođač: $manufacturer",
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    "Kategorija: $category",
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                    ),
+                                    textAlign: TextAlign.right,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Text(
+                                  "Cijena: ${part['price']} KM",
+                                  style: const TextStyle(
+                                    color: Colors.greenAccent,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const Spacer(),
+                                Text(
+                                  "Garancija: ${part['warrantyMonths']} mj.",
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                              ],
+                            ),
+                            if (part['description'] != null &&
+                                (part['description'] as String)
+                                    .trim()
+                                    .isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Text(
+                                  part['description'],
+                                  style: const TextStyle(color: Colors.white70),
                                 ),
                               ),
-                              onPressed: () =>
-                                  print("Added to cart: ${part['partId']}"),
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             }),

@@ -20,5 +20,13 @@ namespace MojeAuto.API.Controllers
         {
             return await base.Insert(insertRequest);
         }
+
+        [AllowAnonymous]
+        [HttpPut("{id}")]
+        public override async Task<IActionResult> Update(int id, [FromBody] OrderUpdateRequest updateRequest)
+        {
+            return await base.Update(id, updateRequest);
+        }
+
     }
 }

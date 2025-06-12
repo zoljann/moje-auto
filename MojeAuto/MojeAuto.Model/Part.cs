@@ -42,6 +42,5 @@ public class Part
     public Category Category { get; set; } = null!;
 
     public ICollection<OrderItem>? OrderItems { get; set; }
-    [JsonIgnore]
     public ICollection<PartCar>? CompatibleCars { get; set; }
 }

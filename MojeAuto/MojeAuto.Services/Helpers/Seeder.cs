@@ -76,8 +76,7 @@ namespace MojeAuto.Services.Helpers
             {
                 db.PaymentMethods.AddRange(
                     new PaymentMethod { Name = "Stripe" },
-new PaymentMethod { Name = "Plaćanje pouzećem" },
-new PaymentMethod { Name = "Lično preuzimanje" }
+new PaymentMethod { Name = "Plaćanje na licu mjesta" }
                 );
                 db.SaveChanges();
             }
@@ -85,32 +84,27 @@ new PaymentMethod { Name = "Lično preuzimanje" }
             if (!db.DeliveryMethods.Any())
             {
                 db.DeliveryMethods.AddRange(
-                                        new DeliveryMethod
-                                        {
-                                            Name = "Dostava istog dana",
-                                            Description = "Dostava istog dana (dostupno u većim gradovima)"
-                                        },
-                    new DeliveryMethod
-                    {
-                        Name = "Ekspresna dostava",
-                        Description = "Dostava u roku od 1-2 radna dana"
-                    },
                     new DeliveryMethod
                     {
                         Name = "Osobno preuzimanje",
                         Description = "Preuzimanje narudžbe u najbližoj poslovnici"
+                    },
+                    new DeliveryMethod
+                    {
+                        Name = "Standardna dostava",
+                        Description = "Dostava na vašu adresu"
                     }
                 );
+
                 db.SaveChanges();
             }
 
             if (!db.DeliveryStatuses.Any())
             {
                 db.DeliveryStatuses.AddRange(
+                    new DeliveryStatus { Name = "U pripremi" },
                     new DeliveryStatus { Name = "Poslano" },
-                    new DeliveryStatus { Name = "Na dostavi" },
-                    new DeliveryStatus { Name = "Dostavljeno" },
-                    new DeliveryStatus { Name = "Vraćeno" }
+                    new DeliveryStatus { Name = "Dostavljeno" }
                 );
                 db.SaveChanges();
             }
@@ -146,6 +140,7 @@ new PaymentMethod { Name = "Lično preuzimanje" }
             if (!db.OrderStatuses.Any())
             {
                 db.OrderStatuses.AddRange(
+                    new OrderStatus { Name = "Naručeno" },
                     new OrderStatus { Name = "Plaćeno" },
                     new OrderStatus { Name = "Dovršeno" },
                     new OrderStatus { Name = "Otkazano" }
@@ -202,7 +197,7 @@ new PaymentMethod { Name = "Lično preuzimanje" }
                     new User { FirstName = "Ismar", LastName = "Selimović", Email = "ismar.selimovic@example.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("pass"), Address = "Bare 44", PhoneNumber = "061808080", BirthDate = new DateTime(1991, 2, 2), CountryId = 2, UserRoleId = 1 },
                     new User { FirstName = "Naida", LastName = "Kadić", Email = "naida.kadic@example.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("pass"), Address = "Otoka 2", PhoneNumber = "062909090", BirthDate = new DateTime(1989, 11, 15), CountryId = 3, UserRoleId = 1, ImageData = LoadImage("SeedImages/avatar2.jpg") },
                     new User { FirstName = "Armin", LastName = "Karalić", Email = "armin.karalic@example.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("pass"), Address = "Ilidža 88", PhoneNumber = "061121212", BirthDate = new DateTime(1994, 7, 7), CountryId = 6, UserRoleId = 1, ImageData = LoadImage("SeedImages/avatar1.jpg") },
-                    new User { FirstName = "Medina", LastName = "Mehić", Email = "medina.mehic@example.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("pass"), Address = "Dobrinja bb", PhoneNumber = "062131313", BirthDate = new DateTime(1997, 12, 29), CountryId = 8, UserRoleId = 1 },
+                    new User { FirstName = "Medina", LastName = "Mehić", Email = "mobile@gmail.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("test"), Address = "Dobrinja bb", PhoneNumber = "062131313", BirthDate = new DateTime(1997, 12, 29), CountryId = 8, UserRoleId = 1 },
                     new User { FirstName = "Nedim", LastName = "Zolj", Email = "desktop@gmail.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("test"), Address = "Vrapčići 72", PhoneNumber = "062614400", BirthDate = new DateTime(2000, 10, 20), CountryId = 8, UserRoleId = 2, ImageData = LoadImage("SeedImages/avatar3.png") }
                 );
 

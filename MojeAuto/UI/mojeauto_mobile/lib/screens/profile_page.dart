@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:mojeauto_mobile/helpers/error_extractor.dart';
 import 'package:mojeauto_mobile/helpers/token_manager.dart';
 import 'package:mojeauto_mobile/common/form_fields.dart';
 import 'package:mojeauto_mobile/env_config.dart';
@@ -98,7 +99,11 @@ class _ProfilePageState extends State<ProfilePage> {
     if (response.statusCode == 200 || response.statusCode == 204) {
       NotificationHelper.success(context, "Profil ažuriran.");
     } else {
-      NotificationHelper.error(context, "Greška pri ažuriranju profila.");
+      final error = extractErrorMessage(
+        response,
+        fallback: "Greška pri ažuriranju profila.",
+      );
+      NotificationHelper.error(context, error);
     }
   }
 

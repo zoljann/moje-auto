@@ -13,5 +13,5 @@ public class OrderInsertRequest
     public DeliveryInsertRequest Delivery { get; set; } = null!;
 
     [Required]
-    public List<OrderItem> OrderItems { get; set; } = new();
+    public List<OrderItemInsertRequest> OrderItems { get; set; } = new();
 }

@@ -22,10 +22,13 @@ public class PartService : BaseCrudService<Part, PartSearchRequest, PartInsertRe
                 _context.PartCars.Any(pc => pc.PartId == p.PartId && pc.CarId == search.CarId));
         }
 
-
         if (id.HasValue)
         {
-            var entity = await query.FirstOrDefaultAsync(p => p.PartId == id.Value);
+            var entity = await query
+                .Include(p => p.CompatibleCars!)
+                    .ThenInclude(pc => pc.Car)
+                .FirstOrDefaultAsync(p => p.PartId == id.Value);
+
             if (entity == null)
                 return ServiceResult<IEnumerable<Part>>.Fail("Part not found.");
             return ServiceResult<IEnumerable<Part>>.Ok(new List<Part> { entity });
@@ -39,7 +42,6 @@ public class PartService : BaseCrudService<Part, PartSearchRequest, PartInsertRe
 
         if (search.ManufacturerIds != null && search.ManufacturerIds.Any())
             query = query.Where(p => search.ManufacturerIds.Contains(p.ManufacturerId));
-
 
         if (search.SortByPriceEnabled)
         {

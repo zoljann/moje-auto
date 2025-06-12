@@ -1,0 +1,244 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:mojeauto_mobile/env_config.dart';
+import 'package:mojeauto_mobile/helpers/token_manager.dart';
+import 'package:mojeauto_mobile/helpers/notification_helper.dart';
+
+class OrderListPage extends StatefulWidget {
+  const OrderListPage({super.key});
+
+  @override
+  State<OrderListPage> createState() => _OrderListPageState();
+}
+
+class _OrderListPageState extends State<OrderListPage> {
+  List<dynamic> _orders = [];
+  bool _isLoading = true;
+  int? _cancelStatusId;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchOrders();
+    _fetchOrderStatuses();
+  }
+
+  Future<void> _fetchOrders() async {
+    final userId = await TokenManager().userId;
+    if (userId == null) return;
+
+    final response = await http.get(
+      Uri.parse('${EnvConfig.baseUrl}/orders?UserId=$userId'),
+      headers: {'accept': 'text/plain'},
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _orders = json.decode(response.body);
+        _isLoading = false;
+      });
+    } else {
+      NotificationHelper.error(context, 'Greška pri dohvaćanju narudžbi');
+    }
+  }
+
+  Future<void> _fetchOrderStatuses() async {
+    final res = await http.get(
+      Uri.parse('${EnvConfig.baseUrl}/order-statuses'),
+    );
+
+    if (res.statusCode == 200) {
+      final data = jsonDecode(res.body);
+      setState(() {
+        _cancelStatusId = data.firstWhere(
+          (s) => s['name'].toString().toLowerCase() == 'otkazano',
+          orElse: () => {'orderStatusId': 3},
+        )['orderStatusId'];
+      });
+    }
+  }
+
+  Future<void> _cancelOrder(int orderId) async {
+    if (_cancelStatusId == null) {
+      NotificationHelper.error(context, 'Nije moguće otkazati narudžbu.');
+      return;
+    }
+
+    final response = await http.put(
+      Uri.parse('${EnvConfig.baseUrl}/orders/$orderId'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'orderStatusId': _cancelStatusId}),
+    );
+
+    print(response.statusCode);
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      NotificationHelper.success(context, 'Narudžba je otkazana.');
+      _fetchOrders();
+    } else {
+      NotificationHelper.error(context, 'Greška pri otkazivanju narudžbe.');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const bgColor = Color(0xFF181A1C);
+    const cardColor = Color(0xFF2A2D31);
+    const accent = Color(0xFF7D5EFF);
+    const redAccent = Color(0xFFFF5555);
+    const greenAccent = Color(0xFF4CAF50);
+
+    return Scaffold(
+      backgroundColor: bgColor,
+      appBar: AppBar(
+        backgroundColor: bgColor,
+        centerTitle: true,
+        title: const Text(
+          "Moje narudžbe",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _orders.isEmpty
+          ? const Center(
+              child: Text(
+                "Nemate nijednu narudžbu",
+                style: TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(12),
+              itemCount: _orders.length,
+              itemBuilder: (context, index) {
+                final order = _orders[index];
+                final orderStatusName = order['orderStatus']['name']
+                    .toString()
+                    .toLowerCase();
+
+                Color orderStatusColor = accent;
+                if (orderStatusName == 'otkazano') {
+                  orderStatusColor = const Color.fromARGB(255, 255, 62, 44);
+                } else if (orderStatusName == 'dovršeno') {
+                  orderStatusColor = const Color(0xFF81C784);
+                }
+
+                final deliveryStatus =
+                    order['delivery']['deliveryStatus']?['name'] ?? 'Nepoznato';
+                final deliveryDate = DateFormat('dd.MM.yyyy').format(
+                  DateTime.parse(order['delivery']['deliveryDate']).toLocal(),
+                );
+                final orderDate = DateFormat(
+                  'dd.MM.yyyy',
+                ).format(DateTime.parse(order['orderDate']).toLocal());
+                final isCancelable = deliveryStatus == 'U pripremi';
+
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Narudžba #${index + 1}",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: orderStatusColor,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              order['orderStatus']['name'],
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        "Datum: $orderDate",
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                      Text(
+                        "Iznos: ${order['totalAmount']} KM",
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                      Text(
+                        "Način plaćanja: ${order['paymentMethod']['name']}",
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                      Text(
+                        "Isporuka: $deliveryDate",
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                      Text(
+                        "Status dostave: $deliveryStatus",
+                        style: TextStyle(
+                          color: deliveryStatus == 'U pripremi'
+                              ? Colors.orangeAccent
+                              : deliveryStatus == 'Poslano'
+                              ? Colors.blueAccent
+                              : greenAccent,
+                        ),
+                      ),
+                      const Divider(color: Colors.white24, height: 20),
+                      const Text(
+                        "Stavke:",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      ...List.generate(order['orderItems'].length, (i) {
+                        final item = order['orderItems'][i];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2),
+                          child: Text(
+                            "• ${item['part']['name']} x${item['quantity']} (${item['unitPrice']} KM)",
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                        );
+                      }),
+                      if (isCancelable &&
+                          orderStatusName != 'otkazano' &&
+                          orderStatusName != 'dovršeno')
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () => _cancelOrder(order['orderId']),
+                            child: const Text(
+                              "Otkaži narudžbu",
+                              style: TextStyle(color: redAccent),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              },
+            ),
+    );
+  }
+}

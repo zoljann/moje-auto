@@ -17,7 +17,8 @@ public class OrderService : BaseCrudService<Order, OrderSearchRequest, OrderInse
                 .ThenInclude(oi => oi.Part)
             .Include(o => o.PaymentMethod)
             .Include(o => o.OrderStatus)
-            .Include(o => o.Delivery)
+            .Include(o => o.Delivery).ThenInclude(d => d.DeliveryStatus)
+            .OrderByDescending(o => o.OrderDate)
             .AsQueryable();
 
         if (id.HasValue)
@@ -57,7 +58,6 @@ public class OrderService : BaseCrudService<Order, OrderSearchRequest, OrderInse
             int skip = (pagination.Page - 1) * pagination.PageSize;
             query = query.Skip(skip).Take(pagination.PageSize + 1);
         }
-
 
         var list = await query.ToListAsync();
 
@@ -112,38 +112,57 @@ public class OrderService : BaseCrudService<Order, OrderSearchRequest, OrderInse
         foreach (var item in insertRequest.OrderItems)
         {
             if (!parts.TryGetValue(item.PartId, out var part))
-                return ServiceResult<Order>.Fail($"Part with ID {item.PartId} not found.");
+                return ServiceResult<Order>.Fail($"Dio sa IDom {item.PartId} nije pronađen.");
 
             if (part.Quantity < item.Quantity)
-                return ServiceResult<Order>.Fail($"Not enough stock for part '{part.Name}'. Requested: {item.Quantity}, Available: {part.Quantity}");
+                return ServiceResult<Order>.Fail($"Nema na stanju dijela '{part.Name}'. Zatraženo: {item.Quantity}, Dostupno: {part.Quantity}");
         }
 
         // Calculate total amount based on current part prices (not client-provided)
         decimal totalAmount = insertRequest.OrderItems
             .Sum(x => x.Quantity * parts[x.PartId].Price);
 
-        // Find default order status ("Pending")
+        // Find initial order status
         var pendingStatus = await _context.OrderStatuses
-            .FirstOrDefaultAsync(x => x.Name == "Pending");
+            .FirstOrDefaultAsync(x => x.Name == "Naručeno");
 
         if (pendingStatus == null)
-            return ServiceResult<Order>.Fail("Default order status 'Pending' not found.");
+        {
+            pendingStatus = await _context.OrderStatuses
+                .OrderBy(x => x.OrderStatusId)
+                .FirstOrDefaultAsync();
+
+            if (pendingStatus == null)
+                return ServiceResult<Order>.Fail("Nije pronađen nijedan status narudžbe.");
+        }
 
         // Calculate estimated delivery date based on slowest part, to front on Part will be attached estimatedarrivaldays
         int maxEta = insertRequest.OrderItems
             .Max(x => parts[x.PartId].EstimatedArrivalDays);
 
+        var deliveryStatus = await _context.DeliveryStatuses
+    .FirstOrDefaultAsync(x => x.Name == "U pripremi");
+
+        if (deliveryStatus == null)
+        {
+            deliveryStatus = await _context.DeliveryStatuses
+                .OrderBy(x => x.DeliveryStatusId)
+                .FirstOrDefaultAsync();
+
+            if (deliveryStatus == null)
+                return ServiceResult<Order>.Fail("Nije pronađen nijedan status isporuke.");
+        }
+
         var delivery = new Delivery
         {
             DeliveryMethodId = insertRequest.Delivery.DeliveryMethodId,
-            DeliveryStatusId = 1, // "Processing"
+            DeliveryStatusId = deliveryStatus.DeliveryStatusId,
             DeliveryDate = insertRequest.Delivery.DeliveryDate ?? DateTime.UtcNow.AddDays(maxEta)
         };
 
         _context.Deliveries.Add(delivery);
-        await _context.SaveChangesAsync(); // Need this to get DeliveryId
+        await _context.SaveChangesAsync();
 
-        // Create the order
         var order = new Order
         {
             UserId = insertRequest.UserId,
@@ -155,9 +174,8 @@ public class OrderService : BaseCrudService<Order, OrderSearchRequest, OrderInse
         };
 
         _context.Orders.Add(order);
-        await _context.SaveChangesAsync(); // To get OrderId
+        await _context.SaveChangesAsync();
 
-        // Create order items + update parts
         var orderItems = new List<OrderItem>();
 
         foreach (var item in insertRequest.OrderItems)

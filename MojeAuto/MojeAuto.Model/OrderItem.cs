@@ -3,7 +3,7 @@
 public class OrderItem
 {
     public int OrderItemId { get; set; }
-
+    
     [Required]
     public int OrderId { get; set; }
 
@@ -16,5 +16,5 @@ public class OrderItem
     [Required]
     public decimal UnitPrice { get; set; }
 
-    public Part Part { get; set; } = null!;
+    public Part? Part { get; set; }
 }

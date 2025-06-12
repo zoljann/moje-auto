@@ -87,6 +87,16 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: bgColor,
       appBar: AppBar(
         backgroundColor: bgColor,
+        centerTitle: true,
+        title: const Text(
+          "MojeAuto",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+            letterSpacing: 1.2,
+          ),
+        ),
         actions: [
           GestureDetector(
             onTap: () {
@@ -97,10 +107,7 @@ class _HomePageState extends State<HomePage> {
               );
             },
             child: Padding(
-              padding: const EdgeInsets.only(
-                right: 16,
-                top: 8,
-              ),
+              padding: const EdgeInsets.only(right: 16, top: 8),
               child: CircleAvatar(
                 radius: 18,
                 backgroundColor: Colors.grey[800],
@@ -115,6 +122,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+
       body: SafeArea(
         child: SingleChildScrollView(
           controller: _scrollController,

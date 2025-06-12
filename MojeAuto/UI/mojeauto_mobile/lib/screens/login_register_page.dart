@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mojeauto_mobile/env_config.dart';
 import 'package:mojeauto_mobile/common/form_fields.dart';
+import 'package:mojeauto_mobile/helpers/error_extractor.dart';
 import 'package:mojeauto_mobile/helpers/notification_helper.dart';
 import 'package:mojeauto_mobile/layout/main_page.dart';
 import 'package:mojeauto_mobile/helpers/token_manager.dart';
@@ -114,10 +115,11 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
         _clearForm();
         setState(() => _isLogin = true);
       } else {
-        NotificationHelper.error(
-          context,
-          'Nešto je pošlo po krivu, pokušajte ponovo',
+        final error = extractErrorMessage(
+          response,
+          fallback: "Greška pri registraciji, pokušajte ponovo.",
         );
+        NotificationHelper.error(context, error);
         _passwordController.clear();
       }
     } catch (e) {
