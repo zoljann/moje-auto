@@ -21,10 +21,37 @@ services:
       - "5000:5269"
     depends_on:
       - mojeauto-sqlserver
+      - rabbitmq
     networks:
       - mojeauto-net
     env_file:
       - .env
+
+  mojeauto-consumer:
+    build:
+      context: .
+      dockerfile: MojeAuto.Consumer/Dockerfile
+    depends_on:
+      - rabbitmq
+      - mojeauto-sqlserver
+    networks:
+      - mojeauto-net
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - mojeauto-net
+
 
 volumes:
   sql_data:

@@ -37,6 +37,5 @@ public class User
     public byte[]? ImageData { get; set; }
 
     public ICollection<Order>? Orders { get; set; }
-    public ICollection<Notification>? Notifications { get; set; }
     public ICollection<AdminReport>? AdminReports { get; set; }
 }

@@ -3,12 +3,17 @@ using Microsoft.EntityFrameworkCore.Query;
 using MojeAuto.Model.Common;
 using MojeAuto.Model.Requests;
 using MojeAuto.Services.Database;
+using MojeAuto.Services.RabbitMq;
+using MojeAuto.Services.RabbitMq.Messages;
 using System.Linq.Expressions;
 
 public class PartService : BaseCrudService<Part, PartSearchRequest, PartInsertRequest, PartUpdateRequest>
 {
-    public PartService(MojeAutoContext context) : base(context)
+    private readonly IRabbitMqPublisher _mqPublisher;
+
+    public PartService(MojeAutoContext context, IRabbitMqPublisher mqPublisher) : base(context)
     {
+        _mqPublisher = mqPublisher;
     }
 
     public override async Task<ServiceResult<IEnumerable<Part>>> Get(PartSearchRequest search, int? id = null)
@@ -43,8 +48,6 @@ public class PartService : BaseCrudService<Part, PartSearchRequest, PartInsertRe
                 EF.Functions.Like(p.Name, term) ||
                 EF.Functions.Like(p.CatalogNumber, term));
         }
-
-
 
         if (search.CategoryIds != null && search.CategoryIds.Any())
             query = query.Where(p => search.CategoryIds.Contains(p.CategoryId));
@@ -136,6 +139,8 @@ public class PartService : BaseCrudService<Part, PartSearchRequest, PartInsertRe
         if (part == null)
             return ServiceResult<Part>.Fail("Part not found.");
 
+        var previousQuantity = part.Quantity;
+
         MapUpdateRequestToEntity(updateRequest, part);
 
         if (updateRequest.Image != null && updateRequest.Image.Length > 0)
@@ -143,6 +148,25 @@ public class PartService : BaseCrudService<Part, PartSearchRequest, PartInsertRe
             using var ms = new MemoryStream();
             await updateRequest.Image.CopyToAsync(ms);
             part.ImageData = ms.ToArray();
+        }
+
+        if (previousQuantity == 0 && part.Quantity > 0)
+        {
+            var subscriptions = await _context.PartAvailabilitySubscriptions
+                .Where(s => s.PartId == part.PartId && !s.IsNotified)
+                .ToListAsync();
+
+            foreach (var sub in subscriptions)
+            {
+                var msg = new NotifyAvailabilityMessage
+                {
+                    PartId = part.PartId,
+                    UserId = sub.UserId
+                };
+
+                _mqPublisher.Publish(msg, "part-available");
+                sub.IsNotified = true;
+            }
         }
 
         await _context.SaveChangesAsync();

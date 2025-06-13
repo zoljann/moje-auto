@@ -97,10 +97,23 @@ class _PartDetailPageState extends State<PartDetailPage> {
     final userId = await TokenManager().userId;
     if (userId == null) return;
 
-    NotificationHelper.success(
-      context,
-      'Email će vam biti poslan kad artikal bude dostupan',
+    final response = await http.post(
+      Uri.parse('${EnvConfig.baseUrl}/availability-subscriptions'),
+      headers: {'accept': 'text/plain', 'Content-Type': 'application/json'},
+      body: jsonEncode({'partId': widget.partId, 'userId': userId}),
     );
+
+    if (response.statusCode == 200) {
+      NotificationHelper.success(
+        context,
+        'Email će vam biti poslan kad artikal bude dostupan',
+      );
+    } else {
+      final error = response.body.isNotEmpty == true
+          ? response.body
+          : "Greška prilikom prijave, pokušajte ponovo.";
+      NotificationHelper.error(context, error);
+    }
   }
 
   @override

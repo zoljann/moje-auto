@@ -6,6 +6,7 @@ using MojeAuto.Model.Requests;
 using MojeAuto.Services;
 using MojeAuto.Services.Database;
 using MojeAuto.Services.Helpers;
+using MojeAuto.Services.RabbitMq;
 using System.Text;
 
 DotNetEnv.Env.Load("../.env");
@@ -54,13 +55,14 @@ builder.Services.AddScoped<IBaseCrudService<Country, CountrySearchRequest, Count
 builder.Services.AddScoped<IBaseCrudService<DeliveryMethod, DeliveryMethodSearchRequest, DeliveryMethodInsertRequest, DeliveryMethodUpdateRequest>, DeliveryMethodService>();
 builder.Services.AddScoped<IBaseCrudService<DeliveryStatus, DeliveryStatusSearchRequest, DeliveryStatusInsertRequest, DeliveryStatusUpdateRequest>, DeliveryStatusService>();
 builder.Services.AddScoped<IBaseCrudService<Manufacturer, ManufacturerSearchRequest, ManufacturerInsertRequest, ManufacturerUpdateRequest>, ManufacturerService>();
-builder.Services.AddScoped<IBaseCrudService<Notification, NotificationSearchRequest, NotificationInsertRequest, NotificationUpdateRequest>, NotificationService>();
 builder.Services.AddScoped<IBaseCrudService<OrderStatus, OrderStatusSearchRequest, OrderStatusInsertRequest, OrderStatusUpdateRequest>, OrderStatusService>();
 builder.Services.AddScoped<IBaseCrudService<PartCar, PartCarSearchRequest, PartCarInsertRequest, PartCarUpdateRequest>, PartCarService>();
 builder.Services.AddScoped<IBaseCrudService<PaymentMethod, PaymentMethodSearchRequest, PaymentMethodInsertRequest, PaymentMethodUpdateRequest>, PaymentMethodService>();
 builder.Services.AddScoped<IBaseCrudService<UserRole, UserRoleSearchRequest, UserRoleInsertRequest, UserRoleUpdateRequest>, UserRoleService>();
 builder.Services.AddScoped<IBaseCrudService<Order, OrderSearchRequest, OrderInsertRequest, OrderUpdateRequest>, OrderService>();
 builder.Services.AddScoped<StripeService>();
+builder.Services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
+builder.Services.AddScoped<AvailabilitySubscriptionService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>

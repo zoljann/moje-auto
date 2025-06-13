@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MojeAuto.Model;
 using MojeAuto.Model.Common;
 
 namespace MojeAuto.Services.Database
@@ -20,13 +21,13 @@ namespace MojeAuto.Services.Database
         public DbSet<Delivery> Deliveries { get; set; }
         public DbSet<DeliveryMethod> DeliveryMethods { get; set; }
         public DbSet<DeliveryStatus> DeliveryStatuses { get; set; }
-        public DbSet<Notification> Notifications { get; set; }
         public DbSet<AdminReport> AdminReports { get; set; }
         public DbSet<Manufacturer> Manufacturers { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<Country> Countries { get; set; }
+        public DbSet<PartAvailabilitySubscription> PartAvailabilitySubscriptions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -62,22 +63,21 @@ namespace MojeAuto.Services.Database
                 .HasForeignKey(p => p.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-modelBuilder.Entity<PartCar>()
-    .HasOne(pc => pc.Part)
-    .WithMany(p => p.CompatibleCars)
-    .HasForeignKey(pc => pc.PartId)
-    .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<PartCar>()
+                .HasOne(pc => pc.Part)
+                .WithMany(p => p.CompatibleCars)
+                .HasForeignKey(pc => pc.PartId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-modelBuilder.Entity<PartCar>()
-    .HasOne(pc => pc.Car)
-    .WithMany(c => c.CompatibleParts)
-    .HasForeignKey(pc => pc.CarId)
-    .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<PartCar>()
+                .HasOne(pc => pc.Car)
+                .WithMany(c => c.CompatibleParts)
+                .HasForeignKey(pc => pc.CarId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-modelBuilder.Entity<PartCar>()
-    .HasIndex(pc => new { pc.CarId, pc.PartId })
-    .IsUnique();
-
+            modelBuilder.Entity<PartCar>()
+                .HasIndex(pc => new { pc.CarId, pc.PartId })
+                .IsUnique();
 
             modelBuilder.Entity<Order>()
                 .Property(o => o.TotalAmount)
