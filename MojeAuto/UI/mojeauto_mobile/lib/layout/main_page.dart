@@ -40,6 +40,16 @@ class _MainPageState extends State<MainPage> {
             children: [
               const SizedBox(height: 32),
               ListTile(
+                leading: const Icon(Icons.home),
+                title: const Text('Početna'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => HomePage()),
+                  );
+                },
+              ),
+              ListTile(
                 leading: const Icon(Icons.local_offer),
                 title: const Text('Moje narudžbe'),
                 onTap: () {

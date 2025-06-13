@@ -225,7 +225,55 @@ class _OrderListPageState extends State<OrderListPage> {
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
-                            onPressed: () => _cancelOrder(order['orderId']),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    backgroundColor: const Color(0xFF1E1E1E),
+                                    title: const Text(
+                                      "Potvrda otkazivanja",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    content: const Text(
+                                      "Jeste li sigurni da želite otkazati ovu narudžbu?",
+                                      style: TextStyle(color: Colors.white70),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        style: TextButton.styleFrom(
+                                          backgroundColor: const Color(
+                                            0xFF2A2A2A,
+                                          ),
+                                          foregroundColor: Colors.white,
+                                        ),
+                                        child: const Text("Poništi"),
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
+                                      ),
+                                      TextButton(
+                                        style: TextButton.styleFrom(
+                                          backgroundColor: const Color(
+                                            0xFF3B82F6,
+                                          ),
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 20,
+                                            vertical: 12,
+                                          ),
+                                        ),
+                                        child: const Text("Da"),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                          _cancelOrder(order['orderId']);
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+
                             child: const Text(
                               "Otkaži narudžbu",
                               style: TextStyle(color: redAccent),
