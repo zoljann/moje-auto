@@ -95,6 +95,10 @@ public class PartService : BaseCrudService<Part, PartSearchRequest, PartInsertRe
                 ? query.OrderByDescending(p => p.Price)
                 : query.OrderBy(p => p.Price);
         }
+        else
+        {
+            query = query.OrderByDescending(p => p.PartId);
+        }
 
         if (search.Page > 0 && search.PageSize > 0)
         {
@@ -116,6 +120,15 @@ public class PartService : BaseCrudService<Part, PartSearchRequest, PartInsertRe
 
         if (!categoryExists)
             return ServiceResult<Part>.Fail("Invalid CategoryId");
+
+        if (decimal.TryParse(
+       insertRequest.Price.ToString().Replace(',', '.'),
+       System.Globalization.NumberStyles.Any,
+       System.Globalization.CultureInfo.InvariantCulture,
+       out var parsedPrice))
+        {
+            insertRequest.Price = parsedPrice;
+        }
 
         var part = new Part();
         MapInsertRequestToEntity(insertRequest, part);
@@ -140,6 +153,15 @@ public class PartService : BaseCrudService<Part, PartSearchRequest, PartInsertRe
             return ServiceResult<Part>.Fail("Part not found.");
 
         var previousQuantity = part.Quantity;
+
+        if (decimal.TryParse(
+        updateRequest.Price.ToString().Replace(',', '.'),
+        System.Globalization.NumberStyles.Any,
+        System.Globalization.CultureInfo.InvariantCulture,
+        out var parsedPrice))
+        {
+            updateRequest.Price = parsedPrice;
+        }
 
         MapUpdateRequestToEntity(updateRequest, part);
 

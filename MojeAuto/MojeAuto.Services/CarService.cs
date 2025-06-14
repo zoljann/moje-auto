@@ -23,7 +23,6 @@ public class CarService : BaseCrudService<Car, CarSearchRequest, CarInsertReques
 
         var query = _dbSet.AsQueryable();
 
-
         if (!string.IsNullOrWhiteSpace(search.Brand))
         {
             var q = search.Brand.ToLower();
@@ -70,7 +69,9 @@ public class CarService : BaseCrudService<Car, CarSearchRequest, CarInsertReques
             query = query.Skip(skip).Take(pagination.PageSize + 1);
         }
 
-        var list = await query.ToListAsync();
+        var list = await query
+    .OrderByDescending(c => c.CarId)
+    .ToListAsync();
         if (!list.Any())
             return ServiceResult<IEnumerable<Car>>.Fail("No results found.");
 

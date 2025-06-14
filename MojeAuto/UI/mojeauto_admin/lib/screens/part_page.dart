@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -125,10 +124,8 @@ class _PartPageState extends State<PartPage> {
     request.fields['Description'] = _descriptionController.text.trim().isEmpty
         ? ''
         : _descriptionController.text.trim();
-    request.fields['Weight'] = _weightController.text.trim().isEmpty
-        ? ''
-        : "${_weightController.text.replaceAll("kg", "").trim()}kg";
-    request.fields['Price'] = (_priceController.text.trim());
+    request.fields['Weight'] = _weightController.text.trim();
+    request.fields['Price'] = _priceController.text.trim().replaceAll(',', '.');
     request.fields['WarrantyMonths'] = _warrantyController.text.trim();
     request.fields['Quantity'] = _quantityController.text.trim();
     request.fields['TotalSold'] = _soldController.text.trim();
@@ -163,16 +160,15 @@ class _PartPageState extends State<PartPage> {
     request.fields['Description'] = _descriptionController.text.trim().isEmpty
         ? ''
         : _descriptionController.text.trim();
-    request.fields['Weight'] = _weightController.text.trim().isEmpty
-        ? ''
-        : "${_weightController.text.replaceAll("kg", "").trim()}kg";
-    request.fields['Price'] = _priceController.text.trim();
+    request.fields['Weight'] = _weightController.text.trim();
+    request.fields['Price'] = _priceController.text.trim().replaceAll(',', '.');
     request.fields['WarrantyMonths'] = _warrantyController.text.trim();
     request.fields['Quantity'] = _quantityController.text.trim();
     request.fields['TotalSold'] = _soldController.text.trim();
     request.fields['ManufacturerId'] = _selectedManufacturerId.toString();
     request.fields['CategoryId'] = _selectedCategoryId.toString();
     request.fields['EstimatedArrivalDays'] = _arrivalDaysController.text.trim();
+    print("Sending price: ${request.fields['Price']}");
 
     if (_selectedImage != null) {
       request.files.add(
@@ -370,7 +366,11 @@ class _PartPageState extends State<PartPage> {
                         return 'Obavezno polje';
                       }
 
-                      final trimmed = value.replaceAll('kg', '').trim();
+                      final trimmed = value.trim();
+
+                      if (trimmed.toLowerCase().contains("kg")) {
+                        return 'Nemojte unositi "kg", samo broj (npr. 1,2)';
+                      }
 
                       if (trimmed == '.' || trimmed.contains('.')) {
                         return 'Koristite zarez (,) kao decimalni separator, npr. 0,3';
@@ -401,13 +401,20 @@ class _PartPageState extends State<PartPage> {
 
                       final trimmed = value.trim();
 
-                      if (trimmed == '.' || trimmed.contains('.')) {
+                      if (trimmed.contains('.')) {
                         return 'Koristite zarez (,) kao decimalni separator, npr. 19,99';
                       }
 
                       final regex = RegExp(r'^\d+(,\d{1,2})?$');
                       if (!regex.hasMatch(trimmed)) {
-                        return 'Unesite broj s najviše dvije decimale, npr. 19,99';
+                        return 'Dozvoljene su najviše dvije decimale (npr. 19,99)';
+                      }
+
+                      final parsed = double.tryParse(
+                        trimmed.replaceAll(',', '.'),
+                      );
+                      if (parsed == null || parsed <= 0) {
+                        return 'Cijena mora biti veća od 0';
                       }
 
                       return null;
@@ -688,11 +695,9 @@ class _PartPageState extends State<PartPage> {
                                             part['description'] ?? '';
                                         _weightController.text =
                                             part['weight'] ?? '';
-                                        _priceController.text = NumberFormat(
-                                          '#,##0.##',
-                                          'de_DE',
-                                        ).format(part['price']);
-
+                                        _priceController.text = part['price']
+                                            .toString()
+                                            .replaceAll('.', ',');
                                         _warrantyController.text =
                                             part['warrantyMonths'].toString();
                                         _quantityController.text =
