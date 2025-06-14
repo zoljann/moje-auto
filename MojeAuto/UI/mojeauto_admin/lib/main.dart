@@ -4,6 +4,7 @@ import 'package:mojeauto_admin/screens/category_page.dart';
 import 'package:mojeauto_admin/screens/country_page.dart';
 import 'package:mojeauto_admin/screens/delivery_methods_page.dart';
 import 'package:mojeauto_admin/screens/delivery_statuses_page.dart';
+import 'package:mojeauto_admin/screens/initial_recommendations_page.dart';
 import 'package:mojeauto_admin/screens/manufacturer_page.dart';
 import 'package:mojeauto_admin/screens/order_page.dart';
 import 'package:mojeauto_admin/screens/order_statuses_page.dart';
@@ -129,6 +130,12 @@ class MyApp extends StatelessWidget {
             page = AdminLayout(
               content: const UserReportsPage(),
               currentRoute: '/admin/reports',
+            );
+            break;
+          case '/admin/recommendations':
+            page = AdminLayout(
+              content: const InitialRecommendationsPage(),
+              currentRoute: '/admin/recommendations',
             );
             break;
           case '/login':

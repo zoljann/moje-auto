@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MojeAuto.Services.Database;
 
@@ -11,9 +12,11 @@ using MojeAuto.Services.Database;
 namespace MojeAuto.Services.Migrations
 {
     [DbContext(typeof(MojeAutoContext))]
-    partial class MojeAutoContextModelSnapshot : ModelSnapshot
+    [Migration("20250614103622_Migration62")]
+    partial class Migration62
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -261,24 +264,6 @@ namespace MojeAuto.Services.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("RefreshTokens");
-                });
-
-            modelBuilder.Entity("MojeAuto.Model.InitialRecommendation", b =>
-                {
-                    b.Property<int>("InitialRecommendationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InitialRecommendationId"));
-
-                    b.Property<int>("PartId")
-                        .HasColumnType("int");
-
-                    b.HasKey("InitialRecommendationId");
-
-                    b.HasIndex("PartId");
-
-                    b.ToTable("InitialRecommendations");
                 });
 
             modelBuilder.Entity("MojeAuto.Model.PartAvailabilitySubscription", b =>
@@ -649,17 +634,6 @@ namespace MojeAuto.Services.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("MojeAuto.Model.InitialRecommendation", b =>
-                {
-                    b.HasOne("Part", "Part")
-                        .WithMany()
-                        .HasForeignKey("PartId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Part");
                 });
 
             modelBuilder.Entity("MojeAuto.Model.PartAvailabilitySubscription", b =>

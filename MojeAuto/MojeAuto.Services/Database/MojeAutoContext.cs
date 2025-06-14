@@ -28,6 +28,8 @@ namespace MojeAuto.Services.Database
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<PartAvailabilitySubscription> PartAvailabilitySubscriptions { get; set; }
+        public DbSet<PartRecommendation> PartRecommendations { get; set; }
+        public DbSet<InitialRecommendation> InitialRecommendations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -100,6 +102,27 @@ namespace MojeAuto.Services.Database
                 .WithOne()
                 .HasForeignKey<Order>(o => o.DeliveryId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PartRecommendation>()
+    .HasKey(x => new { x.PartId, x.RecommendedPartId });
+
+            modelBuilder.Entity<PartRecommendation>()
+                .HasOne(x => x.Part)
+                .WithMany()
+                .HasForeignKey(x => x.PartId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PartRecommendation>()
+                .HasOne(x => x.RecommendedPart)
+                .WithMany()
+                .HasForeignKey(x => x.RecommendedPartId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<InitialRecommendation>()
+    .HasOne(x => x.Part)
+    .WithMany()
+    .HasForeignKey(x => x.PartId)
+    .OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(modelBuilder);
         }

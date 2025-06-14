@@ -6,6 +6,7 @@ import 'package:mojeauto_mobile/screens/part_compare.dart';
 import 'package:mojeauto_mobile/screens/part_search.dart';
 import 'package:mojeauto_mobile/screens/car_choose.dart';
 import 'package:mojeauto_mobile/screens/profile_page.dart';
+import 'package:mojeauto_mobile/screens/part_detail.dart';
 import 'package:mojeauto_mobile/helpers/token_manager.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,6 +19,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<dynamic> _categories = [];
   List<dynamic> _filteredCategories = [];
+  List<dynamic> _recommendedParts = [];
   bool isLoading = false;
   bool _showAllCategories = false;
   final _scrollController = ScrollController();
@@ -31,6 +33,7 @@ class _HomePageState extends State<HomePage> {
     });
     _fetchUserImage();
     _fetchCategories();
+    _fetchRecommendations();
   }
 
   Future<void> _fetchCategories() async {
@@ -49,7 +52,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  _fetchUserImage() async {
+  Future<void> _fetchUserImage() async {
     final userId = await TokenManager().userId;
     final response = await http.get(
       Uri.parse("${EnvConfig.baseUrl}/users?id=$userId"),
@@ -58,6 +61,23 @@ class _HomePageState extends State<HomePage> {
       final user = jsonDecode(response.body);
       setState(() {
         _userImageBase64 = user['imageData'];
+      });
+    }
+  }
+
+  Future<void> _fetchRecommendations() async {
+    final userId = await TokenManager().userId;
+    if (userId == null) return;
+
+    final response = await http.get(
+      Uri.parse("${EnvConfig.baseUrl}/recommender/personalized/$userId"),
+      headers: {'accept': 'text/plain'},
+    );
+
+    if (response.statusCode == 200) {
+      final result = jsonDecode(response.body);
+      setState(() {
+        _recommendedParts = result;
       });
     }
   }
@@ -122,7 +142,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-
       body: SafeArea(
         child: SingleChildScrollView(
           controller: _scrollController,
@@ -298,6 +317,119 @@ class _HomePageState extends State<HomePage> {
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
+              if (_recommendedParts.isNotEmpty) ...[
+                const SizedBox(height: 24),
+                const Text(
+                  "Preporučeni dijelovi za vas",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 260,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _recommendedParts.length,
+                    itemBuilder: (context, index) {
+                      final part = _recommendedParts[index];
+                      final imageData = part['imageData'];
+                      final manufacturer =
+                          part['manufacturer']?['name'] ?? 'Nepoznato';
+                      final category = part['category']?['name'] ?? 'Nepoznato';
+
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  PartDetailPage(partId: part['partId']),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: 180,
+                          margin: const EdgeInsets.only(right: 12),
+                          decoration: BoxDecoration(
+                            color: fieldFillColor,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(16),
+                                ),
+                                child: imageData != null
+                                    ? Image.memory(
+                                        base64Decode(imageData),
+                                        width: 180,
+                                        height: 110,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Container(
+                                        width: 180,
+                                        height: 110,
+                                        color: Colors.black38,
+                                        child: const Icon(
+                                          Icons.image,
+                                          color: Colors.white38,
+                                          size: 40,
+                                        ),
+                                      ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      part['name'] ?? '',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "Cijena: ${part['price']} KM",
+                                      style: const TextStyle(
+                                        color: Colors.greenAccent,
+                                      ),
+                                    ),
+                                    Text(
+                                      "Proizvođač: $manufacturer",
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      "Kategorija: $category",
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ],
           ),
         ),

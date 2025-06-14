@@ -63,6 +63,7 @@ builder.Services.AddScoped<IBaseCrudService<Order, OrderSearchRequest, OrderInse
 builder.Services.AddScoped<StripeService>();
 builder.Services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
 builder.Services.AddScoped<AvailabilitySubscriptionService>();
+builder.Services.AddScoped<RecommenderService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -107,6 +108,9 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<MojeAutoContext>();
     db.Database.Migrate();
     Seeder.Seed(db);
+
+    var recommender = scope.ServiceProvider.GetRequiredService<RecommenderService>();
+    recommender.TrainModelAsync().Wait();
 }
 
 // Configure the HTTP request pipeline.

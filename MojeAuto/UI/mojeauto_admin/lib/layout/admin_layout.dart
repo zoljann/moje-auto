@@ -102,6 +102,12 @@ class _AdminLayoutState extends State<AdminLayout> {
                           "Narudžbe",
                           '/admin/orders',
                         ),
+                        _navItem(
+                          context,
+                          Icons.recommend,
+                          "Inicijalne preporuke",
+                          '/admin/recommendations',
+                        ),
                         const Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16),
                           child: Divider(

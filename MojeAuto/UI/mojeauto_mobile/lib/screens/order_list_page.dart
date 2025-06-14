@@ -29,18 +29,28 @@ class _OrderListPageState extends State<OrderListPage> {
     final userId = await TokenManager().userId;
     if (userId == null) return;
 
-    final response = await http.get(
-      Uri.parse('${EnvConfig.baseUrl}/orders?UserId=$userId'),
-      headers: {'accept': 'text/plain'},
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('${EnvConfig.baseUrl}/orders?UserId=$userId'),
+        headers: {'accept': 'text/plain'},
+      );
 
-    if (response.statusCode == 200) {
-      setState(() {
-        _orders = json.decode(response.body);
-        _isLoading = false;
-      });
-    } else {
+      final body = json.decode(response.body);
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _orders = body;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _orders = [];
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
       NotificationHelper.error(context, 'Greška pri dohvaćanju narudžbi');
+      setState(() => _isLoading = false);
     }
   }
 
