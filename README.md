@@ -21,7 +21,7 @@ flutter run -d windows
 
 ```bash
 flutter run \
-  --dart-define=API_HOST=192.168.0.32 \
+  --dart-define=API_HOST=10.0.2.2 \
   --dart-define=API_PORT=5000 \
   --dart-define=STRIPE_PUBLIC_KEY=pk_test_51RZGpFRJxfRxobvVEwDj6Fwzlam11SIR19g3bSR0qVnYWtJCS2cdh18iKjVWuIgPMMWEyzW6BD7eM9SnpmIzEvVH00ceRzIOuT
 ```
