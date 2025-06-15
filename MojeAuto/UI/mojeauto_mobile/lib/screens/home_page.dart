@@ -42,6 +42,8 @@ class _HomePageState extends State<HomePage> {
       Uri.parse("${EnvConfig.baseUrl}/categories"),
       headers: {'accept': 'text/plain'},
     );
+
+    if (!mounted) return;
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
       setState(() {
@@ -57,6 +59,8 @@ class _HomePageState extends State<HomePage> {
     final response = await http.get(
       Uri.parse("${EnvConfig.baseUrl}/users?id=$userId"),
     );
+
+    if (!mounted) return;
     if (response.statusCode == 200) {
       final user = jsonDecode(response.body);
       setState(() {
@@ -74,6 +78,7 @@ class _HomePageState extends State<HomePage> {
       headers: {'accept': 'text/plain'},
     );
 
+    if (!mounted) return;
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
       setState(() {
@@ -156,8 +161,10 @@ class _HomePageState extends State<HomePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) =>
-                                const PartSearchPage(initialQuery: ''),
+                            builder: (_) => const PartSearchPage(
+                              initialQuery: '',
+                              focusSearchField: true,
+                            ),
                           ),
                         );
                       },
@@ -242,10 +249,6 @@ class _HomePageState extends State<HomePage> {
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
-                  ),
-                  Text(
-                    " (Odaberite kategoriju za pretragu)",
-                    style: TextStyle(color: Colors.white70, fontSize: 13),
                   ),
                 ],
               ),

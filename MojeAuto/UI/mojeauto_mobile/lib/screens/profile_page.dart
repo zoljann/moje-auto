@@ -56,6 +56,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final response = await http.get(
       Uri.parse("${EnvConfig.baseUrl}/users?id=$userId"),
     );
+     if (!mounted) return;
     if (response.statusCode == 200) {
       final user = jsonDecode(response.body);
       setState(() {
@@ -160,13 +161,16 @@ class _ProfilePageState extends State<ProfilePage> {
                   controller: _firstNameController,
                   style: const TextStyle(color: Colors.white),
                   validator: (value) {
-                    final trimmed = value?.trim() ?? '';
-                    if (trimmed.isEmpty) return 'Unesite ime';
-                    if (trimmed.length < 3) {
-                      return 'Ime mora imati najmanje 3 slova';
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Unesite ime';
                     }
-                    if (trimmed.length > 50) {
-                      return 'Ime ne smije biti duže od 50 karaktera';
+                    final trimmed = value.trim();
+                    if (trimmed.length < 2 || trimmed.length > 50) {
+                      return 'Ime mora imati između 2 i 50 karaktera';
+                    }
+                    final nameRegex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ]+$');
+                    if (!nameRegex.hasMatch(trimmed)) {
+                      return 'Ime smije sadržavati samo slova bez razmaka';
                     }
                     return null;
                   },
@@ -184,13 +188,16 @@ class _ProfilePageState extends State<ProfilePage> {
                   controller: _lastNameController,
                   style: const TextStyle(color: Colors.white),
                   validator: (value) {
-                    final trimmed = value?.trim() ?? '';
-                    if (trimmed.isEmpty) return 'Unesite prezime';
-                    if (trimmed.length < 3) {
-                      return 'Prezime mora imati najmanje 3 slova';
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Unesite prezime';
                     }
-                    if (trimmed.length > 50) {
-                      return 'Prezime ne smije biti duže od 50 karaktera';
+                    final trimmed = value.trim();
+                    if (trimmed.length < 2 || trimmed.length > 50) {
+                      return 'Prezime mora imati između 2 i 50 karaktera';
+                    }
+                    final nameRegex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ]+$');
+                    if (!nameRegex.hasMatch(trimmed)) {
+                      return 'Prezime smije sadržavati samo slova bez razmaka';
                     }
                     return null;
                   },
@@ -215,7 +222,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       return 'Unesite email';
                     }
                     if (!emailRegex.hasMatch(value)) {
-                      return 'Neispravan email format';
+                      return 'Format emaila je: primjer@gmail.com';
                     }
                     return null;
                   },
@@ -251,8 +258,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     if (value == null || value.isEmpty) {
                       return 'Unesite adresu';
                     }
-                    if (value.length < 3 || value.length > 100) {
-                      return 'Adresa mora imati između 3 i 100 karaktera';
+                    if (value.length < 2 || value.length > 100) {
+                      return 'Adresa mora imati između 2 i 100 karaktera';
                     }
                     return null;
                   },
@@ -271,12 +278,15 @@ class _ProfilePageState extends State<ProfilePage> {
                   style: const TextStyle(color: Colors.white),
                   keyboardType: TextInputType.phone,
                   validator: (value) {
-                    final phoneRegex = RegExp(r'^\d{3,20}$');
                     if (value == null || value.isEmpty) {
-                      return 'Unesite broj telefona';
+                      return 'Unesite broj mobitela';
                     }
-                    if (!phoneRegex.hasMatch(value)) {
-                      return 'Broj mora sadržavati 3-20 cifara';
+                    final numericRegex = RegExp(r'^\d+$');
+                    if (!numericRegex.hasMatch(value)) {
+                      return 'Broj smije sadržavati samo brojeve';
+                    }
+                    if (value.length < 6 || value.length > 15) {
+                      return 'Broj mora imati između 6 i 15 cifara';
                     }
                     return null;
                   },
@@ -327,15 +337,19 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   validator: (value) {
                     if (value != null && value.isNotEmpty) {
-                      if (value.length < 3 || value.length > 50) {
-                        return 'Lozinka mora imati između 3 i 50 karaktera';
+                      if (value.length < 8 || value.length > 50) {
+                        return 'Lozinka mora imati između 8 i 50 znakova';
+                      }
+                      final hasLetter = RegExp(r'[a-zA-Z]').hasMatch(value);
+                      final hasDigit = RegExp(r'\d').hasMatch(value);
+                      if (!hasLetter || !hasDigit) {
+                        return 'Lozinka mora sadržavati slova i brojeve';
                       }
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 24),
-
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(

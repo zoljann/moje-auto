@@ -164,22 +164,25 @@ class _OrderListPageState extends State<OrderListPage> {
                               fontSize: 16,
                             ),
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
+                          Chip(
+                            avatar: Icon(
+                              orderStatusName == 'otkazano'
+                                  ? Icons.cancel
+                                  : orderStatusName == 'dovršeno'
+                                  ? Icons.check_circle
+                                  : Icons.access_time,
+                              color: Colors.white,
+                              size: 16,
                             ),
-                            decoration: BoxDecoration(
-                              color: orderStatusColor,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
+                            label: Text(
                               order['orderStatus']['name'],
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                              ),
+                              style: const TextStyle(color: Colors.white),
                             ),
+                            backgroundColor: orderStatusColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
                           ),
                         ],
                       ),
@@ -188,9 +191,32 @@ class _OrderListPageState extends State<OrderListPage> {
                         "Datum: $orderDate",
                         style: const TextStyle(color: Colors.white70),
                       ),
-                      Text(
-                        "Iznos: ${order['totalAmount']} KM",
-                        style: const TextStyle(color: Colors.white70),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.price_change,
+                            color: Color(0xFF9D8CFF),
+                            size: 18,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            "Iznos: ",
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Text(
+                            "${order['totalAmount']} KM",
+                            style: const TextStyle(
+                              color: Color(
+                                0xFF9D8CFF,
+                              ),
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                       Text(
                         "Način plaćanja: ${order['paymentMethod']['name']}",
@@ -201,13 +227,14 @@ class _OrderListPageState extends State<OrderListPage> {
                         style: const TextStyle(color: Colors.white70),
                       ),
                       Text(
-                        "Status dostave: $deliveryStatus",
+                        "📦 Status dostave: $deliveryStatus",
                         style: TextStyle(
                           color: deliveryStatus == 'U pripremi'
                               ? Colors.orangeAccent
                               : deliveryStatus == 'Poslano'
-                              ? Colors.blueAccent
+                              ? Colors.lightBlueAccent
                               : greenAccent,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       const Divider(color: Colors.white24, height: 20),

@@ -43,10 +43,10 @@ class _MainPageState extends State<MainPage> {
                 leading: const Icon(Icons.home),
                 title: const Text('Početna'),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => HomePage()),
-                  );
+                  Navigator.pop(context);
+                  setState(() {
+                    _selectedIndex = 0;
+                  });
                 },
               ),
               ListTile(

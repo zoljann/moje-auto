@@ -198,7 +198,7 @@ class _AdminProfileEditPageState extends State<AdminProfileEditPage> {
                         return 'Unesite email';
                       }
                       if (!emailRegex.hasMatch(value)) {
-                        return 'Neispravan email format';
+                        return 'Format emaila je: primjer@gmail.com';
                       }
                       return null;
                     },

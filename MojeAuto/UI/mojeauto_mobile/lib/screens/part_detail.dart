@@ -293,7 +293,7 @@ class _PartDetailPageState extends State<PartDetailPage> {
                         ),
                     ],
                   ),
-                const SizedBox(height: 80), // spacing for floating button
+                const SizedBox(height: 80),
               ],
             ),
           ),

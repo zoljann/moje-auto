@@ -247,7 +247,7 @@ class _OrderPageState extends State<OrderPage> {
                       () => _selectedOrderStatusId = value?['orderStatusId'],
                     ),
                     itemLabel: (s) => s['name'],
-                    itemValue: (s) => s, // return full object
+                    itemValue: (s) => s,
                   ),
 
                   const SizedBox(height: 16),

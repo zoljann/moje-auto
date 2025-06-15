@@ -279,11 +279,11 @@ class _OrderPageState extends State<OrderPage> {
                           controller: _addressController,
                           style: const TextStyle(color: Colors.white),
                           validator: (val) {
-                            if (val == null || val.trim().isEmpty) {
+                            if (val == null || val.isEmpty) {
                               return 'Unesite adresu';
                             }
-                            if (val.length < 3 || val.length > 100) {
-                              return 'Adresa mora imati između 3 i 100 karaktera';
+                            if (val.length < 2 || val.length > 100) {
+                              return 'Adresa mora imati između 2 i 100 karaktera';
                             }
                             return null;
                           },
@@ -303,12 +303,15 @@ class _OrderPageState extends State<OrderPage> {
                           style: const TextStyle(color: Colors.white),
                           keyboardType: TextInputType.phone,
                           validator: (val) {
-                            final regex = RegExp(r'^\d{3,20}$');
                             if (val == null || val.isEmpty) {
-                              return 'Unesite broj telefona';
+                              return 'Unesite broj mobitela';
                             }
-                            if (!regex.hasMatch(val)) {
-                              return 'Broj mora sadržavati 3-20 cifara';
+                            final numericRegex = RegExp(r'^\d+$');
+                            if (!numericRegex.hasMatch(val)) {
+                              return 'Broj smije sadržavati samo brojeve';
+                            }
+                            if (val.length < 6 || val.length > 15) {
+                              return 'Broj mora imati između 6 i 15 cifara';
                             }
                             return null;
                           },

@@ -11,12 +11,14 @@ class PartSearchPage extends StatefulWidget {
   final String initialQuery;
   final List<int>? initialCategoryIds;
   final List<int>? initialCarIds;
+  final bool focusSearchField;
 
   const PartSearchPage({
     super.key,
     required this.initialQuery,
     this.initialCategoryIds,
     this.initialCarIds,
+    this.focusSearchField = false,
   });
 
   @override
@@ -40,6 +42,7 @@ class _PartSearchPageState extends State<PartSearchPage> {
 
   List<dynamic> allCategories = [];
   List<dynamic> allManufacturers = [];
+  Key _searchFieldKey = UniqueKey();
 
   @override
   void initState() {
@@ -54,12 +57,11 @@ class _PartSearchPageState extends State<PartSearchPage> {
       selectedCarIds = List<int>.from(widget.initialCarIds!);
     }
 
-    if (widget.initialQuery.isEmpty &&
-        (widget.initialCategoryIds == null ||
-            widget.initialCategoryIds!.isEmpty) &&
-        (widget.initialCarIds == null || widget.initialCarIds!.isEmpty)) {
+    if (widget.focusSearchField) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        FocusScope.of(context).requestFocus(_searchFocusNode);
+        if (mounted) {
+          _searchFocusNode.requestFocus();
+        }
       });
     }
 
@@ -109,6 +111,11 @@ class _PartSearchPageState extends State<PartSearchPage> {
     }
 
     final buffer = StringBuffer(Uri(queryParameters: queryParams).query);
+
+    if (sortByPriceEnabled) {
+      buffer.write('&SortByPriceEnabled=true');
+      buffer.write('&SortByPriceDescending=$sortDescending');
+    }
 
     for (final id in selectedCategoryIds) {
       buffer.write('&CategoryIds=$id');
@@ -291,7 +298,10 @@ class _PartSearchPageState extends State<PartSearchPage> {
                     "Proizvođači",
                     style: TextStyle(color: Colors.white),
                   ),
-                  selectedColor: const Color(0xFF9D8CFF),
+                  selectedItemsTextStyle: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                   itemsTextStyle: const TextStyle(color: Colors.white),
                   checkColor: Colors.white,
                   buttonIcon: const Icon(Icons.factory, color: Colors.white),
@@ -345,7 +355,10 @@ class _PartSearchPageState extends State<PartSearchPage> {
                     "Kategorije",
                     style: TextStyle(color: Colors.white),
                   ),
-                  selectedColor: const Color(0xFF9D8CFF),
+                  selectedItemsTextStyle: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                   itemsTextStyle: const TextStyle(color: Colors.white),
                   checkColor: Colors.white,
                   buttonIcon: const Icon(Icons.category, color: Colors.white),
@@ -418,7 +431,7 @@ class _PartSearchPageState extends State<PartSearchPage> {
                       labelStyle: const TextStyle(
                         color: Color(
                           0xFFDCD5FF,
-                        ), // match category/manufacturer color
+                        ),
                         fontWeight: FontWeight.w500,
                       ),
                       filled: true,
@@ -526,6 +539,7 @@ class _PartSearchPageState extends State<PartSearchPage> {
           ),
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: TextField(
+            key: _searchFieldKey,
             controller: _searchController,
             focusNode: _searchFocusNode,
             onChanged: (val) {
@@ -586,13 +600,19 @@ class _PartSearchPageState extends State<PartSearchPage> {
               final category = part['category']?['name'] ?? 'Nepoznato';
 
               return GestureDetector(
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  FocusScope.of(context).unfocus();
+
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => PartDetailPage(partId: part['partId']),
                     ),
                   );
+
+                  setState(() {
+                    _searchFieldKey = UniqueKey();
+                  });
                 },
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 16),
