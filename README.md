@@ -1,15 +1,15 @@
-# 🚗 MojeAuto – Quick Start
+# MojeAuto – Quick Start
 
-## 🧱 Backend (API + DB)
-
+## Backend (API + DB)
+Inside _MojeAuto_, run:
 ```bash
 docker-compose up --build
 ```
 
 * Runs API and SQL Server & Seeds test data automatically
 
-## 🖥 Admin App (Flutter Desktop)
-
+## Admin App
+Inside _MojeAuto\UI\mojeauto_admin_, run:
 ```bash
 flutter run -d windows
 ```
@@ -17,8 +17,8 @@ flutter run -d windows
 **Login:**
 `desktop@gmail.com` / `test`
 
-## 📱 Mobile App (Flutter)
-
+## Mobile App
+Inside _MojeAuto\UI\mojeauto_mobile_, run:
 ```bash
 flutter run \
   --dart-define=API_HOST=10.0.2.2 \
