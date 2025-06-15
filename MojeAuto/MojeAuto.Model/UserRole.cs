@@ -6,4 +6,6 @@ public class UserRole
 
     [Required, MaxLength(30)]
     public string Name { get; set; } = null!;
+
+    public bool IsDeleted { get; set; } = false;
 }

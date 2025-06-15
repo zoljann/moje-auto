@@ -35,6 +35,7 @@ public class User
 
     public Country Country { get; set; } = null!;
     public byte[]? ImageData { get; set; }
+    public bool IsDeleted { get; set; } = false;
 
     public ICollection<Order>? Orders { get; set; }
     public ICollection<AdminReport>? AdminReports { get; set; }

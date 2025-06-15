@@ -104,7 +104,9 @@ class _DeliveryMethodsPageState extends State<DeliveryMethodsPage> {
       headers: {'Content-Type': 'application/json', 'accept': 'text/plain'},
       body: jsonEncode({
         'name': _nameController.text.trim(),
-        'description': _descriptionController.text.trim(),
+        'description': _descriptionController.text.trim().isEmpty
+            ? '\u200B'
+            : _descriptionController.text.trim(),
       }),
     );
 
@@ -269,11 +271,6 @@ class _DeliveryMethodsPageState extends State<DeliveryMethodsPage> {
                         final trimmed = value.trim();
                         if (trimmed.length > 500) {
                           return 'Opis može imati najviše 500 karaktera';
-                        }
-
-                        final lettersOnly = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$');
-                        if (!lettersOnly.hasMatch(trimmed)) {
-                          return 'Opis smije sadržavati samo slova';
                         }
                       }
 

@@ -107,7 +107,7 @@ class _CategoryPageState extends State<CategoryPage> {
       body: jsonEncode({
         'name': _nameController.text.trim(),
         'description': _descriptionController.text.trim().isEmpty
-            ? null
+            ? '\u200B'
             : _descriptionController.text.trim(),
       }),
     );
@@ -272,13 +272,7 @@ class _CategoryPageState extends State<CategoryPage> {
                         if (trimmed.length > 500) {
                           return 'Opis može imati najviše 500 karaktera';
                         }
-
-                        final lettersOnly = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$');
-                        if (!lettersOnly.hasMatch(trimmed)) {
-                          return 'Opis smije sadržavati samo slova';
-                        }
                       }
-
                       return null;
                     },
                   ),

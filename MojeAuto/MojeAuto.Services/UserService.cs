@@ -23,6 +23,17 @@ public class UserService : BaseCrudService<User, UserSearchRequest, UserInsertRe
 
         var query = _dbSet.AsQueryable();
 
+        var isDeletedProp = typeof(User).GetProperty("IsDeleted");
+        if (isDeletedProp != null && isDeletedProp.PropertyType == typeof(bool))
+        {
+            var param = Expression.Parameter(typeof(User), "u");
+            var propAccess = Expression.Property(param, "IsDeleted");
+            var falseConstant = Expression.Constant(false);
+            var condition = Expression.Equal(propAccess, falseConstant);
+            var lambda = Expression.Lambda<Func<User, bool>>(condition, param);
+            query = query.Where(lambda);
+        }
+
         if (!string.IsNullOrWhiteSpace(search.FirstName))
         {
             var q = search.FirstName.ToLower();

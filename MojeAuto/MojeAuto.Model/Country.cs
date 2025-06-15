@@ -9,4 +9,6 @@ public class Country
 
     [MaxLength(3)]
     public string? ISOCode { get; set; }
+
+    public bool IsDeleted { get; set; } = false;
 }

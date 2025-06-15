@@ -11,6 +11,8 @@ public class Category
     [MaxLength(500)]
     public string? Description { get; set; }
 
+    public bool IsDeleted { get; set; } = false;
+
     [JsonIgnore]
     public ICollection<Part>? Parts { get; set; }
 }

@@ -23,6 +23,17 @@ public class CarService : BaseCrudService<Car, CarSearchRequest, CarInsertReques
 
         var query = _dbSet.AsQueryable();
 
+        var isDeletedProp = typeof(Car).GetProperty("IsDeleted");
+        if (isDeletedProp != null && isDeletedProp.PropertyType == typeof(bool))
+        {
+            var param = Expression.Parameter(typeof(Car), "c");
+            var propAccess = Expression.Property(param, "IsDeleted");
+            var falseConstant = Expression.Constant(false);
+            var condition = Expression.Equal(propAccess, falseConstant);
+            var lambda = Expression.Lambda<Func<Car, bool>>(condition, param);
+            query = query.Where(lambda);
+        }
+
         if (!string.IsNullOrWhiteSpace(search.Brand))
         {
             var q = search.Brand.ToLower();

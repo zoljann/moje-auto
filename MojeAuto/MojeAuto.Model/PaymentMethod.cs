@@ -6,4 +6,6 @@ public class PaymentMethod
 
     [Required, MaxLength(50)]
     public string Name { get; set; } = null!;
+
+    public bool IsDeleted { get; set; } = false;
 }

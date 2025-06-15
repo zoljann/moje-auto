@@ -9,4 +9,6 @@ public class DeliveryMethod
 
     [MaxLength(500)]
     public string? Description { get; set; }
+
+    public bool IsDeleted { get; set; } = false;
 }

@@ -23,6 +23,7 @@ public class Car
     [Required]
     public int Year { get; set; }
 
+    public bool IsDeleted { get; set; } = false;
     public byte[]? ImageData { get; set; }
 
     [JsonIgnore]

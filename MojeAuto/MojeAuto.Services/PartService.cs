@@ -22,6 +22,17 @@ public class PartService : BaseCrudService<Part, PartSearchRequest, PartInsertRe
             .Include(p => p.Category)
             .AsQueryable();
 
+        var isDeletedProp = typeof(Part).GetProperty("IsDeleted");
+        if (isDeletedProp != null && isDeletedProp.PropertyType == typeof(bool))
+        {
+            var param = Expression.Parameter(typeof(Part), "p");
+            var propAccess = Expression.Property(param, "IsDeleted");
+            var falseConstant = Expression.Constant(false);
+            var condition = Expression.Equal(propAccess, falseConstant);
+            var lambda = Expression.Lambda<Func<Part, bool>>(condition, param);
+            query = query.Where(lambda);
+        }
+
         if (search.CarId.HasValue)
         {
             query = query.Where(p =>

@@ -12,6 +12,7 @@ public class Manufacturer
     public int CountryId { get; set; }
 
     public Country Country { get; set; } = null!;
+    public bool IsDeleted { get; set; } = false;
 
     [JsonIgnore]
     public ICollection<Part>? Parts { get; set; }

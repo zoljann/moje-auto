@@ -6,4 +6,6 @@ public class DeliveryStatus
 
     [Required, MaxLength(50)]
     public string Name { get; set; } = null!;
+
+    public bool IsDeleted { get; set; } = false;
 }

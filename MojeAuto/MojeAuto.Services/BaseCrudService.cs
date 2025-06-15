@@ -29,6 +29,17 @@ public class BaseCrudService<TEntity, TSearch, TInsert, TUpdate> : IBaseCrudServ
 
         var query = _dbSet.AsQueryable();
 
+        var isDeletedProp = typeof(TEntity).GetProperty("IsDeleted");
+        if (isDeletedProp != null && isDeletedProp.PropertyType == typeof(bool))
+        {
+            var param = Expression.Parameter(typeof(TEntity), "x");
+            var propAccess = Expression.Property(param, "IsDeleted");
+            var falseConstant = Expression.Constant(false);
+            var condition = Expression.Equal(propAccess, falseConstant);
+            var lambda = Expression.Lambda<Func<TEntity, bool>>(condition, param);
+            query = query.Where(lambda);
+        }
+
         if (search != null)
         {
             foreach (var prop in typeof(TSearch).GetProperties())
@@ -104,41 +115,54 @@ public class BaseCrudService<TEntity, TSearch, TInsert, TUpdate> : IBaseCrudServ
         if (entity == null)
             return ServiceResult<bool>.Fail("Entity not found.");
 
-        var entityType = typeof(TEntity);
+        var isDeletedProp = typeof(TEntity).GetProperty("IsDeleted");
 
-        var referencingFks = _context.Model.GetEntityTypes()
-            .SelectMany(et => et.GetForeignKeys())
-            .Where(fk => fk.PrincipalEntityType.ClrType == entityType)
-            .ToList();
-
-        foreach (var fk in referencingFks)
+        if (isDeletedProp == null || !isDeletedProp.CanWrite)
         {
-            var dependentType = fk.DeclaringEntityType.ClrType;
-            var dependentSet = (IQueryable)_context.GetType()
-                .GetMethod("Set", Type.EmptyTypes)!
-                .MakeGenericMethod(dependentType)
-                .Invoke(_context, null)!;
+            var entityType = typeof(TEntity);
 
-            var fkProp = fk.Properties.FirstOrDefault();
-            if (fkProp == null) continue;
+            var referencingFks = _context.Model.GetEntityTypes()
+                .SelectMany(et => et.GetForeignKeys())
+                .Where(fk => fk.PrincipalEntityType.ClrType == entityType)
+                .ToList();
 
-            var param = Expression.Parameter(dependentType, "x");
-            var left = Expression.Property(param, fkProp.Name);
-            var right = Expression.Constant(id);
-            var body = Expression.Equal(left, right);
-            var lambda = Expression.Lambda(body, param);
+            foreach (var fk in referencingFks)
+            {
+                var dependentType = fk.DeclaringEntityType.ClrType;
+                var dependentSet = (IQueryable)_context.GetType()
+                    .GetMethod("Set", Type.EmptyTypes)!
+                    .MakeGenericMethod(dependentType)
+                    .Invoke(_context, null)!;
 
-            var anyMethod = typeof(Queryable)
-                .GetMethods()
-                .First(m => m.Name == "Any" && m.GetParameters().Length == 2)
-                .MakeGenericMethod(dependentType);
+                var fkProp = fk.Properties.FirstOrDefault();
+                if (fkProp == null) continue;
 
-            var isReferenced = (bool)anyMethod.Invoke(null, new object[] { dependentSet, lambda })!;
-            if (isReferenced)
-                return ServiceResult<bool>.Fail($"Nije moguće obrisati jer se koristi u tabeli: {dependentType.Name}");
+                var param = Expression.Parameter(dependentType, "x");
+                var left = Expression.Property(param, fkProp.Name);
+                var right = Expression.Constant(id);
+                var body = Expression.Equal(left, right);
+                var lambda = Expression.Lambda(body, param);
+
+                var anyMethod = typeof(Queryable)
+                    .GetMethods()
+                    .First(m => m.Name == "Any" && m.GetParameters().Length == 2)
+                    .MakeGenericMethod(dependentType);
+
+                var isReferenced = (bool)anyMethod.Invoke(null, new object[] { dependentSet, lambda })!;
+                if (isReferenced)
+                    return ServiceResult<bool>.Fail($"Nije moguće obrisati jer se koristi u tabeli: {dependentType.Name}");
+            }
         }
 
-        _dbSet.Remove(entity);
+        if (isDeletedProp != null && isDeletedProp.CanWrite)
+        {
+            isDeletedProp.SetValue(entity, true);
+        }
+        else
+        {
+            _dbSet.Remove(entity);
+        }
+
         await _context.SaveChangesAsync();
         return ServiceResult<bool>.Ok(true);
     }

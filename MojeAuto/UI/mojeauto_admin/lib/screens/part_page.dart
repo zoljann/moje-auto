@@ -158,7 +158,7 @@ class _PartPageState extends State<PartPage> {
     request.fields['Name'] = _nameController.text.trim();
     request.fields['CatalogNumber'] = _catalogController.text.trim();
     request.fields['Description'] = _descriptionController.text.trim().isEmpty
-        ? ''
+        ? '\u200B'
         : _descriptionController.text.trim();
     request.fields['Weight'] = _weightController.text.trim();
     request.fields['Price'] = _priceController.text.trim().replaceAll(',', '.');
@@ -369,11 +369,6 @@ class _PartPageState extends State<PartPage> {
                         if (trimmed.length > 500) {
                           return 'Opis može imati najviše 500 karaktera';
                         }
-
-                        final lettersOnly = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$');
-                        if (!lettersOnly.hasMatch(trimmed)) {
-                          return 'Opis smije sadržavati samo slova';
-                        }
                       }
 
                       return null;
@@ -478,8 +473,8 @@ class _PartPageState extends State<PartPage> {
                         return 'Unesite validan broj';
                       }
 
-                      if (parsed < 1 || parsed > 10000) {
-                        return 'Količina mora biti između 1 i 10.000';
+                      if (parsed < 0 || parsed > 10000) {
+                        return 'Količina mora biti između 0 i 10.000';
                       }
 
                       return null;

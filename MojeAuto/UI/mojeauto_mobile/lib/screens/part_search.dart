@@ -319,12 +319,6 @@ class _PartSearchPageState extends State<PartSearchPage> {
                       borderRadius: BorderRadius.circular(8),
                       side: const BorderSide(color: Colors.white70),
                     ),
-                    onTap: (val) {
-                      setState(() {
-                        selectedManufacturerIds.remove(val);
-                        _fetchParts(reset: true);
-                      });
-                    },
                   ),
                   confirmText: const Text(
                     "OK",
@@ -376,12 +370,6 @@ class _PartSearchPageState extends State<PartSearchPage> {
                       borderRadius: BorderRadius.circular(8),
                       side: const BorderSide(color: Colors.white70),
                     ),
-                    onTap: (val) {
-                      setState(() {
-                        selectedCategoryIds.remove(val);
-                        _fetchParts(reset: true);
-                      });
-                    },
                   ),
                   confirmText: const Text(
                     "OK",
@@ -429,9 +417,7 @@ class _PartSearchPageState extends State<PartSearchPage> {
                   dropdownDecoratorProps: DropDownDecoratorProps(
                     dropdownSearchDecoration: InputDecoration(
                       labelStyle: const TextStyle(
-                        color: Color(
-                          0xFFDCD5FF,
-                        ),
+                        color: Color(0xFFDCD5FF),
                         fontWeight: FontWeight.w500,
                       ),
                       filled: true,

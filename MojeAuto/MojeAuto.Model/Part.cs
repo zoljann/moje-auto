@@ -36,6 +36,7 @@ public class Part
     public byte[]? ImageData { get; set; }
 
     public int EstimatedArrivalDays { get; set; }
+    public bool IsDeleted { get; set; } = false;
 
     public Manufacturer Manufacturer { get; set; } = null!;
     public Category Category { get; set; } = null!;
