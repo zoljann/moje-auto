@@ -1,7 +1,7 @@
-﻿using MimeKit;
-using MimeKit.Text;
-using MailKit.Net.Smtp;
+﻿using MailKit.Net.Smtp;
 using MailKit.Security;
+using MimeKit;
+using MimeKit.Text;
 
 namespace MojeAuto.Consumer
 {
@@ -27,8 +27,6 @@ namespace MojeAuto.Consumer
             smtp.Authenticate(smtpUser, smtpPass);
             smtp.Send(email);
             smtp.Disconnect(true);
-
-            Console.WriteLine($"Email sent to: {toEmail}");
         }
     }
 }

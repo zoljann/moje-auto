@@ -22,7 +22,7 @@ namespace MojeAuto.Consumer
             _context = context;
         }
 
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var factory = new ConnectionFactory
             {
@@ -32,7 +32,25 @@ namespace MojeAuto.Consumer
                 Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "guest"
             };
 
-            _connection = factory.CreateConnection();
+            int retries = 10;
+            while (retries-- > 0)
+            {
+                try
+                {
+                    _connection = factory.CreateConnection();
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    await Task.Delay(5000, stoppingToken);
+                }
+            }
+
+            if (_connection == null)
+            {
+                return;
+            }
+
             _channel = _connection.CreateModel();
             _channel.QueueDeclare(queue: "part-available", durable: false, exclusive: false, autoDelete: false);
 
@@ -43,8 +61,6 @@ namespace MojeAuto.Consumer
                 {
                     var json = Encoding.UTF8.GetString(ea.Body.ToArray());
                     var message = JsonSerializer.Deserialize<NotifyAvailabilityMessage>(json);
-
-                    Console.WriteLine($"Received notification for PartId: {message?.PartId}, UserId: {message?.UserId}");
 
                     if (message != null && message.UserId > 0)
                     {
@@ -82,7 +98,7 @@ MojeAuto tim
 
             _channel.BasicConsume(queue: "part-available", autoAck: true, consumer: consumer);
 
-            return Task.CompletedTask;
+            await Task.Delay(Timeout.Infinite, stoppingToken);
         }
 
         public override void Dispose()

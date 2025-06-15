@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using MojeAuto.Model.Common;
 using MojeAuto.Model.Requests;
 using MojeAuto.Services.Database;

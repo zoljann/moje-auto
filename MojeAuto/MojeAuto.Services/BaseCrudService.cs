@@ -65,7 +65,6 @@ public class BaseCrudService<TEntity, TSearch, TInsert, TUpdate> : IBaseCrudServ
             query = query.Skip(skip).Take(pagination.PageSize + 1);
         }
 
-
         var list = await query.ToListAsync();
 
         if (!list.Any())
@@ -139,12 +138,10 @@ public class BaseCrudService<TEntity, TSearch, TInsert, TUpdate> : IBaseCrudServ
                 return ServiceResult<bool>.Fail($"Nije moguće obrisati jer se koristi u tabeli: {dependentType.Name}");
         }
 
-
         _dbSet.Remove(entity);
         await _context.SaveChangesAsync();
         return ServiceResult<bool>.Ok(true);
     }
-
 
     protected virtual void MapInsertRequestToEntity(TInsert insertRequest, TEntity entity)
     {
@@ -156,7 +153,7 @@ public class BaseCrudService<TEntity, TSearch, TInsert, TUpdate> : IBaseCrudServ
 
         foreach (var insertProp in insertProps)
         {
-            var entityProp = entityProps.FirstOrDefault(p =>p.Name == insertProp.Name && p.CanWrite);
+            var entityProp = entityProps.FirstOrDefault(p => p.Name == insertProp.Name && p.CanWrite);
 
             if (entityProp == null)
                 continue;

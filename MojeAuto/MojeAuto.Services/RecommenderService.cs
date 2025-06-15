@@ -1,7 +1,7 @@
-﻿using MojeAuto.Model.Common;
+﻿using Microsoft.EntityFrameworkCore;
 using MojeAuto.Model;
+using MojeAuto.Model.Common;
 using MojeAuto.Services.Database;
-using Microsoft.EntityFrameworkCore;
 
 namespace MojeAuto.Services
 {
@@ -81,9 +81,11 @@ namespace MojeAuto.Services
 
             var recommended = await _context.PartRecommendations
                 .Where(r => recentOrderedPartIds.Contains(r.PartId))
-                .OrderByDescending(r => r.Score)
                 .Select(r => r.RecommendedPart)
                 .Distinct()
+                .Include(p => p.Manufacturer)
+                .Include(p => p.Category)
+                .OrderByDescending(p => p.PartId)
                 .Take(9)
                 .ToListAsync();
 

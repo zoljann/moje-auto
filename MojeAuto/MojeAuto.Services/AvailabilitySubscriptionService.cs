@@ -1,8 +1,8 @@
-﻿using MojeAuto.Model.Common;
-using MojeAuto.Model.Requests;
+﻿using Microsoft.EntityFrameworkCore;
 using MojeAuto.Model;
+using MojeAuto.Model.Common;
+using MojeAuto.Model.Requests;
 using MojeAuto.Services.Database;
-using Microsoft.EntityFrameworkCore;
 
 namespace MojeAuto.Services
 {
