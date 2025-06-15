@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 public class Manufacturer
 {
@@ -12,5 +13,6 @@ public class Manufacturer
 
     public Country Country { get; set; } = null!;
 
+    [JsonIgnore]
     public ICollection<Part>? Parts { get; set; }
 }

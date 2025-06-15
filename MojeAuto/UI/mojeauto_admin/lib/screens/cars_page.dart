@@ -259,12 +259,20 @@ class _CarsPageState extends State<CarsPage> {
                 controller: _vinController,
                 label: "VIN",
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return 'Unesite VIN';
                   }
-                  if (value.length < 5 || value.length > 50) {
-                    return 'VIN mora imati između 5 i 50 znakova';
+
+                  final trimmed = value.trim();
+                  if (trimmed.length < 5 || trimmed.length > 50) {
+                    return 'VIN mora imati između 5 i 50 karaktera';
                   }
+
+                  final vinRegex = RegExp(r'^[A-HJ-NPR-Za-hj-npr-z0-9]+$');
+                  if (!vinRegex.hasMatch(trimmed)) {
+                    return 'VIN smije sadržavati samo slova (bez ŠĐĆŽČ) i brojeve';
+                  }
+
                   return null;
                 },
               ),
@@ -272,12 +280,20 @@ class _CarsPageState extends State<CarsPage> {
                 controller: _brandController,
                 label: "Brend",
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return 'Unesite brend, npr. BMW';
                   }
-                  if (value.length < 2 || value.length > 50) {
-                    return 'Brend mora imati između 2 i 50 znakova';
+
+                  final trimmed = value.trim();
+                  if (trimmed.length < 2 || trimmed.length > 50) {
+                    return 'Brend mora imati između 2 i 50 karaktera';
                   }
+
+                  final brandRegex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$');
+                  if (!brandRegex.hasMatch(trimmed)) {
+                    return 'Brend smije sadržavati samo slova';
+                  }
+
                   return null;
                 },
               ),
@@ -285,9 +301,15 @@ class _CarsPageState extends State<CarsPage> {
                 controller: _modelController,
                 label: "Model",
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return 'Unesite model, npr. E90';
                   }
+
+                  final trimmed = value.trim();
+                  if (trimmed.length < 2 || trimmed.length > 50) {
+                    return 'Model mora imati između 2 i 50 karaktera';
+                  }
+
                   return null;
                 },
               ),

@@ -168,7 +168,6 @@ class _PartPageState extends State<PartPage> {
     request.fields['ManufacturerId'] = _selectedManufacturerId.toString();
     request.fields['CategoryId'] = _selectedCategoryId.toString();
     request.fields['EstimatedArrivalDays'] = _arrivalDaysController.text.trim();
-    print("Sending price: ${request.fields['Price']}");
 
     if (_selectedImage != null) {
       request.files.add(
@@ -327,11 +326,21 @@ class _PartPageState extends State<PartPage> {
                     label: "Naziv dijela",
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Obavezno polje';
+                        return 'Unesi naziv dijela';
                       }
-                      if (value.length < 2 || value.length > 100) {
+
+                      final trimmed = value.trim();
+                      if (trimmed.length < 2 || trimmed.length > 100) {
                         return 'Mora imati između 2 i 100 karaktera';
                       }
+
+                      final letterOnlyRegex = RegExp(
+                        r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$',
+                      );
+                      if (!letterOnlyRegex.hasMatch(trimmed)) {
+                        return 'Naziv smije sadržavati samo slova';
+                      }
+
                       return null;
                     },
                   ),
@@ -340,11 +349,14 @@ class _PartPageState extends State<PartPage> {
                     label: "Kataloški broj",
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Obavezno polje';
+                        return 'Unesite kataloški broj';
                       }
-                      if (value.length < 2 || value.length > 100) {
+
+                      final trimmed = value.trim();
+                      if (trimmed.length < 2 || trimmed.length > 100) {
                         return 'Mora imati između 2 i 100 karaktera';
                       }
+
                       return null;
                     },
                   ),
@@ -352,9 +364,18 @@ class _PartPageState extends State<PartPage> {
                     controller: _descriptionController,
                     label: "Opis",
                     validator: (value) {
-                      if (value != null && value.length > 500) {
-                        return 'Opis može imati najviše 500 karaktera';
+                      if (value != null && value.trim().isNotEmpty) {
+                        final trimmed = value.trim();
+                        if (trimmed.length > 500) {
+                          return 'Opis može imati najviše 500 karaktera';
+                        }
+
+                        final lettersOnly = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$');
+                        if (!lettersOnly.hasMatch(trimmed)) {
+                          return 'Opis smije sadržavati samo slova';
+                        }
                       }
+
                       return null;
                     },
                   ),
@@ -363,7 +384,7 @@ class _PartPageState extends State<PartPage> {
                     label: "Težina (kg)",
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Obavezno polje';
+                        return 'Unesite težinu dijela';
                       }
 
                       final trimmed = value.trim();
@@ -378,14 +399,14 @@ class _PartPageState extends State<PartPage> {
 
                       final regex = RegExp(r'^\d+(,\d{1,2})?$');
                       if (!regex.hasMatch(trimmed)) {
-                        return 'Unesite broj između 0,1 i 100 (npr. 0,3)';
+                        return 'Unesite broj između 0,1 i 2000 (npr. 0,3)';
                       }
 
                       final parsed = double.tryParse(
                         trimmed.replaceAll(',', '.'),
                       );
-                      if (parsed == null || parsed < 0.1 || parsed > 100) {
-                        return 'Vrijednost mora biti između 0,1 i 100';
+                      if (parsed == null || parsed < 0.1 || parsed > 2000) {
+                        return 'Vrijednost mora biti između 0,1 i 2000';
                       }
 
                       return null;
@@ -396,7 +417,7 @@ class _PartPageState extends State<PartPage> {
                     label: "Cijena",
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Obavezno polje';
+                        return 'Unesite cijenu';
                       }
 
                       final trimmed = value.trim();
@@ -420,17 +441,25 @@ class _PartPageState extends State<PartPage> {
                       return null;
                     },
                   ),
-
                   buildInputField(
                     controller: _warrantyController,
                     label: "Garancija (mj)",
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Obavezno polje';
+                        return 'Unesite garanciju';
                       }
-                      if (int.tryParse(value.trim()) == null) {
+
+                      final trimmed = value.trim();
+                      final parsed = int.tryParse(trimmed);
+
+                      if (parsed == null) {
                         return 'Unesite validan broj';
                       }
+
+                      if (parsed < 1 || parsed > 120) {
+                        return 'Garancija mora biti između 1 i 120 mjeseci';
+                      }
+
                       return null;
                     },
                   ),
@@ -439,11 +468,20 @@ class _PartPageState extends State<PartPage> {
                     label: "Količina",
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Obavezno polje';
+                        return 'Unesite količinu';
                       }
-                      if (int.tryParse(value.trim()) == null) {
+
+                      final trimmed = value.trim();
+                      final parsed = int.tryParse(trimmed);
+
+                      if (parsed == null) {
                         return 'Unesite validan broj';
                       }
+
+                      if (parsed < 1 || parsed > 10000) {
+                        return 'Količina mora biti između 1 i 10.000';
+                      }
+
                       return null;
                     },
                   ),
@@ -485,8 +523,20 @@ class _PartPageState extends State<PartPage> {
                     label: "Procijenjeni dani dolaska",
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Obavezno polje';
+                        return 'Unesite vrijednost';
                       }
+
+                      final trimmed = value.trim();
+                      final parsed = int.tryParse(trimmed);
+
+                      if (parsed == null) {
+                        return 'Unesite cijeli broj';
+                      }
+
+                      if (parsed < 1 || parsed > 100) {
+                        return 'Vrijednost mora biti između 1 i 100';
+                      }
+
                       return null;
                     },
                   ),

@@ -8,6 +8,8 @@ Widget buildInputField({
   required TextEditingController controller,
   required String label,
   required String? Function(String?) validator,
+  bool obscureText = false,
+  Widget? suffixIcon,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -16,6 +18,7 @@ Widget buildInputField({
         controller: controller,
         style: const TextStyle(color: Colors.white),
         validator: validator,
+        obscureText: obscureText,
         decoration: InputDecoration(
           labelText: label,
           labelStyle: const TextStyle(color: Colors.white70),
@@ -26,6 +29,7 @@ Widget buildInputField({
             borderSide: BorderSide.none,
           ),
           errorStyle: const TextStyle(color: Colors.redAccent),
+          suffixIcon: suffixIcon,
         ),
       ),
       const SizedBox(height: 12),

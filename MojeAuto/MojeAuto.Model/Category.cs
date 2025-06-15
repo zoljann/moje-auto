@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 public class Category
 {
@@ -10,5 +11,6 @@ public class Category
     [MaxLength(500)]
     public string? Description { get; set; }
 
+    [JsonIgnore]
     public ICollection<Part>? Parts { get; set; }
 }

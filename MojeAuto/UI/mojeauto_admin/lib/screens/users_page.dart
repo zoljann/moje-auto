@@ -36,6 +36,7 @@ class _UsersPageState extends State<UsersPage> {
   List<dynamic> _userRoles = [];
   int? _selectedRoleId;
   int? _currentUserId;
+  bool _obscurePassword = true;
 
   final TextEditingController _searchController = TextEditingController();
   final _firstNameController = TextEditingController();
@@ -329,11 +330,16 @@ class _UsersPageState extends State<UsersPage> {
                       controller: _firstNameController,
                       label: "Ime",
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
+                        if (value == null || value.trim().isEmpty) {
                           return 'Unesite ime';
                         }
-                        if (value.length < 2 || value.length > 50) {
-                          return 'Ime mora imati između 2 i 50 znakova';
+                        final trimmed = value.trim();
+                        if (trimmed.length < 2 || trimmed.length > 50) {
+                          return 'Ime mora imati između 2 i 50 karaktera';
+                        }
+                        final nameRegex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ]+$');
+                        if (!nameRegex.hasMatch(trimmed)) {
+                          return 'Ime smije sadržavati samo slova bez razmaka';
                         }
                         return null;
                       },
@@ -342,11 +348,16 @@ class _UsersPageState extends State<UsersPage> {
                       controller: _lastNameController,
                       label: "Prezime",
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
+                        if (value == null || value.trim().isEmpty) {
                           return 'Unesite prezime';
                         }
-                        if (value.length < 2 || value.length > 50) {
-                          return 'Prezime mora imati između 2 i 50 znakova';
+                        final trimmed = value.trim();
+                        if (trimmed.length < 2 || trimmed.length > 50) {
+                          return 'Prezime mora imati između 2 i 50 karaktera';
+                        }
+                        final nameRegex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ]+$');
+                        if (!nameRegex.hasMatch(trimmed)) {
+                          return 'Prezime smije sadržavati samo slova bez razmaka';
                         }
                         return null;
                       },
@@ -363,7 +374,7 @@ class _UsersPageState extends State<UsersPage> {
                           r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                         );
                         if (!emailRegex.hasMatch(value)) {
-                          return 'Unesite ispravan e-mail, npr. nedim@gmail.com';
+                          return 'Unesite ispravan e-mail, npr. primjer@gmail.com';
                         }
 
                         return null;
@@ -391,10 +402,10 @@ class _UsersPageState extends State<UsersPage> {
                       label: "Unesite adresu",
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Unesite prezime';
+                          return 'Unesite adresu';
                         }
-                        if (value.length < 2 || value.length > 50) {
-                          return 'Prezime mora imati između 2 i 100 znakova';
+                        if (value.length < 2 || value.length > 100) {
+                          return 'Adresa mora imati između 2 i 100 karaktera';
                         }
                         return null;
                       },
@@ -440,13 +451,37 @@ class _UsersPageState extends State<UsersPage> {
                       buildInputField(
                         controller: _passwordController,
                         label: "Lozinka",
+                        obscureText: _obscurePassword,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () => setState(
+                            () => _obscurePassword = !_obscurePassword,
+                          ),
+                        ),
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
+                          if (value == null || value.trim().isEmpty) {
                             return 'Unesite lozinku';
                           }
-                          if (value.length < 3 || value.length > 100) {
-                            return 'Lozinka mora imati između 3 i 50 znakova';
+
+                          final trimmed = value.trim();
+                          if (trimmed.length < 8 || trimmed.length > 50) {
+                            return 'Lozinka mora imati između 8 i 50 karaktera';
                           }
+
+                          final hasLetter = RegExp(
+                            r'[a-zA-Z]',
+                          ).hasMatch(trimmed);
+                          final hasDigit = RegExp(r'\d').hasMatch(trimmed);
+
+                          if (!hasLetter || !hasDigit) {
+                            return 'Lozinka mora sadržavati slova i brojeve';
+                          }
+
                           return null;
                         },
                       ),

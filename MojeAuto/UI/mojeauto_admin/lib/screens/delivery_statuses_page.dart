@@ -238,12 +238,20 @@ class _DeliveryStatusesPageState extends State<DeliveryStatusesPage> {
                     controller: _nameController,
                     label: "Naziv statusa",
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Unesite naziv statusa';
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Unesite naziv dostavnog statusa';
                       }
-                      if (value.length < 2 || value.length > 50) {
+
+                      final trimmed = value.trim();
+                      if (trimmed.length < 2 || trimmed.length > 50) {
                         return 'Naziv mora imati između 2 i 50 karaktera';
                       }
+
+                      final lettersOnly = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$');
+                      if (!lettersOnly.hasMatch(trimmed)) {
+                        return 'Naziv smije sadržavati samo slova';
+                      }
+
                       return null;
                     },
                   ),
@@ -363,7 +371,10 @@ class _DeliveryStatusesPageState extends State<DeliveryStatusesPage> {
                               children: [
                                 Text(
                                   status['name'],
-                                  style: const TextStyle(color: Colors.white),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 PopupMenuButton<String>(
                                   color: const Color(0xFF0F131A),

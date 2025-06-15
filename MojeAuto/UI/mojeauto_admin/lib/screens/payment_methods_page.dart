@@ -238,12 +238,20 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                     controller: _nameController,
                     label: "Naziv metode",
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Unesite naziv metode';
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Unesite naziv naplatne metode';
                       }
-                      if (value.length < 2 || value.length > 50) {
+
+                      final trimmed = value.trim();
+                      if (trimmed.length < 2 || trimmed.length > 50) {
                         return 'Naziv mora imati između 2 i 50 karaktera';
                       }
+
+                      final lettersOnly = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$');
+                      if (!lettersOnly.hasMatch(trimmed)) {
+                        return 'Naziv smije sadržavati samo slova';
+                      }
+
                       return null;
                     },
                   ),
@@ -363,7 +371,10 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                               children: [
                                 Text(
                                   method['name'],
-                                  style: const TextStyle(color: Colors.white),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 PopupMenuButton<String>(
                                   color: const Color(0xFF0F131A),

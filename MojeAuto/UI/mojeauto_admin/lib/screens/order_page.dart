@@ -224,7 +224,9 @@ class _OrderPageState extends State<OrderPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Uredi narudžbu",
+                    editingId != null
+                        ? "Uredi narudžbu #$editingId - ${orders.firstWhere((o) => o['orderId'] == editingId)['user']['firstName']} ${orders.firstWhere((o) => o['orderId'] == editingId)['user']['lastName']}"
+                        : "Uredi narudžbu",
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

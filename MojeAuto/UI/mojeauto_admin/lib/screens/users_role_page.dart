@@ -236,12 +236,20 @@ class _UsersRolePageState extends State<UsersRolePage> {
                     controller: _nameController,
                     label: "Naziv uloge",
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
+                      if (value == null || value.trim().isEmpty) {
                         return 'Unesite naziv uloge';
                       }
-                      if (value.length < 2 || value.length > 30) {
+
+                      final trimmed = value.trim();
+                      if (trimmed.length < 2 || trimmed.length > 30) {
                         return 'Naziv mora imati između 2 i 30 karaktera';
                       }
+
+                      final lettersOnly = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$');
+                      if (!lettersOnly.hasMatch(trimmed)) {
+                        return 'Naziv smije sadržavati samo slova';
+                      }
+
                       return null;
                     },
                   ),
@@ -361,7 +369,10 @@ class _UsersRolePageState extends State<UsersRolePage> {
                               children: [
                                 Text(
                                   role['name'],
-                                  style: const TextStyle(color: Colors.white),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 PopupMenuButton<String>(
                                   color: const Color(0xFF0F131A),

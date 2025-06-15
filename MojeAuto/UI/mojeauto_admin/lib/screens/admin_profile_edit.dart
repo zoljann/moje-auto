@@ -9,6 +9,7 @@ import 'package:mojeauto_admin/common/form_fields.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mojeauto_admin/env_config.dart';
+
 class AdminProfileEditPage extends StatefulWidget {
   const AdminProfileEditPage({super.key});
 
@@ -29,6 +30,8 @@ class _AdminProfileEditPageState extends State<AdminProfileEditPage> {
   String? _existingImageBase64;
   String? _birthDateIso;
   List<dynamic> _countries = [];
+  final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
 
   @override
   void initState() {
@@ -84,6 +87,9 @@ class _AdminProfileEditPageState extends State<AdminProfileEditPage> {
     request.fields['address'] = _addressController.text.trim();
     request.fields['birthDate'] = _birthDateIso!;
     request.fields['countryId'] = _selectedCountryId.toString();
+    if (_passwordController.text.trim().isNotEmpty) {
+      request.fields['password'] = _passwordController.text.trim();
+    }
 
     if (_selectedImage != null) {
       request.files.add(
@@ -148,20 +154,38 @@ class _AdminProfileEditPageState extends State<AdminProfileEditPage> {
                   buildInputField(
                     controller: _firstNameController,
                     label: "Ime",
-                    validator: (v) => v == null || v.isEmpty
-                        ? "Unesite ime"
-                        : v.length < 2
-                        ? "Ime je prekratko"
-                        : null,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Unesite ime';
+                      }
+                      final trimmed = value.trim();
+                      if (trimmed.length < 2 || trimmed.length > 50) {
+                        return 'Ime mora imati između 2 i 50 karaktera';
+                      }
+                      final nameRegex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ]+$');
+                      if (!nameRegex.hasMatch(trimmed)) {
+                        return 'Ime smije sadržavati samo slova bez razmaka';
+                      }
+                      return null;
+                    },
                   ),
                   buildInputField(
                     controller: _lastNameController,
                     label: "Prezime",
-                    validator: (v) => v == null || v.isEmpty
-                        ? "Unesite prezime"
-                        : v.length < 2
-                        ? "Prezime je prekratko"
-                        : null,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Unesite prezime';
+                      }
+                      final trimmed = value.trim();
+                      if (trimmed.length < 2 || trimmed.length > 50) {
+                        return 'Prezime mora imati između 2 i 50 karaktera';
+                      }
+                      final nameRegex = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ]+$');
+                      if (!nameRegex.hasMatch(trimmed)) {
+                        return 'Prezime smije sadržavati samo slova bez razmaka';
+                      }
+                      return null;
+                    },
                   ),
                   buildInputField(
                     controller: _emailController,
@@ -197,16 +221,29 @@ class _AdminProfileEditPageState extends State<AdminProfileEditPage> {
                   buildInputField(
                     controller: _addressController,
                     label: "Adresa",
-                    validator: (v) =>
-                        v == null || v.isEmpty ? "Unesite adresu" : null,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Unesite adresu';
+                      }
+                      if (value.length < 2 || value.length > 100) {
+                        return 'Adresa mora imati između 2 i 100 karaktera';
+                      }
+                      return null;
+                    },
                   ),
                   buildInputField(
                     controller: _phoneController,
                     label: "Broj mobitela",
-                    validator: (v) {
-                      if (v == null || v.isEmpty) return 'Unesite broj';
-                      if (!RegExp(r'^\d+$').hasMatch(v)) {
-                        return 'Samo brojevi su dozvoljeni';
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Unesite broj mobitela';
+                      }
+                      final numericRegex = RegExp(r'^\d+$');
+                      if (!numericRegex.hasMatch(value)) {
+                        return 'Broj smije sadržavati samo brojeve';
+                      }
+                      if (value.length < 6 || value.length > 15) {
+                        return 'Broj mora imati između 6 i 15 cifara';
                       }
                       return null;
                     },
@@ -215,12 +252,47 @@ class _AdminProfileEditPageState extends State<AdminProfileEditPage> {
                     context: context,
                     controller: _birthDateController,
                     label: "Datum rođenja",
-                    validator: (value) => null,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Unesite datum rođenja';
+                      }
+                      return null;
+                    },
+
                     onPicked: (iso) => _birthDateIso = iso,
                     firstDate: DateTime(1900),
                     lastDate: DateTime.now(),
                   ),
                   const SizedBox(height: 20),
+                  buildInputField(
+                    controller: _passwordController,
+                    label: "Nova lozinka (opcionalno)",
+                    obscureText: _obscurePassword,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
+                    ),
+                    validator: (value) {
+                      if (value != null && value.trim().isNotEmpty) {
+                        if (value.length < 8 || value.length > 50) {
+                          return 'Lozinka mora imati između 8 i 50 znakova';
+                        }
+                        final hasLetter = RegExp(r'[a-zA-Z]').hasMatch(value);
+                        final hasDigit = RegExp(r'\d').hasMatch(value);
+                        if (!hasLetter || !hasDigit) {
+                          return 'Lozinka mora sadržavati slova i brojeve';
+                        }
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState?.validate() ?? false) {

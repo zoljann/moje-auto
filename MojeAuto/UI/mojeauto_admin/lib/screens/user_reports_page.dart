@@ -105,6 +105,30 @@ class _ReportsPageState extends State<UserReportsPage> {
 
       final topProducts = top5Products.take(5).toList();
 
+      final totalQuantity = filteredOrders.fold<int>(
+        0,
+        (sum, order) =>
+            sum +
+            (order['orderItems'] as List<dynamic>).fold<int>(
+              0,
+              (iSum, item) => iSum + (item['quantity'] as num).toInt(),
+            ),
+      );
+
+      final orderDates = filteredOrders
+          .map((e) => DateTime.parse(e['orderDate']))
+          .toList();
+      final firstOrder = orderDates.isNotEmpty
+          ? orderDates.reduce((a, b) => a.isBefore(b) ? a : b)
+          : null;
+      final lastOrder = orderDates.isNotEmpty
+          ? orderDates.reduce((a, b) => a.isAfter(b) ? a : b)
+          : null;
+
+      final avgItemsPerOrder = totalOrders > 0
+          ? totalQuantity / totalOrders
+          : 0;
+
       setState(() {
         _reportData = {
           'totalOrders': totalOrders,
@@ -114,6 +138,10 @@ class _ReportsPageState extends State<UserReportsPage> {
           'mostBoughtProduct': mostBoughtProduct,
           'monthlyRevenue': monthlyRevenue,
           'topProducts': topProducts,
+          'totalQuantity': totalQuantity,
+          'firstOrder': firstOrder?.toIso8601String(),
+          'lastOrder': lastOrder?.toIso8601String(),
+          'avgItemsPerOrder': avgItemsPerOrder,
         };
         _isLoading = false;
       });
@@ -188,6 +216,20 @@ class _ReportsPageState extends State<UserReportsPage> {
           ...(_reportData!['topProducts'] as List).map(
             (e) => pw.Bullet(text: "${e.key} (${e.value} puta)"),
           ),
+          pw.Text(
+            "Prosječan broj proizvoda po narudžbi: ${_reportData!['avgItemsPerOrder'].toStringAsFixed(2)}",
+          ),
+          pw.Text(
+            "Ukupno kupljeno proizvoda: ${_reportData!['totalQuantity']}",
+          ),
+          if (_reportData!['firstOrder'] != null)
+            pw.Text(
+              "Prva narudžba: ${formatter.format(DateTime.parse(_reportData!['firstOrder']))}",
+            ),
+          if (_reportData!['lastOrder'] != null)
+            pw.Text(
+              "Zadnja narudžba: ${formatter.format(DateTime.parse(_reportData!['lastOrder']))}",
+            ),
         ],
       ),
     );
@@ -222,6 +264,29 @@ class _ReportsPageState extends State<UserReportsPage> {
     } catch (e) {
       return null;
     }
+  }
+
+  Widget _buildStatCard(String title, String value) {
+    return Card(
+      color: Colors.grey[850],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            Text(title, style: const TextStyle(color: Colors.white70)),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -320,6 +385,24 @@ class _ReportsPageState extends State<UserReportsPage> {
                       style: const TextStyle(color: Colors.white),
                     ),
                     const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildStatCard(
+                          "Narudžbe",
+                          _reportData!['totalOrders'].toString(),
+                        ),
+                        _buildStatCard(
+                          "Potrošeno",
+                          "${_reportData!['totalSpent'].toStringAsFixed(0)} KM",
+                        ),
+                        _buildStatCard(
+                          "Proizvoda",
+                          _reportData!['uniqueProducts'].toString(),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
                     Text(
                       "Ukupna potrošnja: ${_reportData!['totalSpent'].toStringAsFixed(2)} KM",
                       style: const TextStyle(color: Colors.white),
@@ -329,6 +412,26 @@ class _ReportsPageState extends State<UserReportsPage> {
                       "Najčešće kupljen proizvod: ${_reportData!['mostBoughtProduct']}",
                       style: const TextStyle(color: Colors.white),
                     ),
+                    Text(
+                      "Prosječno proizvoda po narudžbi: ${_reportData!['avgItemsPerOrder'].toStringAsFixed(2)}",
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Ukupno kupljeno proizvoda: ${_reportData!['totalQuantity']}",
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    const SizedBox(height: 8),
+                    if (_reportData!['firstOrder'] != null)
+                      Text(
+                        "Prva narudžba: ${DateFormat('dd.MM.yyyy').format(DateTime.parse(_reportData!['firstOrder']))}",
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    if (_reportData!['lastOrder'] != null)
+                      Text(
+                        "Zadnja narudžba: ${DateFormat('dd.MM.yyyy').format(DateTime.parse(_reportData!['lastOrder']))}",
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     const SizedBox(height: 16),
                     Text(
                       "Mjesečna potrošnja korisnika",

@@ -246,19 +246,41 @@ class _CategoryPageState extends State<CategoryPage> {
                     controller: _nameController,
                     label: "Naziv kategorije",
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
+                      if (value == null || value.trim().isEmpty) {
                         return 'Unesite naziv kategorije';
                       }
-                      if (value.length < 2 || value.length > 100) {
+
+                      final trimmed = value.trim();
+                      if (trimmed.length < 2 || trimmed.length > 100) {
                         return 'Naziv mora imati između 2 i 100 karaktera';
                       }
+
+                      final lettersOnly = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$');
+                      if (!lettersOnly.hasMatch(trimmed)) {
+                        return 'Naziv smije sadržavati samo slova';
+                      }
+
                       return null;
                     },
                   ),
                   buildInputField(
                     controller: _descriptionController,
                     label: "Opis (opcionalno)",
-                    validator: (_) => null,
+                    validator: (value) {
+                      if (value != null && value.trim().isNotEmpty) {
+                        final trimmed = value.trim();
+                        if (trimmed.length > 500) {
+                          return 'Opis može imati najviše 500 karaktera';
+                        }
+
+                        final lettersOnly = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$');
+                        if (!lettersOnly.hasMatch(trimmed)) {
+                          return 'Opis smije sadržavati samo slova';
+                        }
+                      }
+
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 20),
                   Row(

@@ -260,12 +260,20 @@ class _ManufacturerPageState extends State<ManufacturerPage> {
                     controller: _nameController,
                     label: "Naziv proizvođača",
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
+                      if (value == null || value.trim().isEmpty) {
                         return 'Unesite naziv proizvođača';
                       }
-                      if (value.length < 2 || value.length > 100) {
+
+                      final trimmed = value.trim();
+                      if (trimmed.length < 2 || trimmed.length > 100) {
                         return 'Naziv mora imati između 2 i 100 karaktera';
                       }
+
+                      final lettersOnly = RegExp(r'^[a-zA-ZčćžšđČĆŽŠĐ\s]+$');
+                      if (!lettersOnly.hasMatch(trimmed)) {
+                        return 'Naziv smije sadržavati samo slova';
+                      }
+
                       return null;
                     },
                   ),

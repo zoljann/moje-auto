@@ -21,6 +21,7 @@ namespace MojeAuto.Model.Requests
         public int WarrantyMonths { get; set; }
         public int Quantity { get; set; }
         public int CategoryId { get; set; }
+        public int ManufacturerId { get; set; }
         public IFormFile? Image { get; set; }
 
         public int EstimatedArrivalDays { get; set; }

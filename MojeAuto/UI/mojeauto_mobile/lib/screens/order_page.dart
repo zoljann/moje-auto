@@ -187,12 +187,9 @@ class _OrderPageState extends State<OrderPage> {
       await _placeOrder(paymentIntentId: paymentIntentId);
 
       if (!mounted) return;
-    } on StripeException catch (e) {
+    } on StripeException {
       if (!mounted) return;
-      NotificationHelper.error(
-        context,
-        "Plaćanje otkazano: ${e.error.localizedMessage ?? 'Nepoznata greška'}",
-      );
+      NotificationHelper.error(context, "Plaćanje otkazano");
     } catch (e) {
       if (!mounted) return;
       NotificationHelper.error(context, "Plaćanje otkazano ili neuspješno.");
