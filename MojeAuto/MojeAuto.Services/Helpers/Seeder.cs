@@ -411,6 +411,59 @@ new PartCar { PartId = 20, CarId = 9 }
                 );
                 db.SaveChanges();
             }
+
+            if (!db.KategorijaTransakcije25062025.Any())
+            {
+                db.KategorijaTransakcije25062025.AddRange(
+                    new KategorijaTransakcije25062025 { NazivKategorije = "Hrana", TipKategorije = "prihod" },
+                    new KategorijaTransakcije25062025 { NazivKategorije = "Prevoz", TipKategorije = "rashod" },
+                    new KategorijaTransakcije25062025 { NazivKategorije = "Stanarina", TipKategorije = "prihod" }
+                );
+                db.SaveChanges();
+            }
+
+            if (!db.FinancijskiLimit25062025.Any())
+            {
+                db.FinancijskiLimit25062025.AddRange(
+                    new FinancijskiLimit25062025 { UserId = 1, Limit = 120, Mjesec = 6, KategorijaTransakcije25062025Id = 1 },
+                    new FinancijskiLimit25062025 { UserId = 2, Limit = 170, Mjesec = 6, KategorijaTransakcije25062025Id = 2 },
+                    new FinancijskiLimit25062025 { UserId = 3, Limit = 220, Mjesec = 6, KategorijaTransakcije25062025Id = 3 }
+                );
+                db.SaveChanges();
+            }
+            if (!db.Transakcija25062025.Any())
+            {
+                db.Transakcija25062025.AddRange(
+                    new Transakcija25062025
+                    {
+                        UserId = 1,
+                        Amount = 22,
+                        Datum = DateTime.Now.AddHours(2),
+                        KategorijaTransakcije25062025Id = 1,
+                        Status = "Planirano",
+                        Opis = "Opis jedne transakcije"
+                    },
+                    new Transakcija25062025
+                    {
+                        UserId = 2,
+                        Amount = 12,
+                        Datum = DateTime.Now.AddHours(3),
+                        KategorijaTransakcije25062025Id = 2,
+                        Status = "Realizovano",
+                        Opis = "Opis jedne transakcije"
+                    },
+                                        new Transakcija25062025
+                                        {
+                                            UserId = 3,
+                                            Amount = 5,
+                                            Datum = DateTime.Now.AddHours(5),
+                                            KategorijaTransakcije25062025Id = 2,
+                                            Status = "Otkazano",
+                                            Opis = "Opis jedne transakcije"
+                                        }
+                );
+                db.SaveChanges();
+            }
         }
     }
 }

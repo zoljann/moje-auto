@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MojeAuto.Services.Database;
 
@@ -11,9 +12,11 @@ using MojeAuto.Services.Database;
 namespace MojeAuto.Services.Migrations
 {
     [DbContext(typeof(MojeAutoContext))]
-    partial class MojeAutoContextModelSnapshot : ModelSnapshot
+    [Migration("20250625102421_Migration70")]
+    partial class Migration70
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -235,21 +238,13 @@ namespace MojeAuto.Services.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FinancijskiLimit25062025Id"));
 
-                    b.Property<int>("KategorijaTransakcije25062025Id")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("Limit")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("Mjesec")
-                        .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("FinancijskiLimit25062025Id");
-
-                    b.HasIndex("KategorijaTransakcije25062025Id");
 
                     b.HasIndex("UserId");
 
@@ -696,35 +691,6 @@ namespace MojeAuto.Services.Migrations
                     b.ToTable("Transakcija25062025");
                 });
 
-            modelBuilder.Entity("TransakcijaLog25062025", b =>
-                {
-                    b.Property<int>("TransakcijaLog25062025Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TransakcijaLog25062025Id"));
-
-                    b.Property<string>("NoviStatus")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StariStatus")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("VrijemePromjene")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("TransakcijaLog25062025Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("TransakcijaLog25062025");
-                });
-
             modelBuilder.Entity("User", b =>
                 {
                     b.Property<int>("UserId")
@@ -840,19 +806,11 @@ namespace MojeAuto.Services.Migrations
 
             modelBuilder.Entity("FinancijskiLimit25062025", b =>
                 {
-                    b.HasOne("KategorijaTransakcije25062025", "KategorijaTransakcije")
-                        .WithMany()
-                        .HasForeignKey("KategorijaTransakcije25062025Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("KategorijaTransakcije");
 
                     b.Navigation("User");
                 });
@@ -1052,17 +1010,6 @@ namespace MojeAuto.Services.Migrations
                         .IsRequired();
 
                     b.Navigation("KategorijaTransakcije");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("TransakcijaLog25062025", b =>
-                {
-                    b.HasOne("User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("User");
                 });

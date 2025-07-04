@@ -32,6 +32,10 @@ namespace MojeAuto.Services.Database
         public DbSet<InitialRecommendation> InitialRecommendations { get; set; }
         public DbSet<RezervacijaProstora> RezervacijaProstora { get; set; }
         public DbSet<RadniProstor> RadniProstor { get; set; }
+        public DbSet<KategorijaTransakcije25062025> KategorijaTransakcije25062025 { get; set; }
+        public DbSet<Transakcija25062025> Transakcija25062025 { get; set; }
+        public DbSet<FinancijskiLimit25062025> FinancijskiLimit25062025 { get; set; }
+        public DbSet<TransakcijaLog25062025> TransakcijaLog25062025 { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
