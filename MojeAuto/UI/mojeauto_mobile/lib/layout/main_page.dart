@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mojeauto_mobile/screens/about_us.dart';
+import 'package:mojeauto_mobile/screens/frmTransakcije25062025.dart';
 import 'package:mojeauto_mobile/screens/home_page.dart';
 import 'package:mojeauto_mobile/screens/cart_page.dart';
 import 'package:mojeauto_mobile/screens/order_list_page.dart';
@@ -66,6 +67,16 @@ class _MainPageState extends State<MainPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => AboutUsPage()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: const Text('Ispit'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => FrmTransakcije25062025Page()),
                   );
                 },
               ),

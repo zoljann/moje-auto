@@ -377,6 +377,40 @@ new PartCar { PartId = 20, CarId = 9 }
                 db.Orders.AddRange(ordersToAdd);
                 db.SaveChanges();
             }
+
+            if (!db.RadniProstor.Any())
+            {
+                db.RadniProstor.AddRange(
+                    new RadniProstor { Oznaka = "Sala A", Kapacitet = 10, Aktivna = true },
+                    new RadniProstor { Oznaka = "Sala B", Kapacitet = 6, Aktivna = true }
+                );
+                db.SaveChanges();
+            }
+
+            if (!db.RezervacijaProstora.Any())
+            {
+                db.RezervacijaProstora.AddRange(
+                    new RezervacijaProstora
+                    {
+                        UserId = 1,
+                        RadniProstorId = 1,
+                        DatumPocetka = DateTime.Now.AddHours(2),
+                        Trajanje = 3,
+                        Status = "Potvrđena",
+                        Napomena = "Redovna sedmična rezervacija"
+                    },
+                    new RezervacijaProstora
+                    {
+                        UserId = 2,
+                        RadniProstorId = 2,
+                        DatumPocetka = DateTime.Now.AddDays(1).AddHours(10),
+                        Trajanje = 7,
+                        Status = "Na čekanju",
+                        Napomena = "Planirano cjelodnevno korištenje"
+                    }
+                );
+                db.SaveChanges();
+            }
         }
     }
 }

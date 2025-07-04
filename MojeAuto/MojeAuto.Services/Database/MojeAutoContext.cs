@@ -30,6 +30,8 @@ namespace MojeAuto.Services.Database
         public DbSet<PartAvailabilitySubscription> PartAvailabilitySubscriptions { get; set; }
         public DbSet<PartRecommendation> PartRecommendations { get; set; }
         public DbSet<InitialRecommendation> InitialRecommendations { get; set; }
+        public DbSet<RezervacijaProstora> RezervacijaProstora { get; set; }
+        public DbSet<RadniProstor> RadniProstor { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

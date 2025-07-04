@@ -60,6 +60,7 @@ builder.Services.AddScoped<IBaseCrudService<PartCar, PartCarSearchRequest, PartC
 builder.Services.AddScoped<IBaseCrudService<PaymentMethod, PaymentMethodSearchRequest, PaymentMethodInsertRequest, PaymentMethodUpdateRequest>, PaymentMethodService>();
 builder.Services.AddScoped<IBaseCrudService<UserRole, UserRoleSearchRequest, UserRoleInsertRequest, UserRoleUpdateRequest>, UserRoleService>();
 builder.Services.AddScoped<IBaseCrudService<Order, OrderSearchRequest, OrderInsertRequest, OrderUpdateRequest>, OrderService>();
+builder.Services.AddScoped<IBaseCrudService<RezervacijaProstora, RezervacijaProstoraSearchRequest, RezervacijaProstoraInsertRequest, RezervacijaProstoraUpdateRequest>, RezervacijaProstoraService>();
 builder.Services.AddScoped<StripeService>();
 builder.Services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
 builder.Services.AddScoped<AvailabilitySubscriptionService>();
